@@ -17,6 +17,7 @@ function Home() {
   return (
     <div>
       <p>Connect your Streamlabs account now</p>
+      <p>Insert below your Desmos address</p>
       <input type="text" className="input-orange mr-1" value={desmosAddress} onChange={handleChange}/>
       <button className="btn-orange" onClick={connectStreamlabs}>Connect Streamlabs</button>
     </div>
