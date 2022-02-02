@@ -1,8 +1,13 @@
 import React, {useState} from "react";
 import {useParams} from "react-router-dom";
-import {donate} from "../api/donations";
+import {donate} from "../apis/donations";
 import {Keys, Store} from "../store";
 
+/**
+ * Represents the screen that allows to donate some DSM to someone.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function Donate() {
   const {platform, username} = useParams();
   const [donationAmount, setDonationAmount] = useState(0);

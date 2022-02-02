@@ -1,7 +1,12 @@
 import React, {useState} from "react";
-import {authorizeStreamlabs} from "../api/oauth";
+import {authorizeStreamlabs} from "../apis/oauth";
 import {Store, Keys} from "../store";
 
+/**
+ * Represents the home screen of the app.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function Home() {
   const [desmosAddress, setDesmosAddress] = useState('');
 
