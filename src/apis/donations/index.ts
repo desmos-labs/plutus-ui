@@ -1,7 +1,7 @@
 import {Donation} from "types/donation";
 
 const PLUTUS_API_URL = process.env.REACT_APP_PLUTUS_API as string;
-const COIN_DENOM = process.env.REACT_APP_COIN_DENOM as string;
+const COIN_DENOM = process.env.REACT_APP_CHAIN_COIN_DENOM as string;
 
 
 

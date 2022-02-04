@@ -1,9 +1,17 @@
 export enum Platform {
-  STREAMLABS,
-  STRAMELEMENTS
+  STREAMLABS = "streamlabs",
+  STRAMELEMENTS = "streamelements"
+}
+
+export enum OAuthStatus {
+  LOADING,
+  REQUESTING_SIGNATURE,
+  VERIFYING,
+  CONNECTED,
+  ERROR,
 }
 
 export interface OAuthState {
-  isLoading: boolean;
+  status?: OAuthStatus,
   error?: string;
 }

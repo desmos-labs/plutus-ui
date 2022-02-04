@@ -1,7 +1,6 @@
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getUserState, LoggedIn, loginWithWalletConnect, logout, userSlice, UserState} from "store/user";
-import UserStorage from "store/user/storage";
+import {getUserState, loginWithWalletConnect, logout, UserState} from "store/user";
 
 interface AuthContextType {
   userState: UserState;

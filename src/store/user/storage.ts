@@ -1,4 +1,4 @@
-const KEY_DESMOS_ADDRESS = "desmos_address";
+const KEY_DESMOS_ADDRESS = "USER_DESMOS_ADDRESS";
 
 /**
  * Allows to deal with the storage of user data.

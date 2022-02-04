@@ -8,9 +8,8 @@ import {ReactComponent as Logo} from "../assets/logo.svg";
  */
 function AppBar() {
   return (
-    <div className="bg-[#222] h-[150px] p-[20px] text-white text-center">
-      <Logo className="inline h-[80px]"/>
-      <h2 className="text-lg">Welcome to React</h2>
+    <div className="bg-[#F78432] h-auto p-[10px] text-white text-center">
+      <Logo className="inline h-[40px]"/>
     </div>
   );
 }

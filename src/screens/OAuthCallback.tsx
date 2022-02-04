@@ -1,44 +1,48 @@
 import * as React from "react"
-import {useEffect} from "react"
 import {useSearchParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getOAuthState} from "store/oauth";
-import {sendAuthorizationCode} from "store/oauth/actions";
-import {Platform} from "types/oauth";
-import {useAuth} from "components/AuthProvider";
-import {LoggedIn} from "types/user";
+import {finalizeOAuth} from "store/oauth/actions";
+import {OAuthStatus} from "types/oauth";
 
 /**
  * Represents the page that is called from OAuth as the callback.
  */
 const OAuthCallback: React.FC = () => {
-  // Get the user data
-  const userState = useAuth().userState as LoggedIn;
-
   const dispatch = useDispatch();
   const state = useSelector(getOAuthState);
 
   // Get the params sent using OAuth
   const [searchParams] = useSearchParams();
-  const oAuthCode = searchParams.get('code') as string;
-  // TODO: Get the state param (we can get the platform from there)
+  const oAuthCode = searchParams.get('code') as string | null;
+  const oAuthState = searchParams.get('state') as string | null;
 
-  useEffect(() => {
-    dispatch(sendAuthorizationCode(Platform.STREAMLABS, oAuthCode, userState.desmosAddress))
-  }, []);
-
-
-  if (state.isLoading) {
-    return <p>Loading...</p>
-  }
-
-  if (state.error != null) {
-    return <p>Error: {state.error}</p>;
+  function handleVerifyClick() {
+    dispatch(finalizeOAuth(oAuthCode, oAuthState))
   }
 
   return (
-    <div>
-      <p>Success!</p>
+    <div className="p-[10px]">
+      <p>You have successfully logged in using Streamlabs.</p>
+      <p>Know we need to make sure it's you.</p>
+      <p>Clicking the following button will prompt you to sign a fake transaction used to authenticate you.</p>
+      <button className="btn-orange" onClick={handleVerifyClick}>Verify with DPM</button>
+
+      {state.status == OAuthStatus.LOADING &&
+        <p>Loading...</p>
+      }
+
+      {state.status == OAuthStatus.REQUESTING_SIGNATURE &&
+        <p>Please confirm the transaction using DPM</p>
+      }
+
+      {state.status == OAuthStatus.ERROR &&
+        <p>Error: {state.error}</p>
+      }
+
+      {state.status == OAuthStatus.CONNECTED &&
+        <p>Your account has been linked successfully!</p>
+      }
     </div>
   );
 }

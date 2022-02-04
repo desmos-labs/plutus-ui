@@ -1,18 +1,21 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {OAuthState} from "types/oauth";
+import {OAuthState, OAuthStatus} from "types/oauth";
 import {RootState} from "store/index";
 
-const initialState = {isLoading: true} as OAuthState;
+const initialState = {status: undefined, error: undefined} as OAuthState;
 
 // --- SLICE ---
 export const oAuthSlice = createSlice({
   name: 'oauth',
   initialState: initialState,
   reducers: {
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
+    setStatus(state, action: PayloadAction<OAuthStatus>) {
+      state.status = action.payload;
     },
     setError(state, action: PayloadAction<string | undefined>) {
+      if (action.payload) {
+        state.status = OAuthStatus.ERROR;
+      }
       state.error = action.payload;
     }
   }
@@ -20,7 +23,7 @@ export const oAuthSlice = createSlice({
 
 // --- ACTIONS ---
 export const {
-  setLoading,
+  setStatus,
   setError,
 } = oAuthSlice.actions;
 

@@ -4,36 +4,29 @@ import QRCodeModal from "@walletconnect/qrcode-modal";
 import {setUserStatus} from "store/user/index";
 import UserStorage from "store/user/storage";
 import {Buffer} from 'buffer';
+import App from "components/App";
+import {CosmosAuthInfo, CosmosFee, CosmosSignerInfo, CosmosSignMode, CosmosTxBody} from "desmosjs";
+import {UserWallet} from "types/crypto/wallet";
+import {TransactionBody} from "types/crypto/cosmos";
 
-global.Buffer = global.Buffer || Buffer
-
-const connector = new WalletConnect({
-  bridge: 'https://bridge.walletconnect.org',
-  qrcodeModal: QRCodeModal,
-});
 
 /**
  * Allows to perform the login of a user using WalletConnect.
  */
 export const loginWithWalletConnect = (): AppThunk => {
   return async dispatch => {
-    if (!connector.connected) {
-      connector.createSession();
+    if (!UserWallet.isConnected()) {
+      UserWallet.createSession();
     }
 
     /**
      * Updates the current login status of the user inside the UserStorage.
-     * @param error
-     * @param payload
      */
-    function setUserLoggedIn(error: Error | null, payload: any) {
+    function setUserLoggedIn(error: Error | null, desmosAddress: string) {
       if (error != null) {
         dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
         return
       }
-
-      const {accounts, chainId} = payload.params[0];
-      const desmosAddress = accounts[chainId];
 
       // Store inside the local storage
       UserStorage.setLoggedIn(desmosAddress)
@@ -42,13 +35,13 @@ export const loginWithWalletConnect = (): AppThunk => {
       dispatch(setUserStatus({isLoggedIn: true, desmosAddress: desmosAddress}));
     }
 
-    connector.on('connect', setUserLoggedIn);
-    connector.on('session_update', setUserLoggedIn);
-    connector.on("disconnect", (error) => {
-      // Kill the WalletConnect session
-      connector.killSession();
+    UserWallet.setOnConnect(setUserLoggedIn);
+    UserWallet.setOnSessionUpdate(setUserLoggedIn);
+    UserWallet.setOnDisconnect((error) => {
+      // Disconnect from the wallet
+      UserWallet.disconnect();
 
-      // Store inside the local storage
+      // Update the local storage
       UserStorage.setLoggedOut();
 
       // Dispatch the event
@@ -58,10 +51,20 @@ export const loginWithWalletConnect = (): AppThunk => {
 }
 
 /**
+ * Signs the given transaction and returns the signed value, or an `Error` is something went wrong.
+ */
+export const signTransaction = async (body: TransactionBody) => {
+  return UserWallet.signTransaction(body);
+}
+
+/**
  * Allows to perform the logout of a user.
  */
 export const logout = (): AppThunk => {
   return dispatch => {
+    // Disconnect the wallet
+    UserWallet.disconnect();
+
     // Store inside the local storage
     UserStorage.setLoggedOut();
 
