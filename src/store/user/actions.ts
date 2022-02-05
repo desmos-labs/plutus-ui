@@ -49,7 +49,7 @@ export const loginWithWalletConnect = (): AppThunk => {
  * Signs the given transaction and returns the signed value, or an `Error` is something went wrong.
  */
 export const signTransaction = async (body: TxBody) => {
-  return UserWallet.signTransaction(body);
+  return UserWallet.signTransactionDirect(body);
 }
 
 /**

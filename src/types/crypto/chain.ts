@@ -1,5 +1,5 @@
 import Long from "long";
-import {Account, StargateClient} from "@cosmjs/stargate";
+import {Account, StargateClient, StdFee} from "@cosmjs/stargate";
 import {Fee} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 const LCD_ENDPOINT = process.env.REACT_APP_CHAIN_LCD_ENDPOINT as string;
@@ -38,6 +38,13 @@ export class Chain {
       gasLimit: Long.fromNumber(200_000),
       payer: "",
       granter: payer
+    };
+  }
+
+  static getStdFee(payer: string): StdFee {
+    return {
+      amount: [{denom: FEE_DENOM, amount: DEFAULT_FEE_AMOUNT}],
+      gas: '200000',
     };
   }
 

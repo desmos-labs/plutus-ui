@@ -2,13 +2,14 @@ import {AppThunk} from "store/index";
 import {OAuthStatus, Platform} from "types/oauth";
 import {setError, setStatus} from "store/oauth/index";
 import {OAuthAPIs} from "apis/oauth";
-import OAuthStorage from "store/oauth/storage";
+import {OAuthStorage, StoredData} from "store/oauth/storage";
 import UserStorage from "store/user/storage";
 import {UserWallet} from "types/crypto/wallet";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import {util} from "protobufjs";
 import Long from "long";
+import {AminoMsgSend} from "@cosmjs/stargate";
+import {AminoMsg} from "@cosmjs/amino";
 
 /**
  * Stats the authorization process for the given platform.
@@ -27,6 +28,52 @@ export const startAuthorization = (platform: Platform): AppThunk => {
     window.location.href = url;
   }
 }
+
+async function signAmino(oAuthCode: string, data: StoredData) {
+  // Build the message
+  const msgSend: AminoMsgSend = {
+    type: "cosmos-sdk/MsgSend",
+    value: {
+      from_address: data.desmosAddress,
+      to_address: data.desmosAddress,
+      amount: [{
+        denom: '',
+        amount: '0',
+      }]
+    },
+  }
+
+  return await UserWallet.signTransactionAmino([msgSend], oAuthCode);
+}
+
+async function signDirect(oAuthCode: string, data: StoredData) {
+  // Build the message
+  const msgSend = {
+    fromAddress: data.desmosAddress,
+    toAddress: data.desmosAddress,
+    amount: [{
+      denom: '',
+      amount: '0',
+    }]
+  }
+
+  // Build the transaction to be signed
+  const txBody: TxBody = {
+    memo: oAuthCode,
+    messages: [
+      {
+        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+        value: MsgSend.encode(msgSend).finish(),
+      }
+    ],
+    extensionOptions: [],
+    nonCriticalExtensionOptions: [],
+    timeoutHeight: Long.fromNumber(0),
+  }
+
+  return await UserWallet.signTransactionDirect(txBody);
+}
+
 
 /**
  * Finalizes the OAuth process associated with the given OAuth code and nonce.
@@ -55,32 +102,8 @@ export const finalizeOAuth = (oAuthCode: string | null, nonce: string | null): A
       return
     }
 
-    // Build the message
-    const msgSend = {
-      fromAddress: data.desmosAddress,
-      toAddress: data.desmosAddress,
-      amount: [{
-        denom: '',
-        amount: '0',
-      }]
-    }
-
-    // Build the transaction to be signed
-    const txBody: TxBody = {
-      memo: oAuthCode,
-      messages: [
-        {
-          typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-          value: MsgSend.encode(msgSend).finish(),
-        }
-      ],
-      extensionOptions: [],
-      nonCriticalExtensionOptions: [],
-      timeoutHeight: Long.fromNumber(0),
-    }
-
     dispatch(setStatus(OAuthStatus.REQUESTING_SIGNATURE));
-    const txResult = await UserWallet.signTransaction(txBody);
+    const txResult = await signAmino(oAuthCode, data);
     if (txResult instanceof Error) {
       dispatch(setError(txResult.message));
       return

@@ -3,7 +3,7 @@ import {Platform} from "types/oauth";
 /**
  * Contains the data that is stored relating an OAuth request.
  */
-type StoredData = {
+export type StoredData = {
   platform: Platform,
   desmosAddress: string
 }
@@ -11,7 +11,7 @@ type StoredData = {
 /**
  * Represents the storage for the OAuth related data.
  */
-class OAuthStorage {
+export class OAuthStorage {
   /**
    * Stores the given data inside the storage.
    * @param nonce {string}: Randomly generated nonce related to an OAuth request.
@@ -47,5 +47,3 @@ class OAuthStorage {
     window.localStorage.removeItem(nonce)
   }
 }
-
-export default OAuthStorage;
