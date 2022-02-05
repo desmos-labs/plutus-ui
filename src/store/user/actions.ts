@@ -1,13 +1,8 @@
 import {AppThunk} from "store/index";
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
 import {setUserStatus} from "store/user/index";
 import UserStorage from "store/user/storage";
-import {Buffer} from 'buffer';
-import App from "components/App";
-import {CosmosAuthInfo, CosmosFee, CosmosSignerInfo, CosmosSignMode, CosmosTxBody} from "desmosjs";
 import {UserWallet} from "types/crypto/wallet";
-import {TransactionBody} from "types/crypto/cosmos";
+import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 
 /**
@@ -53,7 +48,7 @@ export const loginWithWalletConnect = (): AppThunk => {
 /**
  * Signs the given transaction and returns the signed value, or an `Error` is something went wrong.
  */
-export const signTransaction = async (body: TransactionBody) => {
+export const signTransaction = async (body: TxBody) => {
   return UserWallet.signTransaction(body);
 }
 

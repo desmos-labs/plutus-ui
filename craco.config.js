@@ -5,6 +5,8 @@ module.exports = {
     configure: {
       resolve: {
         fallback: {
+          crypto: require.resolve("crypto-browserify"),
+          path: require.resolve("path"),
           process: require.resolve("process/browser"),
           // zlib: require.resolve("browserify-zlib"),
           stream: require.resolve("stream-browserify"),

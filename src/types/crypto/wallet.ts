@@ -1,20 +1,34 @@
-import {
-  Any,
-  CosmosAuthInfo, CosmosBaseAccount,
-  CosmosFee, CosmosSignDoc,
-  CosmosSignerInfo,
-  CosmosSignMode,
-  CosmosTxBody, CosmosTxRaw,
-} from "desmosjs";
 import {Chain} from "types/crypto/chain";
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
-import {TransactionBody} from "types/crypto/cosmos";
+import {AuthInfo, Fee, SignDoc, SignerInfo, TxBody, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {Any} from "cosmjs-types/google/protobuf/any";
+import {SignMode} from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
+import Long from "long";
+import {Account} from "@cosmjs/stargate";
+import {sign} from "crypto";
 
 const connector = new WalletConnect({
   bridge: 'https://bridge.walletconnect.org',
   qrcodeModal: QRCodeModal,
 });
+
+type WalletConnectSignResponse = {
+  // Hex-encoded account number
+  accountNumber: string;
+
+  // Hex-encoded auth info bytes used during the signature
+  authInfoBytes: string;
+
+  // Hex-encoded body bytes used during the signature
+  bodyBytes: string;
+
+  // Plain text chain id
+  chainId: string;
+
+  // Hex-encoded signature
+  signature: string;
+}
 
 type SignatureResult = {
   // Value that has been signed
@@ -108,12 +122,12 @@ export class UserWallet {
   /**
    * Converts the given `SignDoc` field values to string by hex-encoding them.
    */
-  private static stringifySignDocValues(signDoc: CosmosSignDoc) {
+  private static stringifySignDocValues(signDoc: SignDoc) {
     return {
       ...signDoc,
       bodyBytes: Buffer.from(signDoc.bodyBytes).toString('hex'),
       authInfoBytes: Buffer.from(signDoc.authInfoBytes).toString('hex'),
-      accountNumber: Math.abs(signDoc.accountNumber).toString(16),
+      accountNumber: signDoc.accountNumber.toString(16),
     };
   }
 
@@ -121,36 +135,66 @@ export class UserWallet {
    * Parses the field values of the given object returning a `SignDoc` instance which values
    * are byte arrays instead of hex-encoded strings.
    */
-  private static parseSignDocValues(signDoc: any) {
+  private static parseSignDocValues(signDoc: any): SignDoc {
     return {
-      ...signDoc,
-      bodyBytes: Uint8Array.from(Buffer.from(signDoc.bodyBytes, 'hex')),
+      accountNumber: Long.fromString(signDoc.accountNumber, 16),
       authInfoBytes: Uint8Array.from(Buffer.from(signDoc.authInfoBytes, 'hex')),
-      accountNumber: parseInt(signDoc.accountNumber, 16),
-    };
+      bodyBytes: Uint8Array.from(Buffer.from(signDoc.bodyBytes, 'hex')),
+      chainId: signDoc.chainId,
+    }
+  }
+
+  /**
+   * Parses the given WalletConnectSignResponse and returns the contained SignDoc, public key and signature.
+   * Returns an error if anything goes wrong.
+   * @param response {WalletConnectSignResponse}: Response returned from WalletConnect upon signing a transaction.
+   * @private
+   */
+  private static parseWalletConnectResponse(response: WalletConnectSignResponse): {
+    signedSignDoc: SignDoc,
+    publicKey: Any,
+    signature: Uint8Array
+  } | Error {
+    // Parse the returned transaction
+    const signedSignDoc = this.parseSignDocValues(response);
+
+    // Get the public key used for signing
+    const returnedAuthInfo = AuthInfo.decode(signedSignDoc.authInfoBytes);
+    const publicKey = returnedAuthInfo.signerInfos[0].publicKey;
+    if (!publicKey) {
+      return new Error("Returned public key is null");
+    }
+
+    // Get the signature bytes
+    const signatureBytes = Uint8Array.from(Buffer.from(response.signature, 'hex'))
+    return {
+      signedSignDoc: signedSignDoc,
+      publicKey: publicKey,
+      signature: signatureBytes,
+    }
   }
 
   /**
    * Sends a WalletConnect request to sign the given request.
    * @param chainID {string}: ID of the chain for which the transaction is being signed.
-   * @param account {CosmosBaseAccount}: Signer account.
-   * @param authInfo {CosmosAuthInfo}: Authentication info used to sign the transaction.
-   * @param transaction {CosmosTxBody}: Body of the transaction to be sent.
+   * @param account {Account}: Signer account.
+   * @param authInfo {AuthInfo}: Authentication info used to sign the transaction.
+   * @param transaction {TxBody}: Body of the transaction to be sent.
    * @private
    */
   private static async sendWalletConnectRequest(
     chainID: string,
-    account: CosmosBaseAccount,
-    authInfo: CosmosAuthInfo,
-    transaction: CosmosTxBody,
+    account: Account,
+    authInfo: AuthInfo,
+    transaction: TxBody,
   ): Promise<SignatureResult | Error> {
     try {
       // Build the WalletConnect params
-      const authInfoBytes = CosmosAuthInfo.encode(authInfo).finish();
-      const bodyBytes = CosmosTxBody.encode(transaction).finish();
-      const signDoc: CosmosSignDoc = {
+      const authInfoBytes = AuthInfo.encode(authInfo).finish();
+      const bodyBytes = TxBody.encode(transaction).finish();
+      const signDoc: SignDoc = {
         bodyBytes: bodyBytes,
-        accountNumber: account.accountNumber,
+        accountNumber: Long.fromNumber(account.accountNumber),
         authInfoBytes: authInfoBytes,
         chainId: chainID,
       }
@@ -161,35 +205,31 @@ export class UserWallet {
       }];
 
       // Send the request to WalletConnect
-      const signedTxRaw = await connector.sendCustomRequest({
+      const response = await connector.sendCustomRequest({
         jsonrpc: "2.0",
         method: "cosmos_signDirect",
         params: params,
-      });
+      }) as WalletConnectSignResponse;
+      console.log(response);
 
-      // Parse the returned transaction
-      const signedTx = this.parseSignDocValues(signedTxRaw);
-      const signatureBytes = Buffer.from(signedTx.signature, 'hex');
+      const parsedResponse = this.parseWalletConnectResponse(response);
+      if (parsedResponse instanceof Error) {
+        return parsedResponse;
+      }
 
-      // Build the raw transaction data from the returned value
-      const txRaw = {
-        bodyBytes: signedTx.bodyBytes,
-        authInfoBytes: signedTx.authInfoBytes,
-        signatures: [signatureBytes],
-      } as CosmosTxRaw;
-
-      const returnedAuthInfo = CosmosAuthInfo.decode(txRaw.authInfoBytes);
-      const publicKey = returnedAuthInfo.signerInfos[0].publicKey;
-      if (!publicKey) {
-        return new Error("Returned public key is null");
+      // Build the signed tx raw
+      const txRaw: TxRaw = {
+        authInfoBytes: parsedResponse.signedSignDoc.authInfoBytes,
+        bodyBytes: parsedResponse.signedSignDoc.bodyBytes,
+        signatures: [parsedResponse.signature]
       }
 
       // Return the raw transaction data
       return {
-        signDocBytes: CosmosSignDoc.encode(signDoc).finish(),
-        pubKeyBytes: Any.encode(publicKey).finish(),
-        signatureBytes: signatureBytes,
-        signedTxBytes: CosmosTxRaw.encode(txRaw).finish(),
+        signDocBytes: SignDoc.encode(parsedResponse.signedSignDoc).finish(),
+        pubKeyBytes: Any.encode(parsedResponse.publicKey).finish(),
+        signatureBytes: parsedResponse.signature,
+        signedTxBytes: TxRaw.encode(txRaw).finish(),
       };
 
     } catch (e) {
@@ -201,14 +241,11 @@ export class UserWallet {
   /**
    * Signs the given transaction using the signer address, and returns the signed transaction as the result.
    * If something goes wrong, returns `false` instead.
-   * @param transaction {CosmosTxBody}: Body of the transaction to be signed.
+   * @param transaction {TxBody}: Body of the transaction to be signed.
    */
-  static async signTransaction(transaction: TransactionBody): Promise<SignatureResult | Error> {
+  static async signTransaction(transaction: TxBody): Promise<SignatureResult | Error> {
     // Get the chain id
     const chainID = await Chain.getID();
-    if (chainID == null) {
-      return new Error("Chain id not found, cannot fetch from LCD");
-    }
 
     // Get the signer address
     const signer = await this.getAddress();
@@ -218,21 +255,21 @@ export class UserWallet {
 
     // Get the signer account
     const account = await Chain.getAccount(signer);
-    if (!account) {
+    if (account == null) {
       return new Error(`Account ${signer} not found on chain`);
     }
 
     // Build the signer info
-    const signerInfo: CosmosSignerInfo = {
-      modeInfo: {single: {mode: CosmosSignMode.SIGN_MODE_DIRECT}},
-      sequence: account.sequence
+    const signerInfo: SignerInfo = {
+      modeInfo: {single: {mode: SignMode.SIGN_MODE_DIRECT}},
+      sequence: Long.fromNumber(account.sequence)
     };
 
     // Build the fee info
-    const feeValue: CosmosFee = Chain.getFee(signer);
+    const feeValue: Fee = Chain.getFee(signer);
 
     // Build the auth info
-    const authInfo: CosmosAuthInfo = {
+    const authInfo: AuthInfo = {
       signerInfos: [signerInfo],
       fee: feeValue
     };

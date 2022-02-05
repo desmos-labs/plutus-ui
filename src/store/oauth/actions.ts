@@ -4,8 +4,11 @@ import {setError, setStatus} from "store/oauth/index";
 import {OAuthAPIs} from "apis/oauth";
 import OAuthStorage from "store/oauth/storage";
 import UserStorage from "store/user/storage";
-import {MsgSend, TransactionBody} from "types/crypto/cosmos";
 import {UserWallet} from "types/crypto/wallet";
+import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import {util} from "protobufjs";
+import Long from "long";
 
 /**
  * Stats the authorization process for the given platform.
@@ -21,7 +24,7 @@ export const startAuthorization = (platform: Platform): AppThunk => {
     OAuthStorage.storeData(nonce, platform, desmosAddress);
 
     // Redirect the user
-    window.open(url, '_blank');
+    window.location.href = url;
   }
 }
 
@@ -63,7 +66,7 @@ export const finalizeOAuth = (oAuthCode: string | null, nonce: string | null): A
     }
 
     // Build the transaction to be signed
-    const txBody: TransactionBody = {
+    const txBody: TxBody = {
       memo: oAuthCode,
       messages: [
         {
@@ -73,7 +76,7 @@ export const finalizeOAuth = (oAuthCode: string | null, nonce: string | null): A
       ],
       extensionOptions: [],
       nonCriticalExtensionOptions: [],
-      timeoutHeight: 0,
+      timeoutHeight: Long.fromNumber(0),
     }
 
     dispatch(setStatus(OAuthStatus.REQUESTING_SIGNATURE));
