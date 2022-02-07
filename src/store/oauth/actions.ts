@@ -57,8 +57,7 @@ async function signDirect(oAuthCode: string, data: StoredData) {
     }]
   }
 
-  // Build the transaction to be signed
-  const txBody: TxBody = {
+  return await UserWallet.signTransactionDirect({
     memo: oAuthCode,
     messages: [
       {
@@ -66,12 +65,7 @@ async function signDirect(oAuthCode: string, data: StoredData) {
         value: MsgSend.encode(msgSend).finish(),
       }
     ],
-    extensionOptions: [],
-    nonCriticalExtensionOptions: [],
-    timeoutHeight: Long.fromNumber(0),
-  }
-
-  return await UserWallet.signTransactionDirect(txBody);
+  });
 }
 
 

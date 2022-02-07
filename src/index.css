@@ -5,10 +5,10 @@
 
 @layer components {
   .btn-orange {
-    @apply bg-orange-500 hover:bg-orange-700 text-white font-bold py-[2px] px-4 rounded;
+    @apply bg-orange-500 hover:bg-orange-700 text-white font-bold py-[2px] px-4 rounded-full;
   }
   .input-orange {
-    @apply border-2 border-amber-500 rounded
+    @apply border-2 border-amber-500 rounded w-full p-1
   }
 }
 

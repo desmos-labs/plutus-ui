@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Route, Routes, useLocation} from "react-router-dom";
 import {Provider} from 'react-redux';
 
 import AppBar from './AppBar';
@@ -10,20 +10,31 @@ import RequireAuth from "components/RequireAuth";
 import DashboardPage from "screens/DashboardPage";
 import AuthProvider from "components/AuthProvider";
 import LoginPage from "screens/LoginPage";
+import HomePage from "../screens/HomePage";
+
 
 /**
  * Represents the container of all the application.
  */
-const App: React.FC = () => {
+function App() {
+
+
+  function getLocation(): boolean {
+    const location = useLocation();
+    console.log(location);
+    return false;
+  }
+
   return (
     <Provider store={store}>
       <AuthProvider>
-        <AppBar/>
-
         <BrowserRouter>
+          <AppBar />
+
           <Routes>
 
-            <Route path="/" element={<LoginPage/>}/>
+            <Route path="/" element={<HomePage/>}/>
+            <Route path="/login" element={<LoginPage/>}/>
 
             <Route
               path="/dashboard"
@@ -45,11 +56,7 @@ const App: React.FC = () => {
 
             <Route
               path="/donate/:platform/:username"
-              element={
-                <RequireAuth>
-                  <DonationPage/>
-                </RequireAuth>
-              }
+              element={<DonationPage/>}
             />
 
           </Routes>

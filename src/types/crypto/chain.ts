@@ -1,5 +1,5 @@
 import Long from "long";
-import {Account, StargateClient, StdFee} from "@cosmjs/stargate";
+import {Account, DeliverTxResponse, StargateClient, StdFee} from "@cosmjs/stargate";
 import {Fee} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 const LCD_ENDPOINT = process.env.REACT_APP_CHAIN_LCD_ENDPOINT as string;
@@ -48,8 +48,17 @@ export class Chain {
     };
   }
 
+  /**
+   * Tries getting the account associated with the given Desmos address.
+   * @param address {string}: Address of the account owner.
+   */
   static async getAccount(address: string): Promise<Account | null> {
     const client = await this.requireClient();
     return client.getAccount(address);
+  }
+
+  static async broadcastTx(txBytes: Uint8Array): Promise<DeliverTxResponse> {
+    const client = await this.requireClient();
+    return client.broadcastTx(txBytes)
   }
 }

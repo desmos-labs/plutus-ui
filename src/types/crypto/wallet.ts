@@ -326,7 +326,7 @@ export class UserWallet {
    * If something goes wrong, returns `false` instead.
    * @param transaction {TxBody}: Body of the transaction to be signed.
    */
-  static async signTransactionDirect(transaction: TxBody): Promise<SignatureResult | Error> {
+  static async signTransactionDirect(transaction: Partial<TxBody>): Promise<SignatureResult | Error> {
     // Get the chain id
     const chainID = await Chain.getID();
 
@@ -357,6 +357,15 @@ export class UserWallet {
       fee: feeValue
     };
 
-    return this.sendWalletConnectRequestDirect(chainID, account, authInfo, transaction)
+    // Build the transaction body
+    const tx: TxBody = {
+      messages: transaction.messages || [],
+      memo: transaction.memo || '',
+      extensionOptions: transaction.extensionOptions || [],
+      nonCriticalExtensionOptions: transaction.nonCriticalExtensionOptions || [],
+      timeoutHeight: transaction.timeoutHeight || Long.fromNumber(0),
+    };
+
+    return this.sendWalletConnectRequestDirect(chainID, account, authInfo, tx)
   }
 }

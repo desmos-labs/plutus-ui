@@ -4,6 +4,7 @@ import {DonationState} from "types/donation";
 
 const initialState = {
   amount: 0,
+  username: "",
   message: "",
   isLoading: false,
 } as DonationState;
@@ -17,6 +18,9 @@ export const donationSlice = createSlice({
     setAmount(state, action: PayloadAction<number>) {
       state.amount = action.payload;
     },
+    setUsername(state, action: PayloadAction<string>) {
+      state.username = action.payload;
+    },
     setMessage(state, action: PayloadAction<string>) {
       state.message = action.payload;
     },
@@ -24,6 +28,7 @@ export const donationSlice = createSlice({
       state.isLoading = action.payload;
     },
     setError(state, action: PayloadAction<string|undefined>) {
+      state.isLoading = false;
       state.error = action.payload;
     }
   },
@@ -32,6 +37,7 @@ export const donationSlice = createSlice({
 // --- ACTIONS ---
 export const {
   setAmount,
+  setUsername,
   setMessage,
   setLoading,
   setError,

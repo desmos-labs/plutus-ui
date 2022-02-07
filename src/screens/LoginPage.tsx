@@ -3,12 +3,13 @@ import {getUserState, LoggedOut} from "store/user";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAuth} from "components/AuthProvider";
 import {useSelector} from "react-redux";
+import AppBar from "../components/AppBar";
 
 /**
  * Represents the screen used to log into the application.
  * @constructor
  */
-const LoginPage: React.FC = () => {
+function LoginPage() {
   const loginState = useSelector(getUserState);
 
   const navigate = useNavigate();
@@ -40,12 +41,10 @@ const LoginPage: React.FC = () => {
 
   return (
     <div>
-      <h1>Login inside Desmos Tip Bot!</h1>
+      <h1>Login</h1>
 
       <form onSubmit={handleSubmit}>
-        <button type="submit" className="btn-orange">
-          Login
-        </button>
+        <button type="submit" className="btn-orange">Login with WalletConnect</button>
       </form>
 
       {!loginState.isLoggedIn && loginState.message &&

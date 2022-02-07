@@ -8,7 +8,7 @@ import {OAuthStatus} from "types/oauth";
 /**
  * Represents the page that is called from OAuth as the callback.
  */
-const OAuthCallback: React.FC = () => {
+function OAuthCallback() {
   const dispatch = useDispatch();
   const state = useSelector(getOAuthState);
 

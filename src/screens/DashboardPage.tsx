@@ -7,11 +7,11 @@ import {Platform} from "types/oauth";
 import {logout} from "store/user";
 
 /**
- * Represents the home screen of the app.
+ * Represents the dashboard of the app for logged in users.
  * @returns {JSX.Element}
  * @constructor
  */
-const DashboardPage: React.FC = () => {
+function DashboardPage() {
   // Get the user data
   const userState = useAuth().userState as LoggedIn;
 

@@ -3,6 +3,7 @@
  */
 export type DonationState = {
   amount: number;
+  username: string;
   message: string;
   isLoading: boolean;
   error?: string;
