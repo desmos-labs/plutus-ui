@@ -24,12 +24,12 @@ class GraphQL {
     return this.client;
   }
 
-  public static async getAddresses(platform: string, username: string): Promise<string[] | null> {
+  public static async getAddresses(application: string, username: string): Promise<string[] | null> {
     const client = this.requireClient();
     const res = await client.query({
       query: addressQuery,
       variables: {
-        application: platform,
+        application: application,
         username: username,
       }
     })

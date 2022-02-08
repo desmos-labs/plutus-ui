@@ -2,11 +2,14 @@
  * Represents the state of the donation screen.
  */
 export type DonationState = {
+  recipientAddresses: string[];
+  recipientAddress: string;
   amount: number;
   username: string;
   message: string;
   isLoading: boolean;
   error?: string;
+  success: boolean;
 }
 
 /**
@@ -14,8 +17,10 @@ export type DonationState = {
  */
 export type Donation = {
   tipperAddress: string;
+  recipientAddress: string;
   tipAmount: number;
-  recipientPlatform: string;
+  recipientApplication: string;
   recipientUsername: string
-  donationMessage: string;
+  tipperUsername: string
+  message: string;
 }

@@ -28,6 +28,10 @@ export class Chain {
     return client.getChainId();
   }
 
+  static getFeeDenom(): string {
+    return FEE_DENOM;
+  }
+
   /**
    * Returns the default amount of fees to be used for a transaction.
    * TODO: Simulate the tx and get the real amount of gas. From there, get the gas price and compute the fees.

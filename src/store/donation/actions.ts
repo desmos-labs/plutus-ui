@@ -1,38 +1,47 @@
 import {AppThunk} from "store/index";
 import {Donation} from "types/donation";
 import {DonationsAPI} from "apis/donations";
-import {setError, setLoading} from "store/donation/index";
-import {UserWallet} from "../../types/crypto/wallet";
+import {setError, setLoading, setRecipientAddresses, setSuccess} from "store/donation/index";
+import {UserWallet} from "types/crypto/wallet";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import donationPage from "../../screens/DonationPage";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {Chain} from "../../types/crypto/chain";
-import fa from "@walletconnect/qrcode-modal/dist/cjs/browser/languages/fa";
+import {Chain} from "types/crypto/chain";
+import Graphql from "apis/graphql";
+
+/**
+ * Retrieves the recipient addresses based on the application and the username.
+ */
+export function getRecipientAddresses(application: string, username: string): AppThunk {
+  return async dispatch => {
+    dispatch(setLoading(true))
+
+    const addresses = await Graphql.getAddresses(application, username)
+    if (!addresses) {
+      dispatch(setError("User not found on Desmos"))
+      return
+    }
+
+    dispatch(setRecipientAddresses(addresses))
+    dispatch(setLoading(false))
+  }
+}
+
 
 /**
  * Allows donating to a user.
  */
-export const sendDonation = (donation: Donation): AppThunk => {
+export function sendDonation(donation: Donation): AppThunk {
   return async dispatch => {
     dispatch(setLoading(true))
     dispatch(setError(undefined))
 
-    // Get user address
-    const userAddress = UserWallet.getAddress();
-    if (userAddress == null) {
-      dispatch(setError("You need to log in"));
-      return
-    }
-
-    // Get the recipient address
-
     // Build the message
     const sendMsg: MsgSend = {
-      fromAddress: userAddress,
-      toAddress:,
+      fromAddress: donation.tipperAddress,
+      toAddress: donation.recipientAddress,
       amount: [{
-        amount: '',
-        denom: ''
+        amount: (donation.tipAmount * 1_000_000).toString(),
+        denom: Chain.getFeeDenom(),
       }]
     };
 
@@ -42,7 +51,7 @@ export const sendDonation = (donation: Donation): AppThunk => {
         typeUrl: '/cosmos.bank.v1beta1.MsgSend',
         value: MsgSend.encode(sendMsg).finish(),
       }],
-      memo: donation.donationMessage,
+      memo: donation.message,
     };
 
     // Try signing the transaction
@@ -52,11 +61,19 @@ export const sendDonation = (donation: Donation): AppThunk => {
       return;
     }
 
-    // Broadcast the transaction
     try {
+      // Broadcast the transaction
       const response = await Chain.broadcastTx(result.signedTxBytes);
       console.log(response.transactionHash);
-      dispatch(setLoading(false));
+
+      // Call the APIs
+      const error = await DonationsAPI.sendDonation(donation, response.transactionHash)
+      if (error != null) {
+        dispatch(setError(error.message))
+        return
+      }
+
+      dispatch(setSuccess(true));
     } catch (e) {
       console.log(e);
       dispatch(setError('Broadcasting error'));

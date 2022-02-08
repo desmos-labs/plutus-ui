@@ -55,7 +55,7 @@ function App() {
             />
 
             <Route
-              path="/donate/:platform/:username"
+              path="/donate/:application/:username"
               element={<DonationPage/>}
             />
 

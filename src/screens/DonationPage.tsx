@@ -1,13 +1,19 @@
 import * as React from "react"
 import {useNavigate, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {getDonationState, setAmount, setMessage, setUsername} from "store/donation";
-import {sendDonation} from "store/donation/actions";
+import {
+  getDonationState,
+  setAmount,
+  setMessage,
+  setRecipientAddress,
+  setUsername
+} from "store/donation";
+import {getRecipientAddresses, sendDonation} from "store/donation/actions";
 import {useAuth} from "components/AuthProvider";
-import {ChangeEvent} from "react";
+import {ChangeEvent, useEffect} from "react";
 
 type Params = {
-  platform: string;
+  application: string;
   username: string;
 }
 
@@ -27,8 +33,20 @@ function DonationPage() {
   const state = useSelector(getDonationState);
 
   // Get the params from the URL
-  const {platform, username} = useParams<Params>();
+  const {application, username} = useParams<Params>();
 
+  if (application == null || username == null) {
+    navigate("/")
+    return null;
+  }
+
+  useEffect(() => {
+    dispatch(getRecipientAddresses(application, username))
+  }, [false])
+
+  function handleChangeRecipientAddress(e: ChangeEvent<HTMLSelectElement>) {
+    dispatch(setRecipientAddress(e.target.value));
+  }
 
   function handleChangeAmount(e: ChangeEvent<HTMLInputElement>) {
     dispatch(setAmount(parseInt(e.target.value)));
@@ -53,21 +71,29 @@ function DonationPage() {
       return
     }
 
-
     dispatch(sendDonation({
+      recipientAddress: state.recipientAddress,
       tipperAddress: userState.desmosAddress,
-      recipientPlatform: platform as string,
+      recipientApplication: application as string,
       recipientUsername: username as string,
       tipAmount: state.amount,
-      donationMessage: state.message,
+      tipperUsername: state.username,
+      message: state.message,
     }))
   }
 
   return (
-    <div className="w-1/3 mx-auto text-center">
-      <h2>You are donating to {username} on <span className="capitalize">{platform}</span></h2>
+    <div className="w-3/5 mx-auto text-center">
+      <h2>You are donating to {username} on <span className="capitalize">{application}</span></h2>
 
       <form onSubmit={handleSubmit}>
+        <p className="mt-5">Select the recipient address</p>
+        <select value={state.recipientAddress} onChange={handleChangeRecipientAddress}>
+          {state.recipientAddresses.map((address) => (
+            <option key={address} value={address}>{address}</option>
+          ))}
+        </select>
+
         <p className="mt-5">Amount (DSM)</p>
         <input
           type="number"
@@ -101,10 +127,10 @@ function DonationPage() {
       </form>
 
       {state.isLoading &&
-        <p>Loading...</p>
+          <p>Loading...</p>
       }
       {state.error &&
-        <p>Error: {state.error}</p>
+          <p>Error: {state.error}</p>
       }
     </div>
   );
