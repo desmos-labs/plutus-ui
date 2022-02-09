@@ -8,9 +8,11 @@ import {
   setRecipientAddress,
   setUsername
 } from "store/donation";
-import {getRecipientAddresses, sendDonation} from "store/donation/actions";
+import {changeRecipientAddress, getRecipientAddresses, sendDonation} from "store/donation/actions";
 import {useAuth} from "components/AuthProvider";
 import {ChangeEvent, useEffect} from "react";
+import {DonationStatus} from "types/donation";
+import {getDisplayName} from "types/desmos";
 
 type Params = {
   application: string;
@@ -45,11 +47,11 @@ function DonationPage() {
   }, [false])
 
   function handleChangeRecipientAddress(e: ChangeEvent<HTMLSelectElement>) {
-    dispatch(setRecipientAddress(e.target.value));
+    dispatch(changeRecipientAddress(e.target.value));
   }
 
   function handleChangeAmount(e: ChangeEvent<HTMLInputElement>) {
-    dispatch(setAmount(parseInt(e.target.value)));
+    dispatch(setAmount(e.target.value));
   }
 
   function handleChangeUsername(e: ChangeEvent<HTMLInputElement>) {
@@ -76,15 +78,30 @@ function DonationPage() {
       tipperAddress: userState.desmosAddress,
       recipientApplication: application as string,
       recipientUsername: username as string,
-      tipAmount: state.amount,
+      tipAmount: parseFloat(state.amount || '0.5'),
       tipperUsername: state.username,
       message: state.message,
     }))
   }
 
+  const name = state.recipientProfile ? getDisplayName(state.recipientProfile) : state.recipientAddresses;
+  const profilePic = state.recipientProfile?.profilePicture || 'https://desmos.network/images/background-desktop.png';
+  const coverPicture = state.recipientProfile?.coverPicture || 'https://desmos.network/images/background-desktop.png';
+  const coverStyle = {
+    backgroundImage: `url(${coverPicture})`,
+  }
   return (
-    <div className="w-3/5 mx-auto text-center">
-      <h2>You are donating to {username} on <span className="capitalize">{application}</span></h2>
+    <div className="w-[600px] mx-auto text-center pt-2">
+
+      <div className="relative bg-cover bg-center rounded-3xl h-[300px]" style={coverStyle}>
+        <div className="absolute bottom-5 left-5 flex">
+          <img className="h-20 w-20 rounded-xl" src={profilePic} alt="Profile picture"/>
+          <div className="text-left ml-4">
+            <h2 className="text-white text-3xl font-bold">{name}</h2>
+            <h3 className="text-gray-300 text-xl font-bold">twitch.tv/{username}</h3>
+          </div>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <p className="mt-5">Select the recipient address</p>
@@ -98,7 +115,7 @@ function DonationPage() {
         <input
           type="number"
           className="input-orange"
-          placeholder="1"
+          placeholder="0.5"
           onChange={handleChangeAmount}
           value={state.amount}
         />
@@ -122,15 +139,24 @@ function DonationPage() {
         />
 
         <button type="submit" className="btn-orange block mt-5">
-          Confirm with WalletConnect
+          Confirm transaction
         </button>
       </form>
 
-      {state.isLoading &&
+      {state.status == DonationStatus.LOADING &&
           <p>Loading...</p>
       }
-      {state.error &&
+      {state.status == DonationStatus.TX_REQUEST_SENT &&
+          <p>Please confirm the transaction using DPM</p>
+      }
+      {state.status == DonationStatus.ERROR &&
           <p>Error: {state.error}</p>
+      }
+      {state.status == DonationStatus.SUCCESS &&
+          <p>
+              Transaction sent successfully!
+              You can view it <a href={`https://morpheus.desmos.network/transactions/${state.txHash}`}>here</a>
+          </p>
       }
     </div>
   );

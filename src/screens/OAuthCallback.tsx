@@ -24,7 +24,7 @@ function OAuthCallback() {
   return (
     <div className="p-[10px]">
       <p>You have successfully logged in using Streamlabs.</p>
-      <p>Know we need to make sure it's you.</p>
+      <p>Now we need to make sure it's you.</p>
       <p>Clicking the following button will prompt you to sign a fake transaction used to authenticate you.</p>
       <button className="btn-orange" onClick={handleVerifyClick}>Verify with DPM</button>
 

@@ -1,15 +1,26 @@
+import {Profile} from "types/desmos";
+
+export enum DonationStatus {
+  LOADING,
+  INPUTTING_DATA,
+  TX_REQUEST_SENT,
+  ERROR,
+  SUCCESS,
+}
+
 /**
  * Represents the state of the donation screen.
  */
 export type DonationState = {
+  status: DonationStatus,
   recipientAddresses: string[];
   recipientAddress: string;
-  amount: number;
+  recipientProfile?: Profile,
+  amount: string;
   username: string;
   message: string;
-  isLoading: boolean;
   error?: string;
-  success: boolean;
+  txHash?: string;
 }
 
 /**

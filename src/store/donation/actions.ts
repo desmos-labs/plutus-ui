@@ -1,7 +1,14 @@
 import {AppThunk} from "store/index";
-import {Donation} from "types/donation";
+import {Donation, DonationStatus} from "types/donation";
 import {DonationsAPI} from "apis/donations";
-import {setError, setLoading, setRecipientAddresses, setSuccess} from "store/donation/index";
+import {
+  setError,
+  setRecipientAddress,
+  setRecipientAddresses,
+  setRecipientProfile,
+  setStatus,
+  setSuccess
+} from "store/donation/index";
 import {UserWallet} from "types/crypto/wallet";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
@@ -13,8 +20,6 @@ import Graphql from "apis/graphql";
  */
 export function getRecipientAddresses(application: string, username: string): AppThunk {
   return async dispatch => {
-    dispatch(setLoading(true))
-
     const addresses = await Graphql.getAddresses(application, username)
     if (!addresses) {
       dispatch(setError("User not found on Desmos"))
@@ -22,18 +27,30 @@ export function getRecipientAddresses(application: string, username: string): Ap
     }
 
     dispatch(setRecipientAddresses(addresses))
-    dispatch(setLoading(false))
+    dispatch(changeRecipientAddress(addresses[0]))
   }
 }
 
+/**
+ * Retrieves the Desmos profile associated with the given Desmos address, if any.
+ */
+export function changeRecipientAddress(desmosAddress: string): AppThunk {
+  return async dispatch => {
+    dispatch(setRecipientAddress(desmosAddress));
+
+    const profile = await Graphql.getProfile(desmosAddress);
+    dispatch(setRecipientProfile(profile));
+
+    dispatch(setStatus(DonationStatus.INPUTTING_DATA))
+  }
+}
 
 /**
  * Allows donating to a user.
  */
 export function sendDonation(donation: Donation): AppThunk {
   return async dispatch => {
-    dispatch(setLoading(true))
-    dispatch(setError(undefined))
+    dispatch(setStatus(DonationStatus.LOADING))
 
     // Build the message
     const sendMsg: MsgSend = {
@@ -55,6 +72,7 @@ export function sendDonation(donation: Donation): AppThunk {
     };
 
     // Try signing the transaction
+    dispatch(setStatus(DonationStatus.TX_REQUEST_SENT));
     const result = await UserWallet.signTransactionDirect(transaction);
     if (result instanceof Error) {
       dispatch(setError(result.message));
@@ -67,13 +85,13 @@ export function sendDonation(donation: Donation): AppThunk {
       console.log(response.transactionHash);
 
       // Call the APIs
-      const error = await DonationsAPI.sendDonation(donation, response.transactionHash)
+      const error = await DonationsAPI.sendDonation(donation, response.transactionHash);
       if (error != null) {
-        dispatch(setError(error.message))
+        dispatch(setError(error.message));
         return
       }
 
-      dispatch(setSuccess(true));
+      dispatch(setSuccess(response.transactionHash));
     } catch (e) {
       console.log(e);
       dispatch(setError('Broadcasting error'));

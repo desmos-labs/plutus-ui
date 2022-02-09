@@ -9,11 +9,6 @@ import {Account, StdFee} from "@cosmjs/stargate";
 import {sign} from "crypto";
 import {AminoMsg, StdSignDoc} from "@cosmjs/amino";
 
-const connector = new WalletConnect({
-  bridge: 'https://bridge.walletconnect.org',
-  qrcodeModal: QRCodeModal,
-});
-
 type WalletConnectSignResponse = {
   // Hex-encoded account number
   accountNumber: string;
@@ -49,26 +44,30 @@ type SignatureResult = {
  * Represents a generic wallet that allows to perform on-chain operations.
  */
 export class UserWallet {
+  private static connector = new WalletConnect({
+    bridge: 'https://bridge.walletconnect.org',
+    qrcodeModal: QRCodeModal,
+  });
 
   /**
    * Returns whether the wallet is connected or not.
    */
   static isConnected(): boolean {
-    return connector.connected;
+    return this.connector.connected;
   }
 
   /**
    * Starts the process that can lead to the connection of the wallet.
    */
   static createSession() {
-    return connector.createSession();
+    return this.connector.createSession();
   }
 
   /**
    * Sets the callback function to be called when the wallet is connected.
    */
   static setOnConnect(callback: (error: Error | null, address: string) => void) {
-    connector.on('connected', (error, payload) => {
+    this.connector.on('connect', (error, payload) => {
       if (error != null) {
         callback(error, '');
         return
@@ -84,7 +83,7 @@ export class UserWallet {
    * Sets the callback to be called when the session is updated.
    */
   static setOnSessionUpdate(callback: (error: Error | null, address: string) => void) {
-    connector.on('session_update', (error, payload) => {
+    this.connector.on('session_update', (error, payload) => {
       if (error != null) {
         callback(error, '');
         return
@@ -100,14 +99,14 @@ export class UserWallet {
    * Sets the callback to be called when the user disconnects the wallet from the app.
    */
   static setOnDisconnect(callback: (error: Error | null) => void) {
-    connector.on('disconnect', callback);
+    this.connector.on('disconnect', callback);
   }
 
   /**
    * Disconnects the wallet from the current session.
    */
   static disconnect() {
-    connector.killSession();
+    this.connector.killSession();
   }
 
   /**
@@ -117,7 +116,7 @@ export class UserWallet {
     if (!this.isConnected()) {
       return null
     }
-    return connector.accounts[0];
+    return this.connector.accounts[0];
   }
 
   /**
@@ -200,7 +199,7 @@ export class UserWallet {
       }];
 
       // Send the request to WalletConnect
-      const response = await connector.sendCustomRequest({
+      const response = await this.connector.sendCustomRequest({
         jsonrpc: "2.0",
         method: "cosmos_signAmino",
         params: params,
@@ -288,7 +287,7 @@ export class UserWallet {
       }];
 
       // Send the request to WalletConnect
-      const response = await connector.sendCustomRequest({
+      const response = await this.connector.sendCustomRequest({
         jsonrpc: "2.0",
         method: "cosmos_signDirect",
         params: params,

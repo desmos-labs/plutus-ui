@@ -11,6 +11,7 @@ import DashboardPage from "screens/DashboardPage";
 import AuthProvider from "components/AuthProvider";
 import LoginPage from "screens/LoginPage";
 import HomePage from "../screens/HomePage";
+import TipsPage from "screens/TipsPage";
 
 
 /**
@@ -29,7 +30,7 @@ function App() {
     <Provider store={store}>
       <AuthProvider>
         <BrowserRouter>
-          <AppBar />
+          <AppBar/>
 
           <Routes>
 
@@ -50,6 +51,15 @@ function App() {
               element={
                 <RequireAuth>
                   <OAuthCallback/>
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/tips"
+              element={
+                <RequireAuth>
+                  <TipsPage/>
                 </RequireAuth>
               }
             />

@@ -1,15 +1,15 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
-import {DonationState} from "types/donation";
+import {DonationState, DonationStatus} from "types/donation";
+import {Profile} from "types/desmos";
 
 const initialState = {
+  status: DonationStatus.LOADING,
   recipientAddresses: [],
   recipientAddress: '',
-  amount: 0,
+  amount: '',
   username: "",
   message: "",
-  isLoading: false,
-  success: false,
 } as DonationState;
 
 
@@ -18,16 +18,20 @@ export const donationSlice = createSlice({
   name: 'donation',
   initialState: initialState,
   reducers: {
+    setStatus(state, action: PayloadAction<DonationStatus>) {
+      state.status = action.payload;
+      state.error = undefined;
+    },
     setRecipientAddresses(state, action: PayloadAction<string[]>) {
       state.recipientAddresses = action.payload;
-      if (state.recipientAddress == '') {
-        state.recipientAddress = action.payload[0];
-      }
     },
     setRecipientAddress(state, action: PayloadAction<string>) {
       state.recipientAddress = action.payload;
     },
-    setAmount(state, action: PayloadAction<number>) {
+    setRecipientProfile(state, action: PayloadAction<Profile | undefined>) {
+      state.recipientProfile = action.payload;
+    },
+    setAmount(state, action: PayloadAction<string>) {
       state.amount = action.payload;
     },
     setUsername(state, action: PayloadAction<string>) {
@@ -36,28 +40,28 @@ export const donationSlice = createSlice({
     setMessage(state, action: PayloadAction<string>) {
       state.message = action.payload;
     },
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
-    },
     setError(state, action: PayloadAction<string | undefined>) {
-      state.isLoading = false;
+      state.status = DonationStatus.ERROR;
       state.error = action.payload;
+      state.txHash = undefined;
     },
-    setSuccess(state, action: PayloadAction<boolean>) {
-      state.isLoading = false;
-      state.success = action.payload;
+    setSuccess(state, action: PayloadAction<string>) {
+      state.status = DonationStatus.SUCCESS;
+      state.error = undefined;
+      state.txHash = action.payload;
     }
   },
 });
 
 // --- ACTIONS ---
 export const {
+  setStatus,
   setRecipientAddresses,
   setRecipientAddress,
+  setRecipientProfile,
   setAmount,
   setUsername,
   setMessage,
-  setLoading,
   setError,
   setSuccess,
 } = donationSlice.actions;

@@ -10,14 +10,12 @@ import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
  */
 export const loginWithWalletConnect = (): AppThunk => {
   return async dispatch => {
-    if (!UserWallet.isConnected()) {
-      UserWallet.createSession();
-    }
 
     /**
      * Updates the current login status of the user inside the UserStorage.
      */
     function setUserLoggedIn(error: Error | null, desmosAddress: string) {
+      console.log('setUserLoggedIn')
       if (error != null) {
         dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
         return
@@ -30,9 +28,10 @@ export const loginWithWalletConnect = (): AppThunk => {
       dispatch(setUserStatus({isLoggedIn: true, desmosAddress: desmosAddress}));
     }
 
-    UserWallet.setOnConnect(setUserLoggedIn);
-    UserWallet.setOnSessionUpdate(setUserLoggedIn);
-    UserWallet.setOnDisconnect((error) => {
+    /**
+     * Updates the current login status of the user inside the UserStorage.
+     */
+    function setUserLoggedOut(error: Error | null) {
       // Disconnect from the wallet
       UserWallet.disconnect();
 
@@ -41,7 +40,15 @@ export const loginWithWalletConnect = (): AppThunk => {
 
       // Dispatch the event
       dispatch(setUserStatus({isLoggedIn: false, message: error?.message}));
-    });
+    }
+
+    UserWallet.setOnConnect(setUserLoggedIn);
+    UserWallet.setOnSessionUpdate(setUserLoggedIn);
+    UserWallet.setOnDisconnect(setUserLoggedOut);
+
+    if (!UserWallet.isConnected()) {
+      UserWallet.createSession();
+    }
   }
 }
 
