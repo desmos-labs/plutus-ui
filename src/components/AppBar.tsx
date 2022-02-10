@@ -24,20 +24,20 @@ function AppBar() {
   }
 
   return (
-    <div className="bg-[#F78432] h-auto p-[10px] flex flex-wrap justify-between items-center">
+    <div className="bg-transparent my-6 flex flex-wrap justify-between items-center">
       <Logo
         className={`inline h-[40px] ${isHomePage ? "cursor-default" : "cursor-pointer"}`}
         onClick={isHomePage ? undefined : handleClickLogo}
       />
 
       {!isLoginPage &&
-          <div className="w-auto block">
-              <ul className="flex flex-row">
-                  <button className="bg-black px-[20px] py-[5px] rounded-full text-white" onClick={handleClickLogin}>
-                      Login
-                  </button>
-              </ul>
-          </div>
+        <div className="w-auto block">
+          <ul className="flex flex-row">
+            <button className="px-8" onClick={handleClickLogin}>
+              Login
+            </button>
+          </ul>
+        </div>
       }
     </div>
   );

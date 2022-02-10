@@ -5,14 +5,14 @@ import {
   getDonationState,
   setAmount,
   setMessage,
-  setRecipientAddress,
   setUsername
 } from "store/donation";
 import {changeRecipientAddress, getRecipientAddresses, sendDonation} from "store/donation/actions";
 import {useAuth} from "components/AuthProvider";
 import {ChangeEvent, useEffect} from "react";
 import {DonationStatus} from "types/donation";
-import {getDisplayName} from "types/desmos";
+
+import ProfileCover from "components/ProfileCover";
 
 type Params = {
   application: string;
@@ -74,7 +74,7 @@ function DonationPage() {
     }
 
     dispatch(sendDonation({
-      recipientAddress: state.recipientAddress,
+      recipientAddress: state.recipientProfile.address,
       tipperAddress: userState.desmosAddress,
       recipientApplication: application as string,
       recipientUsername: username as string,
@@ -84,79 +84,55 @@ function DonationPage() {
     }))
   }
 
-  const name = state.recipientProfile ? getDisplayName(state.recipientProfile) : state.recipientAddresses;
-  const profilePic = state.recipientProfile?.profilePicture || 'https://desmos.network/images/background-desktop.png';
-  const coverPicture = state.recipientProfile?.coverPicture || 'https://desmos.network/images/background-desktop.png';
-  const coverStyle = {
-    backgroundImage: `url(${coverPicture})`,
-  }
+
   return (
-    <div className="w-[600px] mx-auto text-center pt-2">
+    <div className="w-3/4 mx-auto text-center">
 
-      <div className="relative bg-cover bg-center rounded-3xl h-[300px]" style={coverStyle}>
-        <div className="absolute bottom-5 left-5 flex">
-          <img className="h-20 w-20 rounded-xl" src={profilePic} alt="Profile picture"/>
-          <div className="text-left ml-4">
-            <h2 className="text-white text-3xl font-bold">{name}</h2>
-            <h3 className="text-gray-300 text-xl font-bold">twitch.tv/{username}</h3>
-          </div>
-        </div>
-      </div>
+      <ProfileCover
+        className="h-[300px]"
+        profile={state.recipientProfile}
+        application={application}
+        username={username}
+      />
 
-      <form onSubmit={handleSubmit}>
-        <p className="mt-5">Select the recipient address</p>
-        <select value={state.recipientAddress} onChange={handleChangeRecipientAddress}>
+      <form className="flex flex-col w-3/4 mx-auto" onSubmit={handleSubmit}>
+
+        <label className="mt-5">Recipient address</label>
+        <select
+          className="text-sm bg-transparent rounded border-2 border-orange"
+          value={state.recipientProfile.address}
+          onChange={handleChangeRecipientAddress}>
           {state.recipientAddresses.map((address) => (
             <option key={address} value={address}>{address}</option>
           ))}
         </select>
 
-        <p className="mt-5">Amount (DSM)</p>
-        <input
-          type="number"
-          className="input-orange"
-          placeholder="0.5"
-          onChange={handleChangeAmount}
-          value={state.amount}
-        />
+        <label className="mt-5">Amount (DSM)</label>
+        <input type="number" placeholder="0.5" onChange={handleChangeAmount} value={state.amount}/>
 
-        <p className="mt-5">From</p>
-        <input
-          type="text"
-          className="input-orange"
-          placeholder="John Doe"
-          onChange={handleChangeUsername}
-          value={state.username}
-        />
+        <label className="mt-5">From</label>
+        <input type="text" placeholder="John Doe" onChange={handleChangeUsername} value={state.username}/>
 
-        <p className="mt-5">Donation message</p>
-        <input
-          type="text"
-          className="input-orange"
-          placeholder="Hello!"
-          onChange={handleChangeMessage}
-          value={state.message}
-        />
+        <label className="mt-5">Donation message</label>
+        <input type="text" placeholder="Hello!" onChange={handleChangeMessage} value={state.message}/>
 
-        <button type="submit" className="btn-orange block mt-5">
-          Confirm transaction
-        </button>
+        <button className="mt-10" type="submit">Confirm transaction</button>
       </form>
 
       {state.status == DonationStatus.LOADING &&
-          <p>Loading...</p>
+        <p>Loading...</p>
       }
       {state.status == DonationStatus.TX_REQUEST_SENT &&
-          <p>Please confirm the transaction using DPM</p>
+        <p>Please confirm the transaction using DPM</p>
       }
       {state.status == DonationStatus.ERROR &&
-          <p>Error: {state.error}</p>
+        <p>Error: {state.error}</p>
       }
       {state.status == DonationStatus.SUCCESS &&
-          <p>
-              Transaction sent successfully!
-              You can view it <a href={`https://morpheus.desmos.network/transactions/${state.txHash}`}>here</a>
-          </p>
+        <p>
+          Transaction sent successfully!
+          You can view it <a href={`https://morpheus.desmos.network/transactions/${state.txHash}`}>here</a>
+        </p>
       }
     </div>
   );

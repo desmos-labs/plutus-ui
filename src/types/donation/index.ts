@@ -14,8 +14,7 @@ export enum DonationStatus {
 export type DonationState = {
   status: DonationStatus,
   recipientAddresses: string[];
-  recipientAddress: string;
-  recipientProfile?: Profile,
+  recipientProfile: Profile,
   amount: string;
   username: string;
   message: string;

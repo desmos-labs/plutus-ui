@@ -3,7 +3,6 @@ import {Donation, DonationStatus} from "types/donation";
 import {DonationsAPI} from "apis/donations";
 import {
   setError,
-  setRecipientAddress,
   setRecipientAddresses,
   setRecipientProfile,
   setStatus,
@@ -36,8 +35,6 @@ export function getRecipientAddresses(application: string, username: string): Ap
  */
 export function changeRecipientAddress(desmosAddress: string): AppThunk {
   return async dispatch => {
-    dispatch(setRecipientAddress(desmosAddress));
-
     const profile = await Graphql.getProfile(desmosAddress);
     dispatch(setRecipientProfile(profile));
 

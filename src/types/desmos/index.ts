@@ -8,7 +8,3 @@ export type Profile = {
   coverPicture?: string;
   profilePicture?: string;
 }
-
-export function getDisplayName(profile: Profile): string {
-  return profile.nickname || profile.dTag || profile.address;
-}

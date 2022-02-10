@@ -1,15 +1,25 @@
 import * as React from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 function HomePage() {
   const navigate = useNavigate();
 
+  function handleClickExample() {
+    navigate("/donate/twitch/lucag__", {replace: false})
+  }
+
   return (
-    <div className="text-center">
-      <h1>Trustless donations on Twitch, Twitter and Reddit</h1>
-      <Link to="/donate/twitch/lucag__" replace={false} className="btn-orange">
+    <div className="py-16">
+      <h1 className="text-6xl title-gradient-1">
+        Tip anyone, anywhere
+      </h1>
+      <h4 className="mt-3">
+        DesmosTipBot allows you to send tips to every account on supported social networks
+        without the need of any intermediary.
+      </h4>
+      <button className="mt-5" onClick={handleClickExample}>
         View example donation page
-      </Link>
+      </button>
     </div>
   );
 }

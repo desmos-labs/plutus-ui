@@ -6,7 +6,7 @@ import {Profile} from "types/desmos";
 const initialState = {
   status: DonationStatus.LOADING,
   recipientAddresses: [],
-  recipientAddress: '',
+  recipientProfile: {address: ''},
   amount: '',
   username: "",
   message: "",
@@ -25,10 +25,7 @@ export const donationSlice = createSlice({
     setRecipientAddresses(state, action: PayloadAction<string[]>) {
       state.recipientAddresses = action.payload;
     },
-    setRecipientAddress(state, action: PayloadAction<string>) {
-      state.recipientAddress = action.payload;
-    },
-    setRecipientProfile(state, action: PayloadAction<Profile | undefined>) {
+    setRecipientProfile(state, action: PayloadAction<Profile>) {
       state.recipientProfile = action.payload;
     },
     setAmount(state, action: PayloadAction<string>) {
@@ -57,7 +54,6 @@ export const donationSlice = createSlice({
 export const {
   setStatus,
   setRecipientAddresses,
-  setRecipientAddress,
   setRecipientProfile,
   setAmount,
   setUsername,

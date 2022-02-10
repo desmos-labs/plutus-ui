@@ -34,18 +34,17 @@ function LoginPage() {
     navigate(from, {replace: true});
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLButtonElement>) {
     event.preventDefault();
     auth.performLogin(goToFrom);
   }
 
   return (
-    <div>
+    <div className="pt-20 text-center">
       <h1>Login</h1>
-
-      <form onSubmit={handleSubmit}>
-        <button type="submit" className="btn-orange">Login with WalletConnect</button>
-      </form>
+      <button className="mt-10 btn-orange" onClick={handleSubmit}>
+        Login with WalletConnect
+      </button>
 
       {!loginState.isLoggedIn && loginState.message &&
         <p>Error: {loginState.message}</p>

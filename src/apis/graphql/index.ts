@@ -70,7 +70,7 @@ class GraphQL {
    * Tries getting the profile associated with the given address, if any.
    * @param desmosAddress {string}: Desmos address of the supposed owner of the profile.
    */
-  public static async getProfile(desmosAddress: string): Promise<Profile | undefined> {
+  public static async getProfile(desmosAddress: string): Promise<Profile> {
     const client = this.requireClient();
     const res = await client.query({
       query: profileQuery,
@@ -80,7 +80,7 @@ class GraphQL {
     })
 
     if (!res.data.profile) {
-      return undefined;
+      return {address: desmosAddress};
     }
 
     const profile = res.data.profile[0];
