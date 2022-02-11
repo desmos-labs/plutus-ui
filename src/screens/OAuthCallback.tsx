@@ -1,9 +1,8 @@
 import * as React from "react"
 import {useSearchParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {getOAuthState} from "store/oauth";
-import {finalizeOAuth} from "store/oauth/actions";
-import {OAuthStatus} from "types/oauth";
+import {getOAuthState, OAuthStatus} from "store/dashboard/oauth";
+import {finalizeOAuth} from "store/dashboard/oauth/actions";
 
 /**
  * Represents the page that is called from OAuth as the callback.

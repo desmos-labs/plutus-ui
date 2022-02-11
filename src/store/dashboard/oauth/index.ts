@@ -1,11 +1,27 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {OAuthState, OAuthStatus} from "types/oauth";
 import {RootState} from "store/index";
 
-const initialState = {status: undefined, error: undefined} as OAuthState;
+// --- STATE ---
+export enum OAuthStatus {
+  LOADING,
+  REQUESTING_SIGNATURE,
+  VERIFYING,
+  CONNECTED,
+  ERROR,
+}
+
+export type OAuthState = {
+  status?: OAuthStatus,
+  error?: string;
+}
+
+const initialState = {
+  status: undefined,
+  error: undefined
+} as OAuthState;
 
 // --- SLICE ---
-export const oAuthSlice = createSlice({
+const oAuthSlice = createSlice({
   name: 'oauth',
   initialState: initialState,
   reducers: {
@@ -29,7 +45,7 @@ export const {
 
 // --- SELECTORS ---
 export const getOAuthState = (state: RootState) => {
-  return state.oAuth;
+  return state.dashboard.oAuth;
 }
 
 export default oAuthSlice.reducer

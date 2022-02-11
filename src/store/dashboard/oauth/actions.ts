@@ -1,15 +1,12 @@
 import {AppThunk} from "store/index";
-import {OAuthStatus, Platform} from "types/oauth";
-import {setError, setStatus} from "store/oauth/index";
+import { Platform} from "types/oauth";
+import {OAuthStatus, setError, setStatus} from "store/dashboard/oauth/index";
 import {OAuthAPIs} from "apis/oauth";
-import {OAuthStorage, StoredData} from "store/oauth/storage";
+import {OAuthStorage, StoredData} from "store/dashboard/oauth/storage";
 import UserStorage from "store/user/storage";
 import {UserWallet} from "types/crypto/wallet";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import Long from "long";
 import {AminoMsgSend} from "@cosmjs/stargate";
-import {AminoMsg} from "@cosmjs/amino";
 
 /**
  * Stats the authorization process for the given platform.
@@ -97,7 +94,7 @@ export const finalizeOAuth = (oAuthCode: string | null, nonce: string | null): A
     }
 
     dispatch(setStatus(OAuthStatus.REQUESTING_SIGNATURE));
-    const txResult = await signAmino(oAuthCode, data);
+    const txResult = await signDirect(oAuthCode, data);
     if (txResult instanceof Error) {
       dispatch(setError(txResult.message));
       return

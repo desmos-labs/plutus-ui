@@ -1,9 +1,8 @@
 import * as React from 'react';
-import {getUserState, LoggedOut} from "store/user";
+import {getUserState} from "store/user";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useAuth} from "components/AuthProvider";
+import {useAuth} from "components/auth/AuthProvider";
 import {useSelector} from "react-redux";
-import AppBar from "../components/AppBar";
 
 /**
  * Represents the screen used to log into the application.

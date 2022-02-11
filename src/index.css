@@ -25,18 +25,18 @@
     @apply font-semibold text-lg
   }
   a {
-    @apply text-orange
+    @apply text-dark-pink
   }
   a:hover {
-    @apply text-hover
+    @apply text-pink
   }
 
   button, button[type=submit] {
-    @apply font-medium text-white rounded-full p-3 general-gradient-4
+    @apply font-medium text-white rounded-full py-2 px-4 general-gradient-4
   }
   button:hover {
     background-color: theme('colors.hover');
-    box-shadow: -4px 0px 48px 24px rgba(255, 107, 0, 0.16);
+     box-shadow: -4px 0 48px 24px rgba(255, 107, 0, 0.16);
   }
 
   input {
@@ -77,5 +77,15 @@
     background: conic-gradient(from -0.17deg at 47.89% 40.11%, #FF3E9A -45deg, #FF9E75 40.76deg, #FF4E02 125.63deg, #FFB800 181.87deg, #FF3E9A 315deg, #FF9E75 400.76deg);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .button-orange {
+    @apply bg-orange hover:bg-light-orange bg-none hover:shadow-none
+  }
+  .button-yellow {
+    @apply bg-yellow hover:bg-light-orange bg-none hover:shadow-none
+  }
+  .button-red {
+    @apply bg-red-500 hover:bg-red-600 bg-none hover:shadow-none
   }
 }

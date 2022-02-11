@@ -1,13 +1,13 @@
 import {Action, combineReducers, configureStore} from "@reduxjs/toolkit";
 import {ThunkAction} from "redux-thunk";
 import user from "store/user";
-import oAuth from "store/oauth";
 import donation from "store/donation";
+import dashboard from "store/dashboard";
 
 const rootReducer = combineReducers({
   user: user,
-  oAuth: oAuth,
   donation: donation,
+  dashboard: dashboard,
 })
 
 export const store = configureStore({

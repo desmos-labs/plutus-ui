@@ -1,11 +1,12 @@
 import * as React from "react";
-import {LoggedIn} from "types/user";
-import {useDispatch} from "react-redux";
-import {startAuthorization} from "store/oauth/actions";
-import {useAuth} from "components/AuthProvider";
+import {useDispatch, useSelector} from "react-redux";
+import {startAuthorization} from "store/dashboard/oauth/actions";
+import {useAuth} from "components/auth/AuthProvider";
 import {Platform} from "types/oauth";
-import {logout} from "store/user";
-import {Link} from "react-router-dom";
+import {LoggedIn, logout} from "store/user";
+import {useNavigate} from "react-router-dom";
+import EnableTipsPopup from "components/tips/EnableTipsPopup";
+import {DashboardStatus, getDashboardState, setStatus} from "store/dashboard/root";
 
 /**
  * Represents the dashboard of the app for logged in users.
@@ -13,7 +14,9 @@ import {Link} from "react-router-dom";
  * @constructor
  */
 function DashboardPage() {
-  // Get the user data
+  const state = useSelector(getDashboardState);
+
+  const navigate = useNavigate();
   const userState = useAuth().userState as LoggedIn;
 
   const dispatch = useDispatch();
@@ -26,26 +29,35 @@ function DashboardPage() {
     dispatch(logout());
   }
 
+  function handleClickEnableTips() {
+    dispatch(setStatus(DashboardStatus.ENABLING_TIPS))
+  }
+
+  function handleClosePopup() {
+    dispatch(setStatus(DashboardStatus.NOTHING))
+  }
+
   return (
-    <div className="p-[10px]">
-      <p>Welcome {userState.desmosAddress}</p>
+    <div>
+      <h3 className="mt-3">Account</h3>
+      <p>You are currently logged in as {userState.desmosAddress}.</p>
+      <button className="mt-2" onClick={handleClickLogout}>Logout</button>
 
-      <h2 className="mt-3 text-xl">Integrations</h2>
-      <p className="mt-2">Connect your Streamlabs account now</p>
-      <button className="btn-orange" onClick={handleClickStreamlabs}>
-        Connect Streamlabs
-      </button>
+      <h3 className="mt-8">Integrations</h3>
+      <p className="mt-2">
+        Do you want to received Streamlabs alerts for upcoming donations?
+        Connect your Streamlabs account now!
+      </p>
+      <button className="mt-2" onClick={handleClickStreamlabs}>Connect Streamlabs</button>
 
+      <h3 className="mt-8">Social tips</h3>
       <p className="mt-2">Looks like you have not enabled social tips. Do you want to do it now?</p>
-      <Link to="/tips" className="btn-orange">
-        Enable tips
-      </Link>
+      <button className="mt-2" onClick={handleClickEnableTips}>Enable tips</button>
+      <EnableTipsPopup
+        visible={state.status == DashboardStatus.ENABLING_TIPS}
+        onClose={handleClosePopup}
+      />
 
-      <h2 className="mt-3 text-xl">Account</h2>
-      <p className="">Logout from your account</p>
-      <button className="btn-orange" onClick={handleClickLogout}>
-        Logout
-      </button>
     </div>
   );
 }

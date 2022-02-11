@@ -1,7 +1,8 @@
 import {AppThunk} from "store/index";
-import {Donation, DonationStatus} from "types/donation";
+import {Donation} from "types/donation";
 import {DonationsAPI} from "apis/donations";
 import {
+  DonationStatus,
   setError,
   setRecipientAddresses,
   setRecipientProfile,

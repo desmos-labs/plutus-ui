@@ -1,10 +1,21 @@
 import {RootState} from "store/index";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {UserState} from "types/user";
 import UserStorage from "store/user/storage";
 
-export * from "types/user";
 export * from "store/user/actions";
+
+// --- STATE ---
+export interface LoggedOut {
+  isLoggedIn: false
+  message?: string;
+}
+
+export interface LoggedIn {
+  isLoggedIn: true
+  desmosAddress: string;
+}
+
+export type UserState = LoggedOut | LoggedIn
 
 // --- SLICE ---
 export const userSlice = createSlice({
@@ -22,7 +33,9 @@ export const userSlice = createSlice({
 });
 
 // --- ACTIONS ---
-export const {setUserStatus} = userSlice.actions;
+export const {
+  setUserStatus
+} = userSlice.actions;
 
 // --- SELECTORS ---
 export const getUserState = (state: RootState) => {

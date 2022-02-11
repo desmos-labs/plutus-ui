@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useSelector} from "react-redux";
-import {getUserState, LoggedIn} from "store/user";
+import {getUserState} from "store/user";
 import {useLocation, Navigate} from "react-router-dom";
 
 

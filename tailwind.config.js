@@ -10,20 +10,21 @@ module.exports = {
       },
       fontFamily: {
         'poppins': ['"Poppins"', 'cursive']
+      },
+      colors: {
+        'gray': '#3B3C24',
+        'white': '#FFF',
+        'transparent': '#FFF0',
+
+        'orange': '#FF613E',
+        'light-orange': '#FCA104',
+        'yellow': '#FFB800',
+        'pink': '#FF3E9A',
+        'dark-pink': '#FE576C',
+
+        'button': '#FA7A42',
+        'hover': '#FFA996',
       }
-    },
-    colors: {
-      'gray': '#3B3C24',
-      'white': '#FFF',
-      'transparent': '#FFF0',
-
-      'orange': '#FA9147',
-      'light-orange': '#ED6C53',
-      'pink': '#FF3E9A',
-      'dark-pink': '#FE576C',
-
-      'button': '#FA7A42',
-      'hover': '#FFA996',
     }
   },
   plugins: [],

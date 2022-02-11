@@ -2,17 +2,17 @@ import * as React from "react"
 import {useNavigate, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {
+  DonationStatus,
   getDonationState,
   setAmount,
   setMessage,
   setUsername
 } from "store/donation";
 import {changeRecipientAddress, getRecipientAddresses, sendDonation} from "store/donation/actions";
-import {useAuth} from "components/AuthProvider";
+import {useAuth} from "components/auth/AuthProvider";
 import {ChangeEvent, useEffect} from "react";
-import {DonationStatus} from "types/donation";
 
-import ProfileCover from "components/ProfileCover";
+import ProfileCover from "components/profile/ProfileCover";
 
 type Params = {
   application: string;

@@ -1,7 +1,29 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
-import {DonationState, DonationStatus} from "types/donation";
 import {Profile} from "types/desmos";
+
+// --- STATE ---
+export enum DonationStatus {
+  LOADING,
+  INPUTTING_DATA,
+  TX_REQUEST_SENT,
+  ERROR,
+  SUCCESS,
+}
+
+/**
+ * Represents the state of the donation screen.
+ */
+export type DonationState = {
+  status: DonationStatus,
+  recipientAddresses: string[];
+  recipientProfile: Profile,
+  amount: string;
+  username: string;
+  message: string;
+  error?: string;
+  txHash?: string;
+}
 
 const initialState = {
   status: DonationStatus.LOADING,

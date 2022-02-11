@@ -6,11 +6,11 @@ declare module "\*.svg" {
 }
 
 declare module "\*.jpg" {
-  const content: string;
-  export default content;
+  const src: string;
+  export default src;
 }
 
 declare module "\*.png" {
-  const content: string;
-  export default content;
+  const src: string;
+  export default src;
 }
