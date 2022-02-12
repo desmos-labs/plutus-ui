@@ -1,6 +1,6 @@
 import {AppThunk} from "store/index";
-import {Donation} from "types/donation";
-import {DonationsAPI} from "apis/donations";
+import {Donation} from "types/donations";
+import {PlutusAPI} from "apis/plutus";
 import {
   DonationStatus,
   setError,
@@ -83,7 +83,7 @@ export function sendDonation(donation: Donation): AppThunk {
       console.log(response.transactionHash);
 
       // Call the APIs
-      const error = await DonationsAPI.sendDonation(donation, response.transactionHash);
+      const error = await PlutusAPI.sendDonation(donation, response.transactionHash);
       if (error != null) {
         dispatch(setError(error.message));
         return

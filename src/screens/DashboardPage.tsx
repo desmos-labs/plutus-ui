@@ -4,9 +4,11 @@ import {startAuthorization} from "store/dashboard/oauth/actions";
 import {useAuth} from "components/auth/AuthProvider";
 import {Platform} from "types/oauth";
 import {LoggedIn, logout} from "store/user";
-import {useNavigate} from "react-router-dom";
-import EnableTipsPopup from "components/tips/EnableTipsPopup";
-import {DashboardStatus, getDashboardState, setStatus} from "store/dashboard/root";
+import {useEffect} from "react";
+import {fetchGrantedAmount} from "store/dashboard/tips/actions";
+import {getTipsState} from "store/dashboard/tips";
+import EnableTipsSection from "components/tips/EnableTipsSection";
+import TipsEnabledSection from "components/tips/TipsEnabledSection";
 
 /**
  * Represents the dashboard of the app for logged in users.
@@ -14,12 +16,14 @@ import {DashboardStatus, getDashboardState, setStatus} from "store/dashboard/roo
  * @constructor
  */
 function DashboardPage() {
-  const state = useSelector(getDashboardState);
-
-  const navigate = useNavigate();
+  const tipsState = useSelector(getTipsState);
   const userState = useAuth().userState as LoggedIn;
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchGrantedAmount(userState.desmosAddress));
+  }, [false])
 
   function handleClickStreamlabs() {
     dispatch(startAuthorization(Platform.STREAMLABS));
@@ -29,13 +33,6 @@ function DashboardPage() {
     dispatch(logout());
   }
 
-  function handleClickEnableTips() {
-    dispatch(setStatus(DashboardStatus.ENABLING_TIPS))
-  }
-
-  function handleClosePopup() {
-    dispatch(setStatus(DashboardStatus.NOTHING))
-  }
 
   return (
     <div>
@@ -51,12 +48,10 @@ function DashboardPage() {
       <button className="mt-2" onClick={handleClickStreamlabs}>Connect Streamlabs</button>
 
       <h3 className="mt-8">Social tips</h3>
-      <p className="mt-2">Looks like you have not enabled social tips. Do you want to do it now?</p>
-      <button className="mt-2" onClick={handleClickEnableTips}>Enable tips</button>
-      <EnableTipsPopup
-        visible={state.status == DashboardStatus.ENABLING_TIPS}
-        onClose={handleClosePopup}
-      />
+      {tipsState.grantedAmount == 0 ?
+        <EnableTipsSection/> :
+        <TipsEnabledSection/>
+      }
 
     </div>
   );

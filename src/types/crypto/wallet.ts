@@ -174,8 +174,16 @@ export class UserWallet {
     }
   }
 
-
-  private static async signAmino(
+  /**
+   * Sends a WalletConnect request to sign the given request using SIGN_MODE_AMINO.
+   * @param chainID {string}: ID of the chain for which the transaction is being signed.
+   * @param account {Account}: Signer account.
+   * @param msgs {[AminoMsg]}: Messages to be included inside the transaction.
+   * @param fee {StdFee}: Fees to be paid for the transaction.
+   * @param memo {string}: Memo to be included inside the transaction.
+   * @private
+   */
+  private static async sendWalletConnectRequestAmino(
     chainID: string,
     account: Account,
     msgs: [AminoMsg],
@@ -251,9 +259,9 @@ export class UserWallet {
     }
 
     // Build the fee info
-    const feeValue: StdFee = Chain.getStdFee(signer);
+    const feeValue: StdFee = Chain.getStdFee();
 
-    return this.signAmino(chainID, account, msgs, feeValue, memo);
+    return this.sendWalletConnectRequestAmino(chainID, account, msgs, feeValue, memo);
   }
 
   /**

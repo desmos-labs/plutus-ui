@@ -53,13 +53,6 @@ export const loginWithWalletConnect = (): AppThunk => {
 }
 
 /**
- * Signs the given transaction and returns the signed value, or an `Error` is something went wrong.
- */
-export const signTransaction = async (body: TxBody) => {
-  return UserWallet.signTransactionDirect(body);
-}
-
-/**
  * Allows to perform the logout of a user.
  */
 export const logout = (): AppThunk => {
