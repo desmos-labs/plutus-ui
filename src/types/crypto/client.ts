@@ -26,7 +26,7 @@ function setupAuthzExtension(base: QueryClient): AuthzExtension {
       grants: async (granter: string, grantee: string, msgTypeUrl?: string, pagination?: PageRequest) => {
         try {
           const {grants} = await queryService.Grants({
-            granter: grantee,
+            granter: granter,
             grantee: grantee,
             msgTypeUrl: msgTypeUrl || "",
             pagination: pagination,
@@ -41,6 +41,9 @@ function setupAuthzExtension(base: QueryClient): AuthzExtension {
   }
 }
 
+/**
+ * Represents the client used to interact with the Desmos chain.
+ */
 export class DesmosClient extends StargateClient {
   public static async connect(endpoint: string): Promise<DesmosClient> {
     const tmClient = await Tendermint34Client.connect(endpoint);

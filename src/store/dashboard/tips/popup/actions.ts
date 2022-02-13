@@ -1,29 +1,12 @@
+import {TipGrant} from "types/tips";
 import {AppThunk} from "store/index";
-import {setError, setGrantedAmount, setStatus, setSuccess, TipsStatus} from "store/dashboard/tips/index";
+import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
 import {Chain} from "types/crypto/chain";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {UserWallet} from "types/crypto/wallet";
 import {PlutusAPI} from "apis/plutus";
 import {MsgGrant} from "cosmjs-types/cosmos/authz/v1beta1/tx";
-import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
-import {TipGrant} from "types/tips";
-
-/**
- * Fetches the granted amount.
- */
-export function fetchGrantedAmount(userAddress: string): AppThunk {
-  return async dispatch => {
-    const granteeAddress = await PlutusAPI.getGranteeAddress();
-    if (granteeAddress instanceof Error) {
-      console.log(granteeAddress.message);
-      dispatch(setGrantedAmount(0));
-      return
-    }
-
-    const amount = await Chain.getGrantAmount(userAddress, granteeAddress);
-    dispatch(setGrantedAmount(amount));
-  }
-}
+import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {UserWallet} from "types/crypto/wallet";
+import {setError, setStep, setSuccess, TipsPopupStep} from "store/dashboard/tips/popup/index";
 
 /**
  * Starts the authorization process required to enable social tips.
@@ -69,7 +52,7 @@ export function startTipAuthorizationProcess(tipGrant: TipGrant): AppThunk {
     };
 
     // Try signing the transaction
-    dispatch(setStatus(TipsStatus.BROADCASTING_TX));
+    dispatch(setStep(TipsPopupStep.CONFIRMATION_REQUIRED));
     const result = await UserWallet.signTransactionDirect(transaction);
     if (result instanceof Error) {
       dispatch(setError(result.message));

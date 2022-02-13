@@ -5,8 +5,8 @@ import {useAuth} from "components/auth/AuthProvider";
 import {Platform} from "types/oauth";
 import {LoggedIn, logout} from "store/user";
 import {useEffect} from "react";
-import {fetchGrantedAmount} from "store/dashboard/tips/actions";
-import {getTipsState} from "store/dashboard/tips";
+import {initTipsState} from "store/dashboard/tips/root/actions";
+import {getTipsState} from "store/dashboard/tips/root";
 import EnableTipsSection from "components/tips/EnableTipsSection";
 import TipsEnabledSection from "components/tips/TipsEnabledSection";
 
@@ -16,13 +16,13 @@ import TipsEnabledSection from "components/tips/TipsEnabledSection";
  * @constructor
  */
 function DashboardPage() {
-  const tipsState = useSelector(getTipsState);
+  const dispatch = useDispatch();
   const userState = useAuth().userState as LoggedIn;
 
-  const dispatch = useDispatch();
+  const tipsState = useSelector(getTipsState);
 
   useEffect(() => {
-    dispatch(fetchGrantedAmount(userState.desmosAddress));
+    dispatch(initTipsState(userState.desmosAddress));
   }, [false])
 
   function handleClickStreamlabs() {
@@ -41,18 +41,14 @@ function DashboardPage() {
       <button className="mt-2" onClick={handleClickLogout}>Logout</button>
 
       <h3 className="mt-8">Integrations</h3>
-      <p className="mt-2">
+      <p>
         Do you want to received Streamlabs alerts for upcoming donations?
         Connect your Streamlabs account now!
       </p>
       <button className="mt-2" onClick={handleClickStreamlabs}>Connect Streamlabs</button>
 
       <h3 className="mt-8">Social tips</h3>
-      {tipsState.grantedAmount == 0 ?
-        <EnableTipsSection/> :
-        <TipsEnabledSection/>
-      }
-
+      {tipsState.grantedAmount ? <TipsEnabledSection/> : <EnableTipsSection/>}
     </div>
   );
 }

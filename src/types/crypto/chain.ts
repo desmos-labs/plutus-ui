@@ -15,6 +15,7 @@ import {PageRequest} from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
 import {Grant} from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import {DesmosClient} from "types/crypto/client";
 import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
+import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
 
 const LCD_ENDPOINT = process.env.REACT_APP_CHAIN_RPC_ENDPOINT as string;
 const FEE_DENOM = process.env.REACT_APP_CHAIN_COIN_DENOM as string;
@@ -91,23 +92,23 @@ export class Chain {
    * @param granter {string}: Address of the user that granted a SendAuthorization.
    * @param grantee {string}: Address of the user who has been granted a SendAuthorization.
    */
-  static async getGrantAmount(granter: string, grantee: string): Promise<number> {
+  static async getGrantAmount(granter: string, grantee: string): Promise<Coin | undefined> {
     const client = await this.requireClient();
     const authzClient = client.getAuthzQueryClient();
     const grants = await authzClient.authz.grants(granter, grantee);
     if (!grants) {
-      return 0;
+      return undefined;
     }
 
     console.log(grants);
     const grant = grants.find(grant => grant.authorization?.typeUrl == '/cosmos.bank.v1beta1.SendAuthorization');
     const authorization = grant?.authorization;
     if (!authorization) {
-      return 0;
+      return undefined;
     }
 
     const sendAuth = SendAuthorization.decode(authorization.value);
     console.log(sendAuth);
-    return sendAuth.spendLimit[0].amount ? parseFloat(sendAuth.spendLimit[0].amount) : 0;
+    return sendAuth.spendLimit[0] ? sendAuth.spendLimit[0] : undefined;
   }
 }
