@@ -1,14 +1,14 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
 import {Profile} from "types/desmos";
+import {DashoardStatus} from "store/dashboard/root";
 
 // --- STATE ---
 export enum DonationStatus {
   LOADING,
-  INPUTTING_DATA,
-  TX_REQUEST_SENT,
+  LOADED,
+  CONFIRMING_TX,
   ERROR,
-  SUCCESS,
 }
 
 /**
@@ -64,10 +64,11 @@ export const donationSlice = createSlice({
       state.error = action.payload;
       state.txHash = undefined;
     },
-    setSuccess(state, action: PayloadAction<string>) {
-      state.status = DonationStatus.SUCCESS;
-      state.error = undefined;
-      state.txHash = action.payload;
+    reset(state) {
+      state.status = DonationStatus.LOADED;
+      state.amount = initialState.amount;
+      state.username = initialState.username;
+      state.message = initialState.message;
     }
   },
 });
@@ -81,7 +82,7 @@ export const {
   setUsername,
   setMessage,
   setError,
-  setSuccess,
+  reset,
 } = donationSlice.actions;
 
 // --- SELECTORS ---

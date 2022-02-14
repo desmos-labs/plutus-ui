@@ -2,8 +2,6 @@ import {AppThunk} from "store/index";
 import {setUserStatus} from "store/user/index";
 import UserStorage from "store/user/storage";
 import {UserWallet} from "types/crypto/wallet";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-
 
 /**
  * Allows to perform the login of a user using WalletConnect.
@@ -15,7 +13,6 @@ export const loginWithWalletConnect = (): AppThunk => {
      * Updates the current login status of the user inside the UserStorage.
      */
     function setUserLoggedIn(error: Error | null, desmosAddress: string) {
-      console.log('setUserLoggedIn')
       if (error != null) {
         dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
         return

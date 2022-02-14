@@ -41,7 +41,7 @@ export class OAuthAPIs {
       'client_id': STREAMLABS_CLIENT_ID,
       'redirect_uri': STREAMLABS_REDIRECT_URI,
       'response_type': 'code',
-      'scope': 'plutus.read+plutus.create',
+      'scope': 'donations.read+donations.create',
       'state': state,
     };
 

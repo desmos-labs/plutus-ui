@@ -5,20 +5,18 @@ import {ReactComponent as Icon} from "assets/authorization.svg";
 import {useDispatch, useSelector} from "react-redux";
 import {useAuth} from "components/auth/AuthProvider";
 import {LoggedIn} from "store/user";
-import {getTipsPopupState, setGrantAmount, TipsPopupStep} from "store/dashboard/tips/popup";
+import {getTipsPopupState, resetTipsPopup, setGrantAmount, TipsPopupStep} from "store/dashboard/tips/popup";
 import {startTipAuthorizationProcess} from "store/dashboard/tips/popup/actions";
-
-const EXPLORER_URL = process.env.REACT_APP_EXPLORER_ENDPOINT as string;
+import {getTxLink} from "types/crypto/chain";
 
 type EnableTipsPopupProps = {
   visible: boolean,
-  onClose: () => void,
 }
 
 /**
  * Represents the popup that is shown to the user when they want to enable social tips.
  */
-function EnableTipsPopup({visible, onClose}: EnableTipsPopupProps) {
+function EnableTipsPopup({visible}: EnableTipsPopupProps) {
   const state = useSelector(getTipsPopupState);
   const dispatch = useDispatch();
 
@@ -45,7 +43,7 @@ function EnableTipsPopup({visible, onClose}: EnableTipsPopupProps) {
           title: 'Success',
           content: <p>
             The authorization has been granted successfully. You can check the transaction
-            <span> </span><a target="_blank" href={`${EXPLORER_URL}/transactions/${state.txHash}`}>here</a>
+            <span> </span><a target="_blank" href={`${getTxLink(state.txHash)}`}>here</a>
           </p>
         }
       default:
@@ -78,11 +76,18 @@ function EnableTipsPopup({visible, onClose}: EnableTipsPopupProps) {
     }));
   }
 
+  /**
+   * Handles the closing of the popup.
+   */
+  function handleClosePopup() {
+    dispatch(resetTipsPopup());
+  }
+
   const {title, content} = getTitleAndContent(state.step);
 
   return (
     <Popup visible={visible}>
-      <div className="p-6 text-center">
+      <div className="text-center">
         <Icon className="mx-auto w-10 h-10"/>
         <h4 className="mt-2">{title}</h4>
         {content}
@@ -94,9 +99,9 @@ function EnableTipsPopup({visible, onClose}: EnableTipsPopupProps) {
           </div>
         }
 
-        <div className="flex flex-row mt-4">
+        <div className="flex flex-row mt-6">
           {state.step != TipsPopupStep.SUCCESS &&
-            <button className="w-full button-red rounded-lg" onClick={onClose}>Cancel</button>
+            <button className="w-full button-red rounded-lg" onClick={handleClosePopup}>Cancel</button>
           }
           {state.step == TipsPopupStep.DEFAULT &&
             <button className="ml-5 w-full button-yellow rounded-lg" onClick={onClickGrant}>Grant</button>
@@ -105,7 +110,7 @@ function EnableTipsPopup({visible, onClose}: EnableTipsPopupProps) {
             <button className="ml-5 w-full button-yellow rounded-lg" onClick={onClickGrant}>Retry</button>
           }
           {state.step == TipsPopupStep.SUCCESS &&
-            <button className="w-full rounded-lg" onClick={onClose}>Done</button>
+            <button className="w-full rounded-lg" onClick={handleClosePopup}>Done</button>
           }
 
         </div>

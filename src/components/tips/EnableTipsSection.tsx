@@ -14,15 +14,11 @@ function EnableTipsSection() {
     dispatch(setShown(true))
   }
 
-  function handleClosePopup() {
-    dispatch(setShown(false))
-  }
-
   return (
     <div>
       <p>Looks like you have not enabled social tips. Do you want to do it now?</p>
       <button className="mt-2" onClick={handleClickEnableTips}>Enable tips</button>
-      <EnableTipsPopup visible={popupState.shown} onClose={handleClosePopup}/>
+      <EnableTipsPopup visible={popupState.shown} />
     </div>
   );
 }

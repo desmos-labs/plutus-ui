@@ -1,4 +1,9 @@
 export enum Platform {
-  STREAMLABS = "streamlabs",
-  STRAMELEMENTS = "streamelements"
+  STREAMLABS = "Streamlabs",
+  STRAMELEMENTS = "StreamElements"
+}
+
+export type OAuthParams = {
+  oAuthCode?: string,
+  oAuthState?: string,
 }

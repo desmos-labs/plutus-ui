@@ -3,17 +3,18 @@ import {Donation} from "types/donations";
 import {PlutusAPI} from "apis/plutus";
 import {
   DonationStatus,
+  reset,
   setError,
   setRecipientAddresses,
   setRecipientProfile,
   setStatus,
-  setSuccess
 } from "store/donation/index";
 import {UserWallet} from "types/crypto/wallet";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {Chain} from "types/crypto/chain";
 import Graphql from "apis/graphql";
+import {setTxError, setTxRequestSent, setTxSuccess} from "store/transaction";
 
 /**
  * Retrieves the recipient addresses based on the application and the username.
@@ -39,7 +40,7 @@ export function changeRecipientAddress(desmosAddress: string): AppThunk {
     const profile = await Graphql.getProfile(desmosAddress);
     dispatch(setRecipientProfile(profile));
 
-    dispatch(setStatus(DonationStatus.INPUTTING_DATA))
+    dispatch(setStatus(DonationStatus.LOADED))
   }
 }
 
@@ -48,7 +49,7 @@ export function changeRecipientAddress(desmosAddress: string): AppThunk {
  */
 export function sendDonation(donation: Donation): AppThunk {
   return async dispatch => {
-    dispatch(setStatus(DonationStatus.LOADING))
+    dispatch(setStatus(DonationStatus.CONFIRMING_TX));
 
     // Build the message
     const sendMsg: MsgSend = {
@@ -69,11 +70,13 @@ export function sendDonation(donation: Donation): AppThunk {
       memo: donation.message,
     };
 
+    // Set the request as sent
+    dispatch(setTxRequestSent(transaction));
+
     // Try signing the transaction
-    dispatch(setStatus(DonationStatus.TX_REQUEST_SENT));
     const result = await UserWallet.signTransactionDirect(transaction);
     if (result instanceof Error) {
-      dispatch(setError(result.message));
+      dispatch(setTxError(result.message));
       return;
     }
 
@@ -85,14 +88,15 @@ export function sendDonation(donation: Donation): AppThunk {
       // Call the APIs
       const error = await PlutusAPI.sendDonation(donation, response.transactionHash);
       if (error != null) {
-        dispatch(setError(error.message));
+        dispatch(setTxError(error.message));
         return
       }
 
-      dispatch(setSuccess(response.transactionHash));
+      dispatch(setTxSuccess(response.transactionHash));
+      dispatch(reset);
     } catch (e) {
       console.log(e);
-      dispatch(setError('Broadcasting error'));
+      dispatch(setTxError('Broadcasting error'));
     }
   }
 }

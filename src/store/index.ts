@@ -3,11 +3,13 @@ import {ThunkAction} from "redux-thunk";
 import user from "store/user";
 import donation from "store/donation";
 import dashboard from "store/dashboard";
+import transaction from "store/transaction";
 
 const rootReducer = combineReducers({
   user: user,
   donation: donation,
   dashboard: dashboard,
+  transaction: transaction,
 })
 
 export const store = configureStore({

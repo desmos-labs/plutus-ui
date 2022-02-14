@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
+import {initState} from "store/dashboard/root/actions";
 
 export enum TipsPopupStep {
   DEFAULT,
@@ -29,9 +30,6 @@ const tipsPopupSlice = createSlice({
   reducers: {
     setShown(state, action:PayloadAction<boolean>) {
       state.shown = action.payload;
-      if (!action.payload) {
-        state.step = TipsPopupStep.DEFAULT;
-      }
     },
     setStep(state, action: PayloadAction<TipsPopupStep>) {
       state.step = action.payload;
@@ -48,6 +46,11 @@ const tipsPopupSlice = createSlice({
     setSuccess(state, action: PayloadAction<string>) {
       state.step = TipsPopupStep.SUCCESS;
       state.txHash = action.payload;
+    },
+    resetTipsPopup(state) {
+      state.shown = initialState.shown;
+      state.step = initialState.step;
+      state.grantAmount = initialState.grantAmount;
     }
   }
 })
@@ -59,6 +62,7 @@ export const {
   setGrantAmount,
   setError,
   setSuccess,
+  resetTipsPopup,
 } = tipsPopupSlice.actions;
 
 // --- SELECTORS ---

@@ -13,6 +13,7 @@ import {useAuth} from "components/auth/AuthProvider";
 import {ChangeEvent, useEffect} from "react";
 
 import ProfileCover from "components/profile/ProfileCover";
+import ConfirmTxPopup from "components/transactions/ConfirmTxPopup";
 
 type Params = {
   application: string;
@@ -86,7 +87,7 @@ function DonationPage() {
 
 
   return (
-    <div className="w-3/4 mx-auto text-center">
+    <div className="w-3/4 lg:w-1/3 mx-auto text-center">
 
       <ProfileCover
         className="h-[300px]"
@@ -122,17 +123,11 @@ function DonationPage() {
       {state.status == DonationStatus.LOADING &&
         <p>Loading...</p>
       }
-      {state.status == DonationStatus.TX_REQUEST_SENT &&
-        <p>Please confirm the transaction using DPM</p>
-      }
+
+      <ConfirmTxPopup/>
+
       {state.status == DonationStatus.ERROR &&
         <p>Error: {state.error}</p>
-      }
-      {state.status == DonationStatus.SUCCESS &&
-        <p>
-          Transaction sent successfully!
-          You can view it <a href={`https://morpheus.desmos.network/transactions/${state.txHash}`}>here</a>
-        </p>
       }
     </div>
   );

@@ -1,25 +1,27 @@
 import Long from "long";
 import {
-  Account, AuthExtension, BankExtension,
-  createProtobufRpcClient,
+  Account,
   DeliverTxResponse,
-  QueryClient, StakingExtension,
-  StargateClient,
-  StdFee, TxExtension
+  StdFee
 } from "@cosmjs/stargate";
 import {Fee} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {Tendermint34Client} from "@cosmjs/tendermint-rpc";
-import {Any} from "cosmjs-types/google/protobuf/any";
-import {QueryClientImpl, QueryGrantsResponse} from "cosmjs-types/cosmos/authz/v1beta1/query";
-import {PageRequest} from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
-import {Grant} from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import {DesmosClient} from "types/crypto/client";
 import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
 
+const EXPLORER_URL = process.env.REACT_APP_EXPLORER_ENDPOINT as string;
+
 const LCD_ENDPOINT = process.env.REACT_APP_CHAIN_RPC_ENDPOINT as string;
 const FEE_DENOM = process.env.REACT_APP_CHAIN_COIN_DENOM as string;
 const DEFAULT_FEE_AMOUNT = process.env.REACT_APP_CHAIN_FEE_AMOUNT as string;
+
+/**
+ * Returns the explorer link to the transaction having the given hash.
+ * @param txHash {string | undefined}: Hash of the transaction.
+ */
+export function getTxLink(txHash: string | undefined): string {
+  return `${EXPLORER_URL}/transactions/${txHash || ''}`;
+}
 
 /**
  * Allows performing common operations on the chain.
@@ -84,7 +86,7 @@ export class Chain {
    */
   static async getAccount(address: string): Promise<Account | null> {
     const client = await this.requireClient();
-    return client.getAccount(address);
+    return client.getAccount(address)
   }
 
   /**
@@ -92,15 +94,13 @@ export class Chain {
    * @param granter {string}: Address of the user that granted a SendAuthorization.
    * @param grantee {string}: Address of the user who has been granted a SendAuthorization.
    */
-  static async getGrantAmount(granter: string, grantee: string): Promise<Coin | undefined> {
+  static async getGrantAmount(granter: string, grantee: string): Promise<Coin[] | undefined> {
     const client = await this.requireClient();
-    const authzClient = client.getAuthzQueryClient();
-    const grants = await authzClient.authz.grants(granter, grantee);
+    const grants = await client.getGrants(granter, grantee);
     if (!grants) {
       return undefined;
     }
 
-    console.log(grants);
     const grant = grants.find(grant => grant.authorization?.typeUrl == '/cosmos.bank.v1beta1.SendAuthorization');
     const authorization = grant?.authorization;
     if (!authorization) {
@@ -108,7 +108,6 @@ export class Chain {
     }
 
     const sendAuth = SendAuthorization.decode(authorization.value);
-    console.log(sendAuth);
-    return sendAuth.spendLimit[0] ? sendAuth.spendLimit[0] : undefined;
+    return sendAuth.spendLimit.length ? sendAuth.spendLimit : undefined;
   }
 }

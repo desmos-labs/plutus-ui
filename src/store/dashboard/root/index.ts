@@ -1,20 +1,42 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
+import {Profile} from "types/desmos";
 
 // --- STATE ---
-export type DashboardState = {}
+export enum DashoardStatus {
+  LOADING,
+  LOADED,
+}
 
-const initialState: DashboardState = {}
+export type DashboardState = {
+  status: DashoardStatus,
+  userProfile: Profile,
+}
+
+const initialState: DashboardState = {
+  status: DashoardStatus.LOADING,
+  userProfile: {address: ''},
+}
 
 // --- SLICE ---
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState: initialState,
-  reducers: {}
+  reducers: {
+    setStatus(state, action: PayloadAction<DashoardStatus>) {
+      state.status = action.payload;
+    },
+    setUserProfile(state, action: PayloadAction<Profile>) {
+      state.userProfile = action.payload;
+    }
+  }
 })
 
 // --- ACTIONS ---
-export const {} = dashboardSlice.actions;
+export const {
+  setStatus,
+  setUserProfile,
+} = dashboardSlice.actions;
 
 // --- SELECTORS ---
 export function getDashboardState(state: RootState) {

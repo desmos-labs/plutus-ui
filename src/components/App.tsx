@@ -3,7 +3,7 @@ import {BrowserRouter, Route, Routes, useLocation} from "react-router-dom";
 import {Provider} from 'react-redux';
 
 import AppBar from './AppBar';
-import OAuthCallback from 'screens/OAuthCallback';
+import OAuthPopup from 'components/oauth/OAuthPopup';
 import DonationPage from 'screens/DonationPage';
 import {store} from "store";
 import RequireAuth from "components/auth/RequireAuth";
@@ -50,7 +50,7 @@ function App() {
               path="/success"
               element={
                 <RequireAuth>
-                  <OAuthCallback/>
+                  <OAuthPopup/>
                 </RequireAuth>
               }
             />

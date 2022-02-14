@@ -79,7 +79,7 @@ class GraphQL {
       }
     })
 
-    if (!res.data.profile) {
+    if (!res.data.profile.length) {
       return {address: desmosAddress};
     }
 

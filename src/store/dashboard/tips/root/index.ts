@@ -2,8 +2,9 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
 
+// --- STATE ---
 export type TipsState = {
-  grantedAmount?: Coin;
+  grantedAmount?: Coin[];
   error?: string;
 }
 
@@ -15,7 +16,7 @@ const tipsSlice = createSlice({
   name: 'tips',
   initialState: initialState,
   reducers: {
-    setGrantedAmount(state, action: PayloadAction<Coin|undefined>) {
+    setGrantedAmount(state, action: PayloadAction<Coin[]|undefined>) {
       state.grantedAmount = action.payload;
     },
     setError(state, action: PayloadAction<string | undefined>) {
