@@ -1,7 +1,8 @@
 import * as React from "react";
 import {ReactComponent as Logo} from "../assets/logo.svg";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useAuth} from "components/auth/AuthProvider";
+import {useSelector} from "react-redux";
+import {getUserState} from "store/user";
 
 /**
  * Represents the application bar.
@@ -14,8 +15,7 @@ function AppBar() {
   const location = useLocation();
   const isHomePage = location.pathname == "/";
 
-  const auth = useAuth();
-  const state = auth.userState;
+  const state = useSelector(getUserState);
 
   function handleClickLogo() {
     navigate("/",);

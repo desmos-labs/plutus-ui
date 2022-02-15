@@ -1,6 +1,6 @@
 import {AppThunk} from "store/index";
 import {setError, setGrantedAmount} from "store/dashboard/tips/root/index";
-import {Chain} from "types/crypto/chain";
+import {Chain} from "types/cosmos/chain";
 import {PlutusAPI} from "apis/plutus";
 
 /**

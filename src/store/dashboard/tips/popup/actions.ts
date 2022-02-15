@@ -1,24 +1,29 @@
-import {TipGrant} from "types/tips";
 import {AppThunk} from "store/index";
 import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
-import {Chain} from "types/crypto/chain";
+import {Chain} from "types/cosmos/chain";
 import {PlutusAPI} from "apis/plutus";
 import {MsgGrant} from "cosmjs-types/cosmos/authz/v1beta1/tx";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {UserWallet} from "types/crypto/wallet";
+import {UserWallet} from "types/cosmos/wallet";
 import {setError, setStep, setSuccess, TipsPopupStep} from "store/dashboard/tips/popup/index";
 
 /**
  * Starts the authorization process required to enable social tips.
- * @param tipGrant {TipGrant}: Grant to be requested.
  */
-export function startTipAuthorizationProcess(tipGrant: TipGrant): AppThunk {
+export function startTipAuthorizationProcess(amount: number): AppThunk {
   return async dispatch => {
+    // Get the user wallet
+    const address = UserWallet.getAddress();
+    if (!address) {
+      dispatch(setError("Invalid user address"));
+      return;
+    }
+
     // Build the authorization
     const authorization: SendAuthorization = {
       spendLimit: [
         {
-          amount: (tipGrant.amount * 1_000_000).toString(),
+          amount: (amount * 1_000_000).toString(),
           denom: Chain.getFeeDenom(),
         }
       ]
@@ -33,7 +38,7 @@ export function startTipAuthorizationProcess(tipGrant: TipGrant): AppThunk {
 
     const msg: MsgGrant = {
       grantee: grantee,
-      granter: tipGrant.granter,
+      granter: address,
       grant: {
         authorization: {
           typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',

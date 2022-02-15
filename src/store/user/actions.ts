@@ -1,12 +1,11 @@
 import {AppThunk} from "store/index";
 import {setUserStatus} from "store/user/index";
-import UserStorage from "store/user/storage";
-import {UserWallet} from "types/crypto/wallet";
+import {UserWallet} from "types/cosmos/wallet";
 
 /**
  * Allows to perform the login of a user using WalletConnect.
  */
-export const loginWithWalletConnect = (): AppThunk => {
+export function loginWithWalletConnect(): AppThunk {
   return async dispatch => {
 
     /**
@@ -18,9 +17,6 @@ export const loginWithWalletConnect = (): AppThunk => {
         return
       }
 
-      // Store inside the local storage
-      UserStorage.setLoggedIn(desmosAddress)
-
       // Dispatch the event
       dispatch(setUserStatus({isLoggedIn: true, desmosAddress: desmosAddress}));
     }
@@ -31,9 +27,6 @@ export const loginWithWalletConnect = (): AppThunk => {
     function setUserLoggedOut(error: Error | null) {
       // Disconnect from the wallet
       UserWallet.disconnect();
-
-      // Update the local storage
-      UserStorage.setLoggedOut();
 
       // Dispatch the event
       dispatch(setUserStatus({isLoggedIn: false, message: error?.message}));
@@ -52,13 +45,10 @@ export const loginWithWalletConnect = (): AppThunk => {
 /**
  * Allows to perform the logout of a user.
  */
-export const logout = (): AppThunk => {
+export function logout(): AppThunk {
   return dispatch => {
     // Disconnect the wallet
     UserWallet.disconnect();
-
-    // Store inside the local storage
-    UserStorage.setLoggedOut();
 
     dispatch(setUserStatus({isLoggedIn: false}));
   }

@@ -8,9 +8,15 @@ interface AuthContextType {
   performLogout: (callback: VoidFunction) => void;
 }
 
+/**
+ * Represents a React context holding an instance of AuthContextType.
+ */
 const AuthContext = React.createContext<AuthContextType>(null!);
 
-function AuthProvider({ children }: { children: React.ReactNode }) {
+/**
+ * Provides the authentication data to its children.
+ */
+function AuthProvider({children}: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const userState = useSelector(getUserState);
 
@@ -24,11 +30,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     callback();
   };
 
-  let value = { userState, performLogin, performLogout };
-
+  let value = {userState, performLogin, performLogout};
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/**
+ * React hook allowing to get the current auth data.
+ */
 export function useAuth() {
   return React.useContext(AuthContext);
 }

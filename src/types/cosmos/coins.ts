@@ -1,7 +1,6 @@
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
-import Long from "long";
 
-function getDenom(denom: string): string {
+function formatDenom(denom: string): string {
   switch (denom.toLowerCase()) {
     case 'udsm':
       return 'DSM'
@@ -14,7 +13,7 @@ function getDenom(denom: string): string {
 
 export function coinToString(coin: Coin): string {
   const amount = parseFloat(coin.amount) / 1_000_000;
-  const denom = getDenom(coin.denom);
+  const denom = formatDenom(coin.denom);
   return `${amount.toString()} ${denom.toUpperCase()}`;
 }
 

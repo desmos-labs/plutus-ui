@@ -1,4 +1,4 @@
-import {Chain} from "types/crypto/chain";
+import {Chain} from "types/cosmos/chain";
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
 import {AuthInfo, Fee, SignDoc, SignerInfo, TxBody, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
@@ -8,6 +8,8 @@ import Long from "long";
 import {Account, StdFee} from "@cosmjs/stargate";
 import {sign} from "crypto";
 import {AminoMsg, StdSignDoc} from "@cosmjs/amino";
+import {DesmosClient} from "@desmoslabs/sdk-core/build/desmosclient";
+import {EncodeObject} from "@cosmjs/proto-signing";
 
 type WalletConnectSignResponse = {
   // Hex-encoded account number
@@ -40,6 +42,10 @@ type SignatureResult = {
   signedTxBytes: Uint8Array;
 }
 
+export type TxOptions = {
+  memo?: string
+}
+
 /**
  * Represents a generic wallet that allows to perform on-chain operations.
  */
@@ -60,7 +66,7 @@ export class UserWallet {
    * Starts the process that can lead to the connection of the wallet.
    */
   static createSession() {
-    return this.connector.createSession();
+    this.connector.createSession();
   }
 
   /**
@@ -259,7 +265,7 @@ export class UserWallet {
     }
 
     // Build the fee info
-    const feeValue: StdFee = Chain.getStdFee();
+    const feeValue: StdFee = Chain.getStdFee(200_000);
 
     return this.sendWalletConnectRequestAmino(chainID, account, msgs, feeValue, memo);
   }
@@ -356,7 +362,7 @@ export class UserWallet {
     };
 
     // Build the fee info
-    const feeValue: Fee = Chain.getFee(signer);
+    const feeValue: Fee = Chain.getFee(200_000, signer);
 
     // Build the auth info
     const authInfo: AuthInfo = {
@@ -374,5 +380,29 @@ export class UserWallet {
     };
 
     return this.sendWalletConnectRequestDirect(chainID, account, authInfo, tx)
+  }
+
+  static async signTransaction(messages: EncodeObject[], options?: TxOptions): Promise<SignatureResult | Error> {
+    // Get the signer address
+    const signer = await this.getAddress();
+    if (signer == null) {
+      return new Error("Wallet is not connected");
+    }
+
+    // Get the signer account
+    const account = await Chain.getAccount(signer);
+    if (account == null) {
+      return new Error(`Account ${signer} not found on chain`);
+    }
+
+    // Build the fee info
+    const feeValue: StdFee = Chain.getStdFee(200_000);
+
+    try {
+      // return await client.sign(signer, messages, feeValue, memo || '');
+      return new Error("Not implemented");
+    } catch (e: any) {
+      return new Error(e.message);
+    }
   }
 }

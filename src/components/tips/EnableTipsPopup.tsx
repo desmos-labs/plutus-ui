@@ -3,11 +3,9 @@ import * as React from "react";
 import {ChangeEvent} from "react";
 import {ReactComponent as Icon} from "assets/authorization.svg";
 import {useDispatch, useSelector} from "react-redux";
-import {useAuth} from "components/auth/AuthProvider";
-import {LoggedIn} from "store/user";
 import {getTipsPopupState, resetTipsPopup, setGrantAmount, TipsPopupStep} from "store/dashboard/tips/popup";
 import {startTipAuthorizationProcess} from "store/dashboard/tips/popup/actions";
-import {getTxLink} from "types/crypto/chain";
+import {getTxLink} from "types/cosmos/chain";
 
 type EnableTipsPopupProps = {
   visible: boolean,
@@ -19,8 +17,6 @@ type EnableTipsPopupProps = {
 function EnableTipsPopup({visible}: EnableTipsPopupProps) {
   const state = useSelector(getTipsPopupState);
   const dispatch = useDispatch();
-
-  const userStatus = useAuth().userState as LoggedIn;
 
   /**
    * Returns the proper title and content for the given step.
@@ -70,10 +66,8 @@ function EnableTipsPopup({visible}: EnableTipsPopupProps) {
    * Handles the click on the grant button.
    */
   function onClickGrant() {
-    dispatch(startTipAuthorizationProcess({
-      granter: userStatus.desmosAddress,
-      amount: parseFloat(state.grantAmount) || 10,
-    }));
+    const amount = parseFloat(state.grantAmount) || 10;
+    dispatch(startTipAuthorizationProcess(amount));
   }
 
   /**

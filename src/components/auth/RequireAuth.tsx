@@ -3,7 +3,6 @@ import {useSelector} from "react-redux";
 import {getUserState} from "store/user";
 import {useLocation, Navigate} from "react-router-dom";
 
-
 /**
  * Represents the root of the application that renders the screen based on the current state of the user.
  * @constructor

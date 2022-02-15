@@ -1,15 +1,14 @@
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {startAuthorization} from "store/dashboard/oauth/root/actions";
-import {useAuth} from "components/auth/AuthProvider";
 import {Platform} from "types/oauth";
-import {LoggedIn, logout} from "store/user";
+import {logout} from "store/user";
 import {useEffect} from "react";
 import {getTipsState} from "store/dashboard/tips/root";
 import EnableTipsSection from "components/tips/EnableTipsSection";
 import TipsEnabledSection from "components/tips/TipsEnabledSection";
 import {initState} from "store/dashboard/root/actions";
-import {DashoardStatus, getDashboardState} from "store/dashboard/root";
+import {DashboardStatus, getDashboardState} from "store/dashboard/root";
 import {getDisplayName} from "types/desmos";
 import LoadingPage from "screens/LoadingPage";
 import {useSearchParams} from "react-router-dom";
@@ -22,7 +21,6 @@ import OAuthPopup from "components/oauth/OAuthPopup";
  */
 function DashboardPage() {
   const dispatch = useDispatch();
-  const userState = useAuth().userState as LoggedIn;
 
   const rootState = useSelector(getDashboardState);
   const tipsState = useSelector(getTipsState);
@@ -34,7 +32,6 @@ function DashboardPage() {
 
   useEffect(() => {
     dispatch(initState({
-      userAddress: userState.desmosAddress,
       oAuthParams: {oAuthCode: oAuthCode, oAuthState: oAuthState},
     }));
   }, [false])
@@ -47,7 +44,7 @@ function DashboardPage() {
     dispatch(logout());
   }
 
-  if (rootState.status == DashoardStatus.LOADING) {
+  if (rootState.status == DashboardStatus.LOADING) {
     return <LoadingPage/>;
   }
 

@@ -1,6 +1,6 @@
 import {RootState} from "store/index";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import UserStorage from "store/user/storage";
+import {UserWallet} from "types/cosmos/wallet";
 
 export * from "store/user/actions";
 
@@ -21,8 +21,9 @@ export type UserState = LoggedOut | LoggedIn
 export const userSlice = createSlice({
   name: 'user',
   initialState: (): UserState => {
-    return UserStorage.isLoggedIn() ?
-      {isLoggedIn: true, desmosAddress: UserStorage.getUserAddress()} :
+    const address = UserWallet.getAddress();
+    return address ?
+      {isLoggedIn: true, desmosAddress: address} :
       {isLoggedIn: false}
   },
   reducers: {

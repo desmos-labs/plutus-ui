@@ -1,6 +1,5 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createSlice} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
-import {StoredData} from "store/dashboard/oauth/storage";
 
 // --- STATE ---
 export type OAuthState = {}

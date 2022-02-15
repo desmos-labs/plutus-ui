@@ -8,7 +8,7 @@ import {
 } from "store/transaction";
 import * as React from "react";
 import TxMessage from "components/transactions/TxMessage";
-import {getTxLink} from "types/crypto/chain";
+import {getTxLink} from "types/cosmos/chain";
 
 /**
  * Represents the popup to confirm a generic tx.

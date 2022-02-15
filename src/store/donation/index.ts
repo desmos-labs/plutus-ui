@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
 import {Profile} from "types/desmos";
-import {DashoardStatus} from "store/dashboard/root";
+import {DashboardStatus} from "store/dashboard/root";
 
 // --- STATE ---
 export enum DonationStatus {

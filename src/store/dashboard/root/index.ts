@@ -3,18 +3,20 @@ import {RootState} from "store/index";
 import {Profile} from "types/desmos";
 
 // --- STATE ---
-export enum DashoardStatus {
+export enum DashboardStatus {
   LOADING,
+  ERROR,
   LOADED,
 }
 
 export type DashboardState = {
-  status: DashoardStatus,
-  userProfile: Profile,
+  status: DashboardStatus;
+  userProfile: Profile;
+  error?: string;
 }
 
 const initialState: DashboardState = {
-  status: DashoardStatus.LOADING,
+  status: DashboardStatus.LOADING,
   userProfile: {address: ''},
 }
 
@@ -23,11 +25,16 @@ const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState: initialState,
   reducers: {
-    setStatus(state, action: PayloadAction<DashoardStatus>) {
+    setStatus(state, action: PayloadAction<DashboardStatus>) {
       state.status = action.payload;
+      state.error = undefined;
     },
     setUserProfile(state, action: PayloadAction<Profile>) {
       state.userProfile = action.payload;
+    },
+    setError(state, action:PayloadAction<string>) {
+      state.status = DashboardStatus.ERROR;
+      state.error = action.payload;
     }
   }
 })
@@ -36,6 +43,7 @@ const dashboardSlice = createSlice({
 export const {
   setStatus,
   setUserProfile,
+  setError,
 } = dashboardSlice.actions;
 
 // --- SELECTORS ---

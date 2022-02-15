@@ -1,7 +1,7 @@
 import {ApolloClient, gql, InMemoryCache, NormalizedCacheObject} from "@apollo/client";
 import {Profile} from "types/desmos";
 
-const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
+const GRAPHQL_ENDPOINT = process.env.REACT_APP_CHAIN_GRAPHQL_ENDPOINT as string;
 const addressQuery = gql`
 query Address($application: String, $username: String) {
   application_link(where: {application: {_ilike: $application}, username: {_ilike: $username}}) {

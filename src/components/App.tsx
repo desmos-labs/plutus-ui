@@ -12,14 +12,13 @@ import AuthProvider from "components/auth/AuthProvider";
 import LoginPage from "screens/LoginPage";
 import HomePage from "../screens/HomePage";
 import TipsPage from "screens/TipsPage";
+import {DesmosSdkProvider} from "@desmoslabs/sdk-react";
 
 
 /**
  * Represents the container of all the application.
  */
 function App() {
-
-
   function getLocation(): boolean {
     const location = useLocation();
     console.log(location);
@@ -28,50 +27,52 @@ function App() {
 
   return (
     <Provider store={store}>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppBar/>
+      <DesmosSdkProvider chainId="morpheus-apollo-2">
+        <AuthProvider>
+          <BrowserRouter>
+            <AppBar/>
 
-          <Routes>
+            <Routes>
 
-            <Route path="/" element={<HomePage/>}/>
-            <Route path="/login" element={<LoginPage/>}/>
+              <Route path="/" element={<HomePage/>}/>
+              <Route path="/login" element={<LoginPage/>}/>
 
-            <Route
-              path="/dashboard"
-              element={
-                <RequireAuth>
-                  <DashboardPage/>
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/dashboard"
+                element={
+                  <RequireAuth>
+                    <DashboardPage/>
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/success"
-              element={
-                <RequireAuth>
-                  <OAuthPopup/>
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/success"
+                element={
+                  <RequireAuth>
+                    <OAuthPopup/>
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/tips"
-              element={
-                <RequireAuth>
-                  <TipsPage/>
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/tips"
+                element={
+                  <RequireAuth>
+                    <TipsPage/>
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/donate/:application/:username"
-              element={<DonationPage/>}
-            />
+              <Route
+                path="/donate/:application/:username"
+                element={<DonationPage/>}
+              />
 
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </DesmosSdkProvider>
     </Provider>
   );
 }

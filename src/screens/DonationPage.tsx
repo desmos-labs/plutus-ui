@@ -9,11 +9,11 @@ import {
   setUsername
 } from "store/donation";
 import {changeRecipientAddress, getRecipientAddresses, sendDonation} from "store/donation/actions";
-import {useAuth} from "components/auth/AuthProvider";
 import {ChangeEvent, useEffect} from "react";
 
 import ProfileCover from "components/profile/ProfileCover";
 import ConfirmTxPopup from "components/transactions/ConfirmTxPopup";
+import {getUserState} from "store/user";
 
 type Params = {
   application: string;
@@ -29,7 +29,7 @@ function DonationPage() {
   const navigate = useNavigate();
 
   // Get the user data
-  const userState = useAuth().userState;
+  const userState = useSelector(getUserState);
 
   // Get the donation state
   const dispatch = useDispatch();
@@ -76,7 +76,6 @@ function DonationPage() {
 
     dispatch(sendDonation({
       recipientAddress: state.recipientProfile.address,
-      tipperAddress: userState.desmosAddress,
       recipientApplication: application as string,
       recipientUsername: username as string,
       tipAmount: parseFloat(state.amount || '0.5'),

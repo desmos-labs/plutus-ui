@@ -6,6 +6,7 @@ import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 export enum TransactionStatus {
   NOTHING,
   TX_REQUEST_SENT,
+  BROADCASTING,
   ERROR,
   SUCCESS,
 }
@@ -26,9 +27,9 @@ export const transactionSlice = createSlice({
   name: 'transaction',
   initialState: initialState,
   reducers: {
-    setTxRequestSent(state, action: PayloadAction<Partial<TxBody>>) {
-      state.status = TransactionStatus.TX_REQUEST_SENT;
-      state.txBody = action.payload;
+    setTxStatus(state, action: PayloadAction<[TransactionStatus, Partial<TxBody>]>) {
+      state.status = action.payload[0];
+      state.txBody = action.payload[1];
     },
     setTxError(state, action: PayloadAction<string | undefined>) {
       state.status = TransactionStatus.ERROR;
@@ -51,7 +52,7 @@ export const transactionSlice = createSlice({
 
 // --- ACTIONS ---
 export const {
-  setTxRequestSent,
+  setTxStatus,
   setTxError,
   setTxSuccess,
   resetTxPopup,

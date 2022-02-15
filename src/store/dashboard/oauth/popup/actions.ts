@@ -2,8 +2,8 @@ import {OAuthParams} from "types/oauth";
 import {AppThunk} from "store/index";
 import {OAuthStorage, StoredData} from "store/dashboard/oauth/storage";
 import {OAuthAPIs} from "apis/oauth";
-import {AminoMsgSend} from "@cosmjs/stargate";
-import {UserWallet} from "types/crypto/wallet";
+import {AminoMsgSend, MsgSendEncodeObject} from "@cosmjs/stargate";
+import {UserWallet} from "types/cosmos/wallet";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {OAuthPopupStatus, setError, setOAuthCode, setStatus, setStoredData} from "store/dashboard/oauth/popup/index";
 
@@ -30,45 +30,6 @@ export function initOAuthPopupState({oAuthCode, oAuthState}: OAuthParams): AppTh
   }
 }
 
-async function signAmino(oAuthCode: string, data: StoredData) {
-  // Build the message
-  const msgSend: AminoMsgSend = {
-    type: "cosmos-sdk/MsgSend",
-    value: {
-      from_address: data.desmosAddress,
-      to_address: data.desmosAddress,
-      amount: [{
-        denom: '',
-        amount: '0',
-      }]
-    },
-  }
-
-  return await UserWallet.signTransactionAmino([msgSend], oAuthCode);
-}
-
-async function signDirect(oAuthCode: string, data: StoredData) {
-  // Build the message
-  const msgSend = {
-    fromAddress: data.desmosAddress,
-    toAddress: data.desmosAddress,
-    amount: [{
-      denom: '',
-      amount: '0',
-    }]
-  }
-
-  return await UserWallet.signTransactionDirect({
-    memo: oAuthCode,
-    messages: [
-      {
-        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-        value: MsgSend.encode(msgSend).finish(),
-      }
-    ],
-  });
-}
-
 /**
  * Finalizes the OAuth process associated with the given OAuth code and nonce.
  * The process is completed when we are sure the user performing the connection is the one that also
@@ -87,8 +48,22 @@ export function finalizeOAuth(oAuthCode?: string, data?: StoredData): AppThunk {
       return
     }
 
+    // Build the message
+    const msgSend: MsgSendEncodeObject = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: {
+        fromAddress: data.desmosAddress,
+        toAddress: data.desmosAddress,
+        amount: [{
+          denom: '',
+          amount: '0',
+        }]
+      }
+    }
+
+    // Ask the user to sign
     dispatch(setStatus(OAuthPopupStatus.REQUESTED_SIGNATURE));
-    const txResult = await signDirect(oAuthCode, data);
+    const txResult = await UserWallet.signTransaction([msgSend], {memo: oAuthCode});
     if (txResult instanceof Error) {
       dispatch(setError(txResult.message));
       return

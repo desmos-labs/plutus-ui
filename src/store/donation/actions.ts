@@ -9,12 +9,13 @@ import {
   setRecipientProfile,
   setStatus,
 } from "store/donation/index";
-import {UserWallet} from "types/crypto/wallet";
+import {UserWallet} from "types/cosmos/wallet";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {Chain} from "types/crypto/chain";
+import {Chain} from "types/cosmos/chain";
 import Graphql from "apis/graphql";
-import {setTxError, setTxRequestSent, setTxSuccess} from "store/transaction";
+import {setTxError} from "store/transaction";
+import {sendTx} from "store/transaction/actions";
 
 /**
  * Retrieves the recipient addresses based on the application and the username.
@@ -49,11 +50,14 @@ export function changeRecipientAddress(desmosAddress: string): AppThunk {
  */
 export function sendDonation(donation: Donation): AppThunk {
   return async dispatch => {
-    dispatch(setStatus(DonationStatus.CONFIRMING_TX));
+    const userAddress = UserWallet.getAddress();
+    if (!userAddress) {
+      dispatch(setError("Invalid user address"));
+      return
+    }
 
-    // Build the message
     const sendMsg: MsgSend = {
-      fromAddress: donation.tipperAddress,
+      fromAddress: userAddress,
       toAddress: donation.recipientAddress,
       amount: [{
         amount: (donation.tipAmount * 1_000_000).toString(),
@@ -70,33 +74,20 @@ export function sendDonation(donation: Donation): AppThunk {
       memo: donation.message,
     };
 
-    // Set the request as sent
-    dispatch(setTxRequestSent(transaction));
 
-    // Try signing the transaction
-    const result = await UserWallet.signTransactionDirect(transaction);
-    if (result instanceof Error) {
-      dispatch(setTxError(result.message));
-      return;
+    const response = await dispatch(sendTx(transaction));
+    if (response instanceof Error) {
+      return
     }
 
-    try {
-      // Broadcast the transaction
-      const response = await Chain.broadcastTx(result.signedTxBytes);
-      console.log(response.transactionHash);
-
-      // Call the APIs
-      const error = await PlutusAPI.sendDonation(donation, response.transactionHash);
-      if (error != null) {
-        dispatch(setTxError(error.message));
-        return
-      }
-
-      dispatch(setTxSuccess(response.transactionHash));
-      dispatch(reset);
-    } catch (e) {
-      console.log(e);
-      dispatch(setTxError('Broadcasting error'));
+    // Call the APIs
+    const error = await PlutusAPI.sendDonation(donation, response.transactionHash);
+    if (error != null) {
+      dispatch(setTxError(error.message));
+      return
     }
+
+    // Reset the state
+    dispatch(reset());
   }
 }
