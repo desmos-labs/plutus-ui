@@ -1,35 +1,41 @@
 import {DonationStatus, reset, setStatus} from "store/donation";
-import {Chain} from "types/cosmos/chain";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {setTxError, setTxStatus, setTxSuccess, TransactionStatus} from "store/transaction/index";
-import {UserWallet} from "types/cosmos/wallet";
+import {setTxError, setTxStatus, setTxSuccess, TransactionData, TransactionStatus} from "store/transaction/index";
+import {TxOptions, UserWallet} from "types/cosmos/wallet";
 import {RootState} from "store/index";
 import {ThunkAction} from "redux-thunk";
 import {Action} from "@reduxjs/toolkit";
 import {DeliverTxResponse} from "@cosmjs/stargate";
+import {EncodeObject} from "@cosmjs/proto-signing";
 
 export type TxThunk = ThunkAction<Promise<DeliverTxResponse | Error>, RootState, null, Action<string>>
 
 /**
  * Allows to send the given transaction and update the transaction popup during the whole process.
- * @param tx {Partial<TxBody>}: Transaction to be sent.
+ * @param sender {string}: Address of the transaction sender.
+ * @param messages {EncodeObject[]}: List of messages to be included inside the transaction.
+ * @param options {TxOptions | undefined}: Options for the transaction.
  */
-export function sendTx(tx: Partial<TxBody>): TxThunk {
+export function sendTx(sender: string, messages: EncodeObject[], options?: TxOptions): TxThunk {
   return async dispatch => {
     dispatch(setStatus(DonationStatus.CONFIRMING_TX));
 
+    const txData: TransactionData = {
+      messages: messages,
+      memo: options?.memo,
+    }
+
     // Try signing the transaction
-    const result = await UserWallet.signTransactionDirect(tx);
+    dispatch(setTxStatus([TransactionStatus.TX_REQUEST_SENT, txData]));
+    const result = await UserWallet.signTransaction(sender, messages, options);
     if (result instanceof Error) {
       dispatch(setTxError(result.message));
       return new Error(result.message);
     }
-    dispatch(setTxStatus([TransactionStatus.TX_REQUEST_SENT, tx]));
 
     try {
       // Broadcast the transaction
-      dispatch(setTxStatus([TransactionStatus.BROADCASTING, tx]));
-      const response = await Chain.broadcastTx(result.signedTxBytes);
+      dispatch(setTxStatus([TransactionStatus.BROADCASTING, txData]));
+      const response = await UserWallet.broadcastTx(result.txRaw);
       if (response.code != 0) {
         setTxError(response.rawLog);
         return new Error(response.rawLog);

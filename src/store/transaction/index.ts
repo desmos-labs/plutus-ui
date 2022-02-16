@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "store/index";
 import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {EncodeObject, TxBodyEncodeObject} from "@cosmjs/proto-signing";
 
 // --- STATE ---
 export enum TransactionStatus {
@@ -11,9 +12,14 @@ export enum TransactionStatus {
   SUCCESS,
 }
 
+export type TransactionData = {
+  messages: EncodeObject[],
+  memo?: string,
+}
+
 export type TransactionState = {
   status: TransactionStatus,
-  txBody?: Partial<TxBody>,
+  txBody?: TransactionData,
   txHash?: string;
   error?: string;
 }
@@ -27,7 +33,7 @@ export const transactionSlice = createSlice({
   name: 'transaction',
   initialState: initialState,
   reducers: {
-    setTxStatus(state, action: PayloadAction<[TransactionStatus, Partial<TxBody>]>) {
+    setTxStatus(state, action: PayloadAction<[TransactionStatus, TransactionData]>) {
       state.status = action.payload[0];
       state.txBody = action.payload[1];
     },

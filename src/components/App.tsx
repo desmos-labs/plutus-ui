@@ -12,22 +12,14 @@ import AuthProvider from "components/auth/AuthProvider";
 import LoginPage from "screens/LoginPage";
 import HomePage from "../screens/HomePage";
 import TipsPage from "screens/TipsPage";
-import {DesmosSdkProvider} from "@desmoslabs/sdk-react";
 
 
 /**
  * Represents the container of all the application.
  */
 function App() {
-  function getLocation(): boolean {
-    const location = useLocation();
-    console.log(location);
-    return false;
-  }
-
   return (
     <Provider store={store}>
-      <DesmosSdkProvider chainId="morpheus-apollo-2">
         <AuthProvider>
           <BrowserRouter>
             <AppBar/>
@@ -72,7 +64,6 @@ function App() {
             </Routes>
           </BrowserRouter>
         </AuthProvider>
-      </DesmosSdkProvider>
     </Provider>
   );
 }

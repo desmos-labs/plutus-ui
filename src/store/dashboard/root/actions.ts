@@ -18,21 +18,21 @@ export function initState(params: InitStateParams): AppThunk {
   return async dispatch => {
     dispatch(setStatus(DashboardStatus.LOADING));
 
-    const address = UserWallet.getAddress();
-    if (!address) {
-      dispatch(setError("Invalid user address"));
+    const account = await UserWallet.getAccount();
+    if (!account) {
+      dispatch(setError("Invalid user account"));
       return
     }
 
     // Get the user profile
-    const profile = await GraphQL.getProfile(address);
+    const profile = await GraphQL.getProfile(account.address);
     dispatch(setUserProfile(profile));
 
     // Init the various subsection states
     await Promise.all([
       dispatch(initOAuthState(params.oAuthParams)),
-      dispatch(initIntegrationsState(address)),
-      dispatch(initTipsState(address)),
+      dispatch(initIntegrationsState(account.address)),
+      dispatch(initTipsState(account.address)),
     ]);
 
     // Set everything as loaded

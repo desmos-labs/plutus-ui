@@ -1,45 +1,29 @@
 import {Chain} from "types/cosmos/chain";
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
-import {AuthInfo, Fee, SignDoc, SignerInfo, TxBody, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {Any} from "cosmjs-types/google/protobuf/any";
-import {SignMode} from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import Long from "long";
-import {Account, StdFee} from "@cosmjs/stargate";
-import {sign} from "crypto";
-import {AminoMsg, StdSignDoc} from "@cosmjs/amino";
-import {DesmosClient} from "@desmoslabs/sdk-core/build/desmosclient";
+import {DeliverTxResponse, StdFee} from "@cosmjs/stargate";
 import {EncodeObject} from "@cosmjs/proto-signing";
+import {Signer, SigningMode, WalletConnectSigner, SignerObserver, SignatureResult} from "@desmoslabs/desmjs";
+import {ChainClient} from "types/cosmos/client";
+import {SignDoc, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {AccountData, StdSignDoc} from "@cosmjs/amino";
 
-type WalletConnectSignResponse = {
-  // Hex-encoded account number
-  accountNumber: string;
+const RPC_ENDPOINT = process.env.REACT_APP_CHAIN_RPC_ENDPOINT as string;
 
-  // Hex-encoded auth info bytes used during the signature
-  authInfoBytes: string;
-
-  // Hex-encoded body bytes used during the signature
-  bodyBytes: string;
-
-  // Plain text chain id
-  chainId: string;
-
-  // Hex-encoded signature
-  signature: string;
+export function isSignDoc(value: StdSignDoc | SignDoc): value is SignDoc {
+  return (<SignDoc>value).bodyBytes !== undefined &&
+    (<SignDoc>value).authInfoBytes !== undefined &&
+    (<SignDoc>value).chainId !== undefined &&
+    (<SignDoc>value).accountNumber !== undefined
 }
 
-type SignatureResult = {
-  // Value that has been signed
-  signDocBytes: Uint8Array;
-
-  // Public key associated to the private key used to sign the sign doc
-  pubKeyBytes: Uint8Array;
-
-  // Result of the signature
-  signatureBytes: Uint8Array;
-
-  // Complete transaction after being signed
-  signedTxBytes: Uint8Array;
+export function isStdSignDoc(value: StdSignDoc | SignDoc): value is StdSignDoc {
+  return (<StdSignDoc>value).memo !== undefined &&
+    (<StdSignDoc>value).msgs !== undefined &&
+    (<StdSignDoc>value).fee !== undefined &&
+    (<StdSignDoc>value).account_number !== undefined &&
+    (<StdSignDoc>value).chain_id !== undefined &&
+    (<StdSignDoc>value).account_number !== undefined;
 }
 
 export type TxOptions = {
@@ -55,354 +39,95 @@ export class UserWallet {
     qrcodeModal: QRCodeModal,
   });
 
-  /**
-   * Returns whether the wallet is connected or not.
-   */
-  static isConnected(): boolean {
-    return this.connector.connected;
-  }
+  // @ts-ignore
+  private static signer: Signer = new WalletConnectSigner(this.connector, {
+    signingMode: SigningMode.AMINO,
+  });
+
+  private static client?: ChainClient;
 
   /**
-   * Starts the process that can lead to the connection of the wallet.
-   */
-  static createSession() {
-    this.connector.createSession();
-  }
-
-  /**
-   * Sets the callback function to be called when the wallet is connected.
-   */
-  static setOnConnect(callback: (error: Error | null, address: string) => void) {
-    this.connector.on('connect', (error, payload) => {
-      if (error != null) {
-        callback(error, '');
-        return
-      }
-
-      const {accounts, chainId} = payload.params[0];
-      const desmosAddress = accounts[chainId];
-      callback(null, desmosAddress);
-    })
-  }
-
-  /**
-   * Sets the callback to be called when the session is updated.
-   */
-  static setOnSessionUpdate(callback: (error: Error | null, address: string) => void) {
-    this.connector.on('session_update', (error, payload) => {
-      if (error != null) {
-        callback(error, '');
-        return
-      }
-
-      const {accounts, chainId} = payload.params[0];
-      const desmosAddress = accounts[chainId];
-      callback(null, desmosAddress);
-    })
-  }
-
-  /**
-   * Sets the callback to be called when the user disconnects the wallet from the app.
-   */
-  static setOnDisconnect(callback: (error: Error | null) => void) {
-    this.connector.on('disconnect', callback);
-  }
-
-  /**
-   * Disconnects the wallet from the current session.
-   */
-  static disconnect() {
-    this.connector.killSession();
-  }
-
-  /**
-   * Returns the address associated with this account.
-   */
-  static getAddress(): string | null {
-    if (!this.isConnected()) {
-      return null
-    }
-    return this.connector.accounts[0];
-  }
-
-  /**
-   * Converts the given `SignDoc` field values to string by hex-encoding them.
-   */
-  private static stringifySignDocValues(signDoc: SignDoc) {
-    return {
-      ...signDoc,
-      bodyBytes: Buffer.from(signDoc.bodyBytes).toString('hex'),
-      authInfoBytes: Buffer.from(signDoc.authInfoBytes).toString('hex'),
-      accountNumber: signDoc.accountNumber.toString(16),
-    };
-  }
-
-  /**
-   * Parses the field values of the given object returning a `SignDoc` instance which values
-   * are byte arrays instead of hex-encoded strings.
-   */
-  private static parseSignDocValues(signDoc: any): SignDoc {
-    return {
-      accountNumber: Long.fromString(signDoc.accountNumber, 16),
-      authInfoBytes: Uint8Array.from(Buffer.from(signDoc.authInfoBytes, 'hex')),
-      bodyBytes: Uint8Array.from(Buffer.from(signDoc.bodyBytes, 'hex')),
-      chainId: signDoc.chainId,
-    }
-  }
-
-  /**
-   * Parses the given WalletConnectSignResponse and returns the contained SignDoc, public key and signature.
-   * Returns an error if anything goes wrong.
-   * @param response {WalletConnectSignResponse}: Response returned from W
+   * Returns a non null ChainClient, creating it if required.
    * @private
    */
-  private static parseWalletConnectResponse(response: WalletConnectSignResponse): {
-    signedSignDoc: SignDoc,
-    publicKey: Any,
-    signature: Uint8Array
-  } | Error {
-    // Parse the returned transaction
-    const signedSignDoc = this.parseSignDocValues(response);
-
-    // Get the public key used for signing
-    const returnedAuthInfo = AuthInfo.decode(signedSignDoc.authInfoBytes);
-    const publicKey = returnedAuthInfo.signerInfos[0].publicKey;
-    if (!publicKey) {
-      return new Error("Returned public key is null");
+  private static async requireClient(): Promise<ChainClient> {
+    if (!this.client) {
+      this.client = await ChainClient.withSigner(RPC_ENDPOINT, this.signer);
     }
-
-    // Get the signature bytes
-    const signatureBytes = Uint8Array.from(Buffer.from(response.signature, 'hex'))
-    return {
-      signedSignDoc: signedSignDoc,
-      publicKey: publicKey,
-      signature: signatureBytes,
-    }
+    return this.client!
   }
 
   /**
-   * Sends a WalletConnect request to sign the given request using SIGN_MODE_AMINO.
-   * @param chainID {string}: ID of the chain for which the transaction is being signed.
-   * @param account {Account}: Signer account.
-   * @param msgs {[AminoMsg]}: Messages to be included inside the transaction.
-   * @param fee {StdFee}: Fees to be paid for the transaction.
-   * @param memo {string}: Memo to be included inside the transaction.
-   * @private
+   * Adds a status observer.
+   * @param observer {SignerObserver}: Observer for the signer status.
    */
-  private static async sendWalletConnectRequestAmino(
-    chainID: string,
-    account: Account,
-    msgs: [AminoMsg],
-    fee: StdFee,
-    memo: string,
-  ): Promise<SignatureResult | Error> {
-    try {
-      // Build the WalletConnect params
-      const signDoc: StdSignDoc = {
-        memo: memo,
-        fee: fee,
-        account_number: account.accountNumber.toString(),
-        sequence: account.sequence.toString(),
-        chain_id: chainID,
-        msgs: msgs,
-      }
-
-      const params = [{
-        signerAddress: account.address,
-        signDoc: signDoc,
-      }];
-
-      // Send the request to WalletConnect
-      const response = await this.connector.sendCustomRequest({
-        jsonrpc: "2.0",
-        method: "cosmos_signAmino",
-        params: params,
-      }, {forcePushNotification: true}) as WalletConnectSignResponse;
-      console.log(response);
-
-      return new Error("Implement me");
-
-      // const parsedResponse = this.parseWalletConnectResponse(response);
-      // if (parsedResponse instanceof Error) {
-      //   return parsedResponse;
-      // }
-      //
-      // // Build the signed tx raw
-      // const txRaw: TxRaw = {
-      //   authInfoBytes: parsedResponse.signedSignDoc.authInfoBytes,
-      //   bodyBytes: parsedResponse.signedSignDoc.bodyBytes,
-      //   signatures: [parsedResponse.signature]
-      // }
-      //
-      // // Return the raw transaction data
-      // return {
-      //   signDocBytes: SignDoc.encode(parsedResponse.signedSignDoc).finish(),
-      //   pubKeyBytes: Any.encode(parsedResponse.publicKey).finish(),
-      //   signatureBytes: parsedResponse.signature,
-      //   signedTxBytes: TxRaw.encode(txRaw).finish(),
-      // };
-
-    } catch (e) {
-      console.log(e);
-      return new Error("Request refused by the user");
-    }
-  }
-
-  static async signTransactionAmino(msgs: [AminoMsg], memo: string): Promise<SignatureResult | Error> {
-    // Get the chain id
-    const chainID = await Chain.getID();
-
-    // Get the signer address
-    const signer = await this.getAddress();
-    if (signer == null) {
-      return new Error("Wallet is not connected");
-    }
-
-    // Get the signer account
-    const account = await Chain.getAccount(signer);
-    if (account == null) {
-      return new Error(`Account ${signer} not found on chain`);
-    }
-
-    // Build the fee info
-    const feeValue: StdFee = Chain.getStdFee(200_000);
-
-    return this.sendWalletConnectRequestAmino(chainID, account, msgs, feeValue, memo);
+  public static addStatusObserver(observer: SignerObserver) {
+    this.signer.addStatusListener(observer)
   }
 
   /**
-   * Sends a WalletConnect request to sign the given request using SIGN_MODE_DIRECT.
-   * @param chainID {string}: ID of the chain for which the transaction is being signed.
-   * @param account {Account}: Signer account.
-   * @param authInfo {AuthInfo}: Authentication info used to sign the transaction.
-   * @param transaction {TxBody}: Body of the transaction to be sent.
-   * @private
+   * Checks if the wallet is connected.
    */
-  private static async sendWalletConnectRequestDirect(
-    chainID: string,
-    account: Account,
-    authInfo: AuthInfo,
-    transaction: TxBody,
-  ): Promise<SignatureResult | Error> {
-    try {
-      // Build the WalletConnect params
-      const authInfoBytes = AuthInfo.encode(authInfo).finish();
-      const bodyBytes = TxBody.encode(transaction).finish();
-      const signDoc: SignDoc = {
-        bodyBytes: bodyBytes,
-        accountNumber: Long.fromNumber(account.accountNumber),
-        authInfoBytes: authInfoBytes,
-        chainId: chainID,
-      }
-
-      const params = [{
-        signerAddress: account.address,
-        signDoc: this.stringifySignDocValues(signDoc),
-      }];
-
-      // Send the request to WalletConnect
-      const response = await this.connector.sendCustomRequest({
-        jsonrpc: "2.0",
-        method: "cosmos_signDirect",
-        params: params,
-      }, {forcePushNotification: true}) as WalletConnectSignResponse;
-      console.log(response);
-
-      const parsedResponse = this.parseWalletConnectResponse(response);
-      if (parsedResponse instanceof Error) {
-        return parsedResponse;
-      }
-
-      // Build the signed tx raw
-      const txRaw: TxRaw = {
-        authInfoBytes: parsedResponse.signedSignDoc.authInfoBytes,
-        bodyBytes: parsedResponse.signedSignDoc.bodyBytes,
-        signatures: [parsedResponse.signature]
-      }
-
-      // Return the raw transaction data
-      return {
-        signDocBytes: SignDoc.encode(parsedResponse.signedSignDoc).finish(),
-        pubKeyBytes: Any.encode(parsedResponse.publicKey).finish(),
-        signatureBytes: parsedResponse.signature,
-        signedTxBytes: TxRaw.encode(txRaw).finish(),
-      };
-
-    } catch (e) {
-      console.log(e);
-      return new Error("Request refused by the user");
-    }
+  public static isConnected(): boolean {
+    return this.signer.isConnected;
   }
 
   /**
-   * Signs the given transaction using the signer address, and returns the signed transaction as the result.
-   * If something goes wrong, returns `false` instead.
-   * @param transaction {TxBody}: Body of the transaction to be signed.
+   * Connects the wallet.
    */
-  static async signTransactionDirect(transaction: Partial<TxBody>): Promise<SignatureResult | Error> {
-    // Get the chain id
-    const chainID = await Chain.getID();
-
-    // Get the signer address
-    const signer = await this.getAddress();
-    if (signer == null) {
-      return new Error("Wallet is not connected");
-    }
-
-    // Get the signer account
-    const account = await Chain.getAccount(signer);
-    if (account == null) {
-      return new Error(`Account ${signer} not found on chain`);
-    }
-
-    // Build the signer info
-    const signerInfo: SignerInfo = {
-      modeInfo: {single: {mode: SignMode.SIGN_MODE_DIRECT}},
-      sequence: Long.fromNumber(account.sequence)
-    };
-
-    // Build the fee info
-    const feeValue: Fee = Chain.getFee(200_000, signer);
-
-    // Build the auth info
-    const authInfo: AuthInfo = {
-      signerInfos: [signerInfo],
-      fee: feeValue
-    };
-
-    // Build the transaction body
-    const tx: TxBody = {
-      messages: transaction.messages || [],
-      memo: transaction.memo || '',
-      extensionOptions: transaction.extensionOptions || [],
-      nonCriticalExtensionOptions: transaction.nonCriticalExtensionOptions || [],
-      timeoutHeight: transaction.timeoutHeight || Long.fromNumber(0),
-    };
-
-    return this.sendWalletConnectRequestDirect(chainID, account, authInfo, tx)
-  }
-
-  static async signTransaction(messages: EncodeObject[], options?: TxOptions): Promise<SignatureResult | Error> {
-    // Get the signer address
-    const signer = await this.getAddress();
-    if (signer == null) {
-      return new Error("Wallet is not connected");
-    }
-
-    // Get the signer account
-    const account = await Chain.getAccount(signer);
-    if (account == null) {
-      return new Error(`Account ${signer} not found on chain`);
-    }
-
-    // Build the fee info
-    const feeValue: StdFee = Chain.getStdFee(200_000);
-
+  public static async connect(): Promise<Error | undefined> {
     try {
-      // return await client.sign(signer, messages, feeValue, memo || '');
-      return new Error("Not implemented");
+      await this.signer.connect();
     } catch (e: any) {
       return new Error(e.message);
     }
+  }
+
+  /**
+   * Disconnects the current wallet session.
+   */
+  public static disconnect() {
+    this.signer.disconnect();
+  }
+
+  /**
+   * Returns the currently used account.
+   */
+  public static async getAccount(): Promise<AccountData | undefined> {
+    const accounts = await this.signer.getAccounts();
+    if (!accounts) {
+      return undefined;
+    }
+    return accounts[0];
+  }
+
+  /**
+   * Signs the transaction with the specified data.
+   * @param sender {string}: Address of the transaction sender.
+   * @param messages {EncodeObject[]}: List of messages to be included inside the transaction.
+   * @param options {TxOptions | undefined}: Options for the transaction.
+   */
+  static async signTransaction(sender: string, messages: EncodeObject[], options?: TxOptions): Promise<SignatureResult | Error> {
+    try {
+      // Get the client
+      const client = await this.requireClient();
+
+      // Build the fee info
+      const feeValue: StdFee = Chain.getStdFee(200_000);
+
+      // Sign the transaction
+      return await client.signTx(sender, messages, feeValue, options?.memo || '')
+    } catch (e: any) {
+      return new Error(e.message);
+    }
+  }
+
+  /**
+   * Broadcasts the given transaction bytes.
+   * @param tx {TxRaw}: Signed transaction bytes.
+   */
+  static async broadcastTx(tx: TxRaw): Promise<DeliverTxResponse> {
+    const client = await this.requireClient();
+    return client.broadcastTx(TxRaw.encode(tx).finish())
   }
 }

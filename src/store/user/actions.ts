@@ -1,6 +1,18 @@
 import {AppThunk} from "store/index";
-import {setUserStatus} from "store/user/index";
+import {setUserStatus, UserState} from "store/user/index";
 import {UserWallet} from "types/cosmos/wallet";
+import {SignerStatus} from "@desmoslabs/desmjs";
+
+/**
+ * Initializes the user state.
+ */
+export function initUserState(): AppThunk {
+  return async dispatch => {
+    const account = await UserWallet.getAccount();
+    const state: UserState = account ? {isLoggedIn: true, account: account} : {isLoggedIn: false};
+    dispatch(setUserStatus(state))
+  }
+}
 
 /**
  * Allows to perform the login of a user using WalletConnect.
@@ -9,35 +21,35 @@ export function loginWithWalletConnect(): AppThunk {
   return async dispatch => {
 
     /**
-     * Updates the current login status of the user inside the UserStorage.
+     * Observes the status of the wallet emitting the proper events when needed.
      */
-    function setUserLoggedIn(error: Error | null, desmosAddress: string) {
-      if (error != null) {
-        dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
-        return
+    async function observeWalletStatus(status: SignerStatus) {
+      if (status == SignerStatus.Connected) {
+        const account = await UserWallet.getAccount();
+        if (!account) {
+          setUserStatus({isLoggedIn: false, message: "Acount is null"});
+          return
+        }
+
+        dispatch(setUserStatus({isLoggedIn: true, account: account}));
+        return;
       }
 
-      // Dispatch the event
-      dispatch(setUserStatus({isLoggedIn: true, desmosAddress: desmosAddress}));
+      if (status == SignerStatus.NotConnected) {
+        dispatch(setUserStatus({isLoggedIn: false}));
+        return;
+      }
     }
 
-    /**
-     * Updates the current login status of the user inside the UserStorage.
-     */
-    function setUserLoggedOut(error: Error | null) {
-      // Disconnect from the wallet
-      UserWallet.disconnect();
+    // Add the status observer
+    UserWallet.addStatusObserver(observeWalletStatus)
 
-      // Dispatch the event
-      dispatch(setUserStatus({isLoggedIn: false, message: error?.message}));
-    }
-
-    UserWallet.setOnConnect(setUserLoggedIn);
-    UserWallet.setOnSessionUpdate(setUserLoggedIn);
-    UserWallet.setOnDisconnect(setUserLoggedOut);
-
+    // If the user is not connected, create a new session
     if (!UserWallet.isConnected()) {
-      UserWallet.createSession();
+      const error = await UserWallet.connect();
+      if (error) {
+        dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
+      }
     }
   }
 }

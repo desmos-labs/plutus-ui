@@ -20,10 +20,10 @@ export function initOAuthState(params: OAuthParams): AppThunk {
  * Stats the authorization process for the given platform.
  */
 export function startAuthorization(platform: Platform): AppThunk {
-  return _ => {
-    const desmosAddress = UserWallet.getAddress();
-    if (!desmosAddress) {
-      console.error("Invalid user address")
+  return async _ => {
+    const account = await UserWallet.getAccount();
+    if (!account) {
+      console.error("Invalid user account")
       return
     }
 
@@ -31,7 +31,7 @@ export function startAuthorization(platform: Platform): AppThunk {
     const {nonce, url} = OAuthAPIs.startConnection(platform);
 
     // Store the nonce locally
-    OAuthStorage.storeData(nonce, platform, desmosAddress);
+    OAuthStorage.storeData(nonce, platform, account.address);
 
     // Redirect the user
     window.location.href = url;

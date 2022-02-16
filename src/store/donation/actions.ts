@@ -10,12 +10,11 @@ import {
   setStatus,
 } from "store/donation/index";
 import {UserWallet} from "types/cosmos/wallet";
-import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {Chain} from "types/cosmos/chain";
 import Graphql from "apis/graphql";
 import {setTxError} from "store/transaction";
 import {sendTx} from "store/transaction/actions";
+import {MsgSendEncodeObject} from "@cosmjs/stargate";
 
 /**
  * Retrieves the recipient addresses based on the application and the username.
@@ -50,32 +49,27 @@ export function changeRecipientAddress(desmosAddress: string): AppThunk {
  */
 export function sendDonation(donation: Donation): AppThunk {
   return async dispatch => {
-    const userAddress = UserWallet.getAddress();
-    if (!userAddress) {
-      dispatch(setError("Invalid user address"));
+    const account = await UserWallet.getAccount();
+    if (!account) {
+      dispatch(setError("Invalid account"));
       return
     }
 
-    const sendMsg: MsgSend = {
-      fromAddress: userAddress,
-      toAddress: donation.recipientAddress,
-      amount: [{
-        amount: (donation.tipAmount * 1_000_000).toString(),
-        denom: Chain.getFeeDenom(),
-      }]
+    // Build the donation message
+    const sendMsg: MsgSendEncodeObject = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: {
+        fromAddress: account.address,
+        toAddress: donation.recipientAddress,
+        amount: [{
+          amount: (donation.tipAmount * 1_000_000).toString(),
+          denom: Chain.getFeeDenom(),
+        }]
+      }
     };
 
-    // Build the transaction
-    const transaction: Partial<TxBody> = {
-      messages: [{
-        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-        value: MsgSend.encode(sendMsg).finish(),
-      }],
-      memo: donation.message,
-    };
-
-
-    const response = await dispatch(sendTx(transaction));
+    // Send the transaction
+    const response = await dispatch(sendTx(account.address, [sendMsg], {memo: donation.message}));
     if (response instanceof Error) {
       return
     }

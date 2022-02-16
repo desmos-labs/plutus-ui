@@ -5,7 +5,7 @@ import {
   StdFee
 } from "@cosmjs/stargate";
 import {Fee} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {DesmosClient} from "types/cosmos/client";
+import {ChainClient} from "types/cosmos/client";
 import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
 import {Uint64} from "@cosmjs/math";
@@ -27,11 +27,11 @@ export function getTxLink(txHash: string | undefined): string {
  * Allows performing common operations on the chain.
  */
 export class Chain {
-  private static _client?: DesmosClient;
+  private static _client?: ChainClient;
 
-  private static async requireClient(): Promise<DesmosClient> {
+  public static async requireClient(): Promise<ChainClient> {
     if (!this._client) {
-      this._client = await DesmosClient.connect(RPC_ENDPOINT);
+      this._client = await ChainClient.connect(RPC_ENDPOINT);
     }
     return this._client;
   }
@@ -77,14 +77,7 @@ export class Chain {
     }
   }
 
-  /**
-   * Broadcasts the given transaction bytes.
-   * @param txBytes {Uint8Array}: Signed transaction bytes.
-   */
-  static async broadcastTx(txBytes: Uint8Array): Promise<DeliverTxResponse> {
-    const client = await this.requireClient();
-    return client.broadcastTx(txBytes)
-  }
+
 
   /**
    * Tries getting the account associated with the given Desmos address.

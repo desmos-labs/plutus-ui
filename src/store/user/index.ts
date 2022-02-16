@@ -1,6 +1,6 @@
 import {RootState} from "store/index";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {UserWallet} from "types/cosmos/wallet";
+import {AccountData} from "@cosmjs/amino";
 
 export * from "store/user/actions";
 
@@ -12,7 +12,7 @@ export interface LoggedOut {
 
 export interface LoggedIn {
   isLoggedIn: true
-  desmosAddress: string;
+  account: AccountData;
 }
 
 export type UserState = LoggedOut | LoggedIn
@@ -21,10 +21,7 @@ export type UserState = LoggedOut | LoggedIn
 export const userSlice = createSlice({
   name: 'user',
   initialState: (): UserState => {
-    const address = UserWallet.getAddress();
-    return address ?
-      {isLoggedIn: true, desmosAddress: address} :
-      {isLoggedIn: false}
+    return {isLoggedIn: false}
   },
   reducers: {
     setUserStatus(state, action: PayloadAction<UserState>) {

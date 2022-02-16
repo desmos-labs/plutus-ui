@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getUserState, loginWithWalletConnect, logout, UserState} from "store/user";
+import {getUserState, initUserState, loginWithWalletConnect, logout, UserState} from "store/user";
 
 interface AuthContextType {
   userState: UserState;
@@ -19,6 +19,11 @@ const AuthContext = React.createContext<AuthContextType>(null!);
 function AuthProvider({children}: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const userState = useSelector(getUserState);
+
+  // Initialize the user state during load up
+  useEffect(() => {
+    dispatch(initUserState());
+  }, [false]);
 
   const performLogin = (callback: VoidFunction) => {
     dispatch(loginWithWalletConnect());
