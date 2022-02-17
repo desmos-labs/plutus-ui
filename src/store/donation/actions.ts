@@ -1,4 +1,4 @@
-import {AppThunk} from "store/index";
+import {AppThunk} from "../index";
 import {Donation} from "types/donations";
 import {PlutusAPI} from "apis/plutus";
 import {
@@ -8,18 +8,16 @@ import {
   setRecipientAddresses,
   setRecipientProfile,
   setStatus,
-} from "store/donation/index";
+} from "./index";
 import {UserWallet} from "types/cosmos/wallet";
-import {Chain} from "types/cosmos/chain";
 import Graphql from "apis/graphql";
-import {setTxError} from "store/transaction";
 import {sendTx} from "store/transaction/actions";
 import {MsgSendEncodeObject} from "@cosmjs/stargate";
 
 /**
  * Retrieves the recipient addresses based on the application and the username.
  */
-export function getRecipientAddresses(application: string, username: string): AppThunk {
+export function initDonationState(application: string, username: string): AppThunk {
   return async dispatch => {
     const addresses = await Graphql.getAddresses(application, username)
     if (!addresses) {
@@ -63,7 +61,7 @@ export function sendDonation(donation: Donation): AppThunk {
         toAddress: donation.recipientAddress,
         amount: [{
           amount: (donation.tipAmount * 1_000_000).toString(),
-          denom: Chain.getFeeDenom(),
+          denom: UserWallet.getFeeDenom(),
         }]
       }
     };
@@ -71,13 +69,14 @@ export function sendDonation(donation: Donation): AppThunk {
     // Send the transaction
     const response = await dispatch(sendTx(account.address, [sendMsg], {memo: donation.message}));
     if (response instanceof Error) {
+      dispatch(setError(response.message));
       return
     }
 
     // Call the APIs
-    const error = await PlutusAPI.sendDonation(donation, response.transactionHash);
+    const error = await PlutusAPI.sendDonationAlert(donation, response.transactionHash);
     if (error != null) {
-      dispatch(setTxError(error.message));
+      dispatch(setError(error.message));
       return
     }
 

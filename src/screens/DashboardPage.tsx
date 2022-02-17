@@ -1,18 +1,15 @@
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {startAuthorization} from "store/dashboard/oauth/root/actions";
 import {Platform} from "types/oauth";
-import {logout} from "store/user";
+import {getLoggedInUser, logout} from "store/user";
 import {useEffect} from "react";
-import {getTipsState} from "store/dashboard/tips/root";
 import EnableTipsSection from "components/tips/EnableTipsSection";
 import TipsEnabledSection from "components/tips/TipsEnabledSection";
-import {initState} from "store/dashboard/root/actions";
-import {DashboardStatus, getDashboardState} from "store/dashboard/root";
-import {getDisplayName} from "types/desmos";
-import LoadingPage from "screens/LoadingPage";
 import {useSearchParams} from "react-router-dom";
 import OAuthPopup from "components/oauth/OAuthPopup";
+import {initOAuthPopupState, startAuthorization} from "../store/oauth";
+import {getDisplayName} from "../components/utils";
+import {isZero} from "../types";
 
 /**
  * Represents the dashboard of the app for logged in users.
@@ -22,8 +19,8 @@ import OAuthPopup from "components/oauth/OAuthPopup";
 function DashboardPage() {
   const dispatch = useDispatch();
 
-  const rootState = useSelector(getDashboardState);
-  const tipsState = useSelector(getTipsState);
+  // Get the user state
+  const user = useSelector(getLoggedInUser);
 
   // Get the params sent using OAuth
   const [searchParams] = useSearchParams();
@@ -31,8 +28,9 @@ function DashboardPage() {
   const oAuthState = searchParams.get('state') as string | undefined;
 
   useEffect(() => {
-    dispatch(initState({
-      oAuthParams: {oAuthCode: oAuthCode, oAuthState: oAuthState},
+    dispatch(initOAuthPopupState({
+      oAuthCode: oAuthCode,
+      oAuthState: oAuthState,
     }));
   }, [false])
 
@@ -44,18 +42,14 @@ function DashboardPage() {
     dispatch(logout());
   }
 
-  if (rootState.status == DashboardStatus.LOADING) {
-    return <LoadingPage/>;
-  }
-
   return (
     <div>
       <h3 className="mt-3">Account</h3>
-      <p>You are currently logged in as {getDisplayName(rootState.userProfile)}.</p>
+      <p>You are currently logged in as {getDisplayName(user.profile)}.</p>
       <button className="mt-2" onClick={handleClickLogout}>Logout</button>
 
       <h3 className="mt-8">Integrations</h3>
-      <OAuthPopup />
+      <OAuthPopup/>
       <p>
         Do you want to received Streamlabs alerts for upcoming donations?
         Connect your Streamlabs account now!
@@ -63,9 +57,10 @@ function DashboardPage() {
       <button className="mt-2" onClick={handleClickStreamlabs}>Connect Streamlabs</button>
 
       <h3 className="mt-8">Social tips</h3>
-      {tipsState.grantedAmount ?
-        <TipsEnabledSection grantedAmount={tipsState.grantedAmount}/> :
-        <EnableTipsSection/>}
+      {isZero(user.grantedAmount) ?
+        <EnableTipsSection/> :
+        <TipsEnabledSection grantedAmount={user.grantedAmount}/>
+      }
     </div>
   );
 }

@@ -8,12 +8,13 @@ import {
   setMessage,
   setUsername
 } from "store/donation";
-import {changeRecipientAddress, getRecipientAddresses, sendDonation} from "store/donation/actions";
+import {changeRecipientAddress, initDonationState, sendDonation} from "store/donation/actions";
 import {ChangeEvent, useEffect} from "react";
 
 import ProfileCover from "components/profile/ProfileCover";
 import ConfirmTxPopup from "components/transactions/ConfirmTxPopup";
-import {getUserState} from "store/user";
+import {getUserState, LoginStep} from "store/user";
+import {coinToString, formatDenom} from "../types";
 
 type Params = {
   application: string;
@@ -44,7 +45,7 @@ function DonationPage() {
   }
 
   useEffect(() => {
-    dispatch(getRecipientAddresses(application, username))
+    dispatch(initDonationState(application, username))
   }, [false])
 
   function handleChangeRecipientAddress(e: ChangeEvent<HTMLSelectElement>) {
@@ -69,7 +70,7 @@ function DonationPage() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!userState.isLoggedIn) {
+    if (userState.step !== LoginStep.LOGGED_IN) {
       navigate("/login")
       return
     }
@@ -107,7 +108,7 @@ function DonationPage() {
           ))}
         </select>
 
-        <label className="mt-5">Amount (DSM)</label>
+        <label className="mt-5">Amount ({formatDenom(state.denom)})</label>
         <input type="number" placeholder="0.5" onChange={handleChangeAmount} value={state.amount}/>
 
         <label className="mt-5">From</label>

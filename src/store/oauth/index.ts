@@ -1,7 +1,9 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "store/index";
-import {StoredData} from "store/dashboard/oauth/storage";
-import {initState} from "store/dashboard/root/actions";
+import {RootState} from "../index";
+import {StoredData} from "./storage";
+
+export * from "./storage";
+export * from "./actions";
 
 // --- STATE ---
 export enum OAuthPopupStatus {
@@ -61,7 +63,7 @@ export const {
 
 // --- SELECTORS ---
 export const getOAuthPopupState = (state: RootState) => {
-  return state.dashboard.oAuth.popup;
+  return state.oauth;
 }
 
 export default oAuthSlice.reducer

@@ -1,10 +1,9 @@
-import {OAuthParams} from "types/oauth";
-import {AppThunk} from "store/index";
-import {OAuthStorage, StoredData} from "store/dashboard/oauth/storage";
-import {OAuthAPIs} from "apis/oauth";
+import {OAuthParams, isSignDoc, UserWallet, Platform} from "../../types";
+import {AppThunk} from "../index";
+import {OAuthStorage, StoredData} from "./storage";
+import {OAuthAPIs} from "../../apis";
 import {MsgSendEncodeObject} from "@cosmjs/stargate";
-import {isSignDoc, UserWallet} from "types/cosmos/wallet";
-import {OAuthPopupStatus, setError, setOAuthCode, setStatus, setStoredData} from "store/dashboard/oauth/popup/index";
+import {OAuthPopupStatus, setError, setOAuthCode, setStatus, setStoredData} from "./index";
 import {AuthInfo, SignDoc} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {Any} from "cosmjs-types/google/protobuf/any";
 import {serializeSignDoc} from "@cosmjs/amino";
@@ -29,6 +28,28 @@ export function initOAuthPopupState({oAuthCode, oAuthState}: OAuthParams): AppTh
 
     dispatch(setStoredData(data));
     dispatch(setStatus(OAuthPopupStatus.INITIALIZED));
+  }
+}
+
+/**
+ * Stats the authorization process for the given platform.
+ */
+export function startAuthorization(platform: Platform): AppThunk {
+  return async _ => {
+    const account = await UserWallet.getAccount();
+    if (!account) {
+      console.error("Invalid user account")
+      return
+    }
+
+    // Get the nonce and the URL
+    const {nonce, url} = OAuthAPIs.startConnection(platform);
+
+    // Store the nonce locally
+    OAuthStorage.storeData(nonce, platform, account.address);
+
+    // Redirect the user
+    window.location.href = url;
   }
 }
 

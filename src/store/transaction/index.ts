@@ -1,7 +1,8 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "store/index";
-import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {EncodeObject, TxBodyEncodeObject} from "@cosmjs/proto-signing";
+import {RootState} from "../index";
+import {EncodeObject} from "@cosmjs/proto-signing";
+
+export * from "./actions";
 
 // --- STATE ---
 export enum TransactionStatus {

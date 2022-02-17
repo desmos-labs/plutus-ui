@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getUserState, initUserState, loginWithWalletConnect, logout, UserState} from "store/user";
+import {getUserState, refreshUserState, loginWithWalletConnect, logout, UserState} from "../../store/user";
 
 interface AuthContextType {
   userState: UserState;
@@ -22,7 +22,7 @@ function AuthProvider({children}: { children: React.ReactNode }) {
 
   // Initialize the user state during load up
   useEffect(() => {
-    dispatch(initUserState());
+    dispatch(refreshUserState());
   }, [false]);
 
   const performLogin = (callback: VoidFunction) => {

@@ -1,11 +1,11 @@
-import {AppThunk} from "store/index";
+import {AppThunk} from "../index";
 import {SendAuthorization} from "cosmjs-types/cosmos/bank/v1beta1/authz";
-import {Chain} from "types/cosmos/chain";
-import {PlutusAPI} from "apis/plutus";
-import {UserWallet} from "types/cosmos/wallet";
-import {setError, setStep, setSuccess, TipsPopupStep} from "store/dashboard/tips/popup/index";
-import {MsgGrantEncodeObject} from "types/cosmos/messages";
-import {sendTx} from "store/transaction/actions";
+import {PlutusAPI} from "../../apis";
+import {setError, setStep, setSuccess, TipsStep} from "./index";
+import {UserWallet} from "../../types";
+import {sendTx} from "../transaction";
+import {refreshUserState} from "../user";
+import {MsgGrantEncodeObject} from "@desmoslabs/desmjs"
 
 /**
  * Starts the authorization process required to enable social tips.
@@ -24,7 +24,7 @@ export function startTipAuthorizationProcess(amount: number): AppThunk {
       spendLimit: [
         {
           amount: (amount * 1_000_000).toString(),
-          denom: Chain.getFeeDenom(),
+          denom: UserWallet.getFeeDenom(),
         }
       ]
     };
@@ -51,7 +51,7 @@ export function startTipAuthorizationProcess(amount: number): AppThunk {
     };
 
     // Send the transaction
-    dispatch(setStep(TipsPopupStep.CONFIRMATION_REQUIRED));
+    dispatch(setStep(TipsStep.CONFIRMATION_REQUIRED));
     const result = await dispatch(sendTx(account.address, [msg], {memo: 'DesmosTipBot grant'}));
     if (result instanceof Error) {
       dispatch(setError(result.message));
@@ -59,5 +59,6 @@ export function startTipAuthorizationProcess(amount: number): AppThunk {
     }
 
     dispatch(setSuccess(result.transactionHash));
+    dispatch(refreshUserState());
   }
 }

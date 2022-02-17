@@ -1,10 +1,9 @@
 import * as React from "react"
 import {useDispatch, useSelector} from "react-redux";
-import {getOAuthPopupState, OAuthPopupStatus, resetOAuthPopup} from "store/dashboard/oauth/popup";
-import Popup from "components/Popup";
-import {finalizeOAuth} from "store/dashboard/oauth/popup/actions";
-import LoadingPage from "screens/LoadingPage";
-import LoadingIcon from "components/LoadingIcon";
+import {getOAuthPopupState, OAuthPopupStatus, resetOAuthPopup} from "../../store/oauth";
+import Popup from "../Popup";
+import {finalizeOAuth} from "../../store/oauth/actions";
+import LoadingIcon from "../LoadingIcon";
 
 /**
  * Represents the page that is called from OAuth as the callback.

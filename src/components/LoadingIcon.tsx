@@ -1,4 +1,4 @@
-import loadingHourglass from "assets/lottie/loading-hourglass.json";
+import loadingHourglass from "../assets/lottie/loading-hourglass.json";
 import Lottie from "lottie-react";
 
 /**

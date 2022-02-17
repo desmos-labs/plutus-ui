@@ -1,7 +1,7 @@
 import {DonationStatus, reset, setStatus} from "store/donation";
-import {setTxError, setTxStatus, setTxSuccess, TransactionData, TransactionStatus} from "store/transaction/index";
+import {setTxError, setTxStatus, setTxSuccess, TransactionData, TransactionStatus} from "./index";
 import {TxOptions, UserWallet} from "types/cosmos/wallet";
-import {RootState} from "store/index";
+import {RootState} from "../index";
 import {ThunkAction} from "redux-thunk";
 import {Action} from "@reduxjs/toolkit";
 import {DeliverTxResponse} from "@cosmjs/stargate";
@@ -37,11 +37,11 @@ export function sendTx(sender: string, messages: EncodeObject[], options?: TxOpt
       dispatch(setTxStatus([TransactionStatus.BROADCASTING, txData]));
       const response = await UserWallet.broadcastTx(result.txRaw);
       if (response.code != 0) {
-        setTxError(response.rawLog);
+        dispatch(setTxError(response.rawLog));
         return new Error(response.rawLog);
       }
 
-      setTxSuccess(response.transactionHash);
+      dispatch(setTxSuccess(response.transactionHash));
       return response;
     } catch (e: any) {
       dispatch(setTxError('Broadcasting error'));

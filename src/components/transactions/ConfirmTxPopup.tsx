@@ -1,14 +1,10 @@
-import Popup from "components/Popup";
+import Popup from "../Popup";
 import {useDispatch, useSelector} from "react-redux";
-import {
-  getTransactionState,
-  resetTxPopup,
-  TransactionState,
-  TransactionStatus
-} from "store/transaction";
+import {getTransactionState, resetTxPopup, TransactionState, TransactionStatus} from "../../store/transaction";
 import * as React from "react";
-import TxMessage from "components/transactions/TxMessage";
-import {getTxLink} from "types/cosmos/chain";
+import TxMessage from "../transactions/TxMessage";
+import {getTxLink} from "../utils";
+import LoadingIcon from "../LoadingIcon";
 
 /**
  * Represents the popup to confirm a generic tx.
@@ -22,11 +18,17 @@ function ConfirmTxPopup() {
    */
   function getTitleAndContent(state: TransactionState): { title: string, content: JSX.Element } {
     switch (state.status) {
-      case TransactionStatus.ERROR:
+
+
+      case TransactionStatus.BROADCASTING:
         return {
-          title: 'Error',
-          content: <p>Error while confirming the transaction: {state.error?.toLowerCase()}</p>
+          title: 'Broadcasting transaction',
+          content: <div>
+            <p>Broadcasting your transaction to the chain...</p>
+            <LoadingIcon/>
+          </div>
         }
+
 
       case TransactionStatus.SUCCESS:
         return {
@@ -37,13 +39,19 @@ function ConfirmTxPopup() {
           </p>
         }
 
+      case TransactionStatus.ERROR:
+        return {
+          title: 'Error',
+          content: <p>Error while confirming the transaction: {state.error?.toLowerCase()}</p>
+        }
+
       default:
         return {
           title: 'Confirmation required',
           content: <div>
             <p>Please confirm the following transaction using DPM:</p>
             <div className="mt-4 px-8">
-              {state.txBody?.messages?.map((msg) => <TxMessage msg={msg}/>)}
+              {state.txBody?.messages?.map((msg) => <TxMessage key={msg.value} msg={msg}/>)}
             </div>
           </div>
         }
@@ -69,6 +77,10 @@ function ConfirmTxPopup() {
 
           {state.status == TransactionStatus.ERROR &&
             <button className="w-full button-red rounded-lg" onClick={handleClosePopup}>Close</button>
+          }
+
+          {state.status == TransactionStatus.BROADCASTING &&
+            <button disabled={true} className="w-full button-red rounded-lg" onClick={handleClosePopup}>Close</button>
           }
 
           {state.status == TransactionStatus.SUCCESS &&

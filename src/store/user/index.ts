@@ -1,27 +1,15 @@
-import {RootState} from "store/index";
+import {RootState} from "../index";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {AccountData} from "@cosmjs/amino";
+import {LoggedIn, LoginStep, UserState} from "./state";
 
-export * from "store/user/actions";
-
-// --- STATE ---
-export interface LoggedOut {
-  isLoggedIn: false
-  message?: string;
-}
-
-export interface LoggedIn {
-  isLoggedIn: true
-  account: AccountData;
-}
-
-export type UserState = LoggedOut | LoggedIn
+export * from "./state"
+export * from "./actions";
 
 // --- SLICE ---
 export const userSlice = createSlice({
   name: 'user',
   initialState: (): UserState => {
-    return {isLoggedIn: false}
+    return {step: LoginStep.LOADING}
   },
   reducers: {
     setUserStatus(state, action: PayloadAction<UserState>) {
@@ -38,6 +26,10 @@ export const {
 // --- SELECTORS ---
 export const getUserState = (state: RootState) => {
   return state.user;
+}
+
+export const getLoggedInUser = (state: RootState) => {
+  return (state.user as LoggedIn).account;
 }
 
 export default userSlice.reducer

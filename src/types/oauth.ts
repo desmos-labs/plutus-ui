@@ -1,6 +1,18 @@
 export enum Platform {
   STREAMLABS = "Streamlabs",
-  STRAMELEMENTS = "StreamElements"
+  STREAMELEMENTS = "StreamElements",
+  UNKNOWN = "unknown"
+}
+
+export function parsePlatform(value: string): Platform {
+  switch (value.toLowerCase()) {
+    case "streamlabs":
+      return Platform.STREAMLABS;
+    case "streamelements":
+      return Platform.STREAMELEMENTS;
+    default:
+      return Platform.UNKNOWN;
+  }
 }
 
 export type OAuthParams = {

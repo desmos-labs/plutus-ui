@@ -1,7 +1,8 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "store/index";
-import {Profile} from "types/desmos";
-import {DashboardStatus} from "store/dashboard/root";
+import {RootState} from "../index";
+import {DesmosProfile, UserWallet} from "../../types";
+
+export * from "./actions";
 
 // --- STATE ---
 export enum DonationStatus {
@@ -16,8 +17,9 @@ export enum DonationStatus {
  */
 export type DonationState = {
   status: DonationStatus,
+  denom: string;
   recipientAddresses: string[];
-  recipientProfile: Profile,
+  recipientProfile: DesmosProfile,
   amount: string;
   username: string;
   message: string;
@@ -25,20 +27,20 @@ export type DonationState = {
   txHash?: string;
 }
 
-const initialState = {
-  status: DonationStatus.LOADING,
-  recipientAddresses: [],
-  recipientProfile: {address: ''},
-  amount: '',
-  username: "",
-  message: "",
-} as DonationState;
-
-
 // --- SLICE ---
 export const donationSlice = createSlice({
   name: 'donation',
-  initialState: initialState,
+  initialState: () : DonationState => {
+    return {
+      status: DonationStatus.LOADING,
+      denom: UserWallet.getFeeDenom(),
+      recipientAddresses: [],
+      recipientProfile: {address: ''},
+      amount: '',
+      username: "",
+      message: "",
+    }
+  },
   reducers: {
     setStatus(state, action: PayloadAction<DonationStatus>) {
       state.status = action.payload;
@@ -47,7 +49,7 @@ export const donationSlice = createSlice({
     setRecipientAddresses(state, action: PayloadAction<string[]>) {
       state.recipientAddresses = action.payload;
     },
-    setRecipientProfile(state, action: PayloadAction<Profile>) {
+    setRecipientProfile(state, action: PayloadAction<DesmosProfile>) {
       state.recipientProfile = action.payload;
     },
     setAmount(state, action: PayloadAction<string>) {
@@ -66,9 +68,9 @@ export const donationSlice = createSlice({
     },
     reset(state) {
       state.status = DonationStatus.LOADED;
-      state.amount = initialState.amount;
-      state.username = initialState.username;
-      state.message = initialState.message;
+      state.amount = "";
+      state.username = "";
+      state.message = "";
     }
   },
 });

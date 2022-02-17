@@ -12,9 +12,9 @@ module.exports = {
         'poppins': ['"Poppins"', 'cursive']
       },
       colors: {
-        'gray': '#3B3C24',
-        'white': '#FFF',
         'transparent': '#FFF0',
+        'white': '#FFF',
+        'dark-gray': '#3B3C24',
 
         'orange': '#FF613E',
         'light-orange': '#FCA104',

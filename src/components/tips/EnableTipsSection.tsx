@@ -1,7 +1,7 @@
-import EnableTipsPopup from "components/tips/EnableTipsPopup";
+import GrantAmountPopup from "components/tips/GrantAmountPopup";
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getTipsPopupState, setShown} from "store/dashboard/tips/popup";
+import {getTipsPopupState, setStep, TipsStep} from "../../store/tips";
 
 /**
  * Represents the section that allows to enable the social tips.
@@ -11,14 +11,14 @@ function EnableTipsSection() {
   const dispatch = useDispatch();
 
   function handleClickEnableTips() {
-    dispatch(setShown(true))
+    dispatch(setStep(TipsStep.INPUT_DATA))
   }
 
   return (
     <div>
       <p>Looks like you have not enabled social tips. Do you want to do it now?</p>
       <button className="mt-2" onClick={handleClickEnableTips}>Enable tips</button>
-      <EnableTipsPopup visible={popupState.shown} />
+      <GrantAmountPopup visible={popupState.step != TipsStep.HIDDEN}/>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {getUserState} from "store/user";
+import {getUserState, LoginStep} from "store/user";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAuth} from "components/auth/AuthProvider";
 import {useSelector} from "react-redux";
@@ -19,7 +19,7 @@ function LoginPage() {
   const from = state?.from?.pathname || '/dashboard';
 
   const auth = useAuth();
-  if (auth.userState.isLoggedIn) {
+  if (auth.userState.step === LoginStep.LOGGED_IN) {
     goToFrom();
   }
 
@@ -45,7 +45,7 @@ function LoginPage() {
         Login with WalletConnect
       </button>
 
-      {!loginState.isLoggedIn && loginState.message &&
+      {loginState.step === LoginStep.LOGGED_OUT && loginState.message &&
         <p>Error: {loginState.message}</p>
       }
     </div>

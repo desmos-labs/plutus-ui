@@ -1,4 +1,4 @@
-import {Platform} from "types/oauth";
+import {Platform} from "../types/oauth";
 
 const PLUTUS_API_URL = process.env.REACT_APP_PLUTUS_API as string;
 

@@ -1,5 +1,6 @@
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import Amount from "components/transactions/messages/Amount";
+import Amount from "../../transactions/messages/Amount";
+import {coinToString} from "../../../types/cosmos/coins";
 
 type Props = {
   msg: MsgSend
@@ -16,7 +17,7 @@ function MessageSend({msg}: Props) {
       <p className="mt-2 font-bold">To:</p>
       <p>{msg.toAddress}</p>
       <p className="mt-2 font-bold">Amount:</p>
-      {msg.amount.map((coin) => <Amount amount={coin} />)}
+      {msg.amount.map((coin) => <Amount key={coinToString(coin)} amount={coin} />)}
     </div>
   );
 }

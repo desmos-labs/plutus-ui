@@ -1,16 +1,40 @@
-import {AppThunk} from "store/index";
-import {setUserStatus, UserState} from "store/user/index";
+import {AppThunk} from "../index";
+import {LoginStep, setUserStatus} from "./index";
 import {UserWallet} from "types/cosmos/wallet";
 import {SignerStatus} from "@desmoslabs/desmjs";
+import {PlutusAPI} from "../../apis";
+import {convertProfile, parsePlatform} from "../../types";
 
 /**
  * Initializes the user state.
  */
-export function initUserState(): AppThunk {
+export function refreshUserState(): AppThunk {
   return async dispatch => {
+    // Get the account
     const account = await UserWallet.getAccount();
-    const state: UserState = account ? {isLoggedIn: true, account: account} : {isLoggedIn: false};
-    dispatch(setUserStatus(state))
+    if (!account) {
+      dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
+      return
+    }
+
+    // Get the profile
+    const profile = await UserWallet.getProfile();
+
+    // Get the user data
+    const userData = await PlutusAPI.getUserData(account.address);
+    if (userData instanceof Error) {
+      dispatch(setUserStatus({step: LoginStep.LOGGED_OUT, message: userData.message}));
+      return
+    }
+
+    dispatch(setUserStatus({
+      step: LoginStep.LOGGED_IN,
+      account: {
+        profile: convertProfile(account.address, profile),
+        grantedAmount: userData.granted_amount || [],
+        enabledIntegrations: (userData.enabled_integrations || []).map(parsePlatform),
+      }
+    }))
   }
 }
 
@@ -24,21 +48,13 @@ export function loginWithWalletConnect(): AppThunk {
      * Observes the status of the wallet emitting the proper events when needed.
      */
     async function observeWalletStatus(status: SignerStatus) {
-      if (status == SignerStatus.Connected) {
-        const account = await UserWallet.getAccount();
-        if (!account) {
-          setUserStatus({isLoggedIn: false, message: "Acount is null"});
-          return
-        }
-
-        dispatch(setUserStatus({isLoggedIn: true, account: account}));
-        return;
-      }
-
       if (status == SignerStatus.NotConnected) {
-        dispatch(setUserStatus({isLoggedIn: false}));
-        return;
+        dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
+        return
       }
+
+      // Initialize the state
+      await dispatch(refreshUserState());
     }
 
     // Add the status observer
@@ -48,7 +64,7 @@ export function loginWithWalletConnect(): AppThunk {
     if (!UserWallet.isConnected()) {
       const error = await UserWallet.connect();
       if (error) {
-        dispatch(setUserStatus({isLoggedIn: false, message: error.message}));
+        dispatch(setUserStatus({step: LoginStep.LOGGED_OUT, message: error.message}));
       }
     }
   }
@@ -62,6 +78,6 @@ export function logout(): AppThunk {
     // Disconnect the wallet
     UserWallet.disconnect();
 
-    dispatch(setUserStatus({isLoggedIn: false}));
+    dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
   }
 }

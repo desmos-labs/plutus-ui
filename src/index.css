@@ -8,7 +8,7 @@
   body {
     @apply
     m-0 px-5 md:px-10
-    font-sans font-poppins text-gray
+    font-sans font-poppins text-dark-gray
     bg-mobile-pattern md:bg-desktop-pattern
     bg-cover bg-no-repeat bg-fixed bg-center
   }
@@ -87,5 +87,6 @@
   }
   .button-red {
     @apply bg-red-500 hover:bg-red-600 bg-none hover:shadow-none
+           disabled:bg-neutral-400
   }
 }

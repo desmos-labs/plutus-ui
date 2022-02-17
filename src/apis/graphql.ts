@@ -1,5 +1,5 @@
 import {ApolloClient, gql, InMemoryCache, NormalizedCacheObject} from "@apollo/client";
-import {Profile} from "types/desmos";
+import {DesmosProfile} from "../types";
 
 const GRAPHQL_ENDPOINT = process.env.REACT_APP_CHAIN_GRAPHQL_ENDPOINT as string;
 const addressQuery = gql`
@@ -70,7 +70,7 @@ class GraphQL {
    * Tries getting the profile associated with the given address, if any.
    * @param desmosAddress {string}: Desmos address of the supposed owner of the profile.
    */
-  public static async getProfile(desmosAddress: string): Promise<Profile> {
+  public static async getProfile(desmosAddress: string): Promise<DesmosProfile> {
     const client = this.requireClient();
     const res = await client.query({
       query: profileQuery,
@@ -86,7 +86,7 @@ class GraphQL {
     const profile = res.data.profile[0];
     return {
       address: profile.address,
-      dTag: profile.dtag,
+      dtag: profile.dtag,
       nickname: profile.nickname,
       coverPicture: profile.cover_pic,
       profilePicture: profile.profile_pic,

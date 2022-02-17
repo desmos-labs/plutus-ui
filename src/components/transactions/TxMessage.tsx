@@ -1,9 +1,10 @@
 import {Any} from "cosmjs-types/google/protobuf/any";
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import MessageSend from "components/transactions/messages/MessageSend";
+import {EncodeObject} from "@cosmjs/proto-signing";
 
 type Props = {
-  msg: Any,
+  msg: EncodeObject,
 }
 
 /**
@@ -14,8 +15,7 @@ function TxMessage({msg}: Props) {
   const {typeUrl, value} = msg;
   switch (typeUrl) {
     case "/cosmos.bank.v1beta1.MsgSend":
-      const msgSend = MsgSend.decode(value);
-      return <MessageSend msg={msgSend}/>
+      return <MessageSend msg={value}/>
 
     default:
       return <div/>

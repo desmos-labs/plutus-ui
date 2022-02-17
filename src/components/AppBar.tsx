@@ -2,7 +2,7 @@ import * as React from "react";
 import {ReactComponent as Logo} from "../assets/logo.svg";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
-import {getUserState} from "store/user";
+import {getUserState, LoginStep} from "store/user";
 
 /**
  * Represents the application bar.
@@ -33,12 +33,18 @@ function AppBar() {
     switch (location.pathname) {
       case "/login":
       case "/dashboard":
-        return < div/>
+        return <div />
 
-      default:
-        return state.isLoggedIn ?
-          <button className="px-8" onClick={handleClickDashboard}>Dashboard</button> :
-          <button className="px-8" onClick={handleClickLogin}>Login</button>
+      default: {
+        switch (state.step) {
+          case LoginStep.LOADING:
+            return <div />
+          case LoginStep.LOGGED_OUT:
+            return <button className="px-8" onClick={handleClickLogin}>Login</button>
+          default:
+            return <button className="px-8" onClick={handleClickDashboard}>Dashboard</button>
+        }
+      }
     }
   }
 
