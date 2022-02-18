@@ -13,7 +13,7 @@ import {
 import {SignDoc, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {AccountData, StdSignDoc} from "@cosmjs/amino";
 import {Uint64} from "@cosmjs/math";
-import {Profile} from "../../../../../Desmjs/packages/types/desmos/profiles/v1beta1/models_profile";
+import {Profile} from "@desmoslabs/desmjs-types/desmos/profiles/v1beta1/models_profile";
 
 const GAS_PRICE = process.env.REACT_APP_CHAIN_GAS_PRICE as string;
 const RPC_ENDPOINT = process.env.REACT_APP_CHAIN_RPC_ENDPOINT as string;

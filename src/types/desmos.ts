@@ -1,4 +1,4 @@
-import {Profile} from "../../../../Desmjs/packages/types/desmos/profiles/v1beta1/models_profile";
+import {Profile} from "@desmoslabs/desmjs-types/desmos/profiles/v1beta1/models_profile";
 
 export type DesmosProfile = Partial<Omit<Profile, "account">> & {
   readonly address: string;

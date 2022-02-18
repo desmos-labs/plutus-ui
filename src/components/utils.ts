@@ -1,4 +1,3 @@
-import {Profile} from "../../../../Desmjs/packages/types/desmos/profiles/v1beta1/models_profile";
 import {DesmosProfile} from "../types";
 
 const EXPLORER_URL = process.env.REACT_APP_CHAIN_EXPLORER_ENDPOINT as string;
