@@ -17,7 +17,7 @@ function EnableTipsSection() {
   return (
     <div>
       <p>Looks like you have not enabled social tips. Do you want to do it now?</p>
-      <button className="mt-2" onClick={handleClickEnableTips}>Enable tips</button>
+      <button disabled className="mt-2 text-sm" onClick={handleClickEnableTips}>Coming soon</button>
       <GrantAmountPopup visible={popupState.step != TipsStep.HIDDEN}/>
     </div>
   );

@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../index";
-import {StoredData} from "./storage";
+import {OAuthStorage, StoredData} from "./storage";
 
 export * from "./storage";
 export * from "./actions";
@@ -47,6 +47,7 @@ const oAuthSlice = createSlice({
       state.error = action.payload;
     },
     resetOAuthPopup(state) {
+      OAuthStorage.deleteData(state.oAuthCode || "");
       state.status = initialState.status;
     }
   }

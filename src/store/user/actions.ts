@@ -1,12 +1,29 @@
-import {AppThunk} from "../index";
+import {AppDispatch, AppThunk} from "../index";
 import {LoginStep, setUserStatus} from "./index";
 import {UserWallet} from "types/cosmos/wallet";
-import {SignerStatus} from "@desmoslabs/desmjs";
+import {SignerObserver, SignerStatus} from "@desmoslabs/desmjs";
 import {PlutusAPI} from "../../apis";
-import {convertProfile, parsePlatform} from "../../types";
+import {convertProfile, parsePlatform, UserData} from "../../types";
+import {UserStorage} from "./storage";
 
 /**
- * Initializes the user state.
+ * Returns a function that observes the status of the wallet emitting the proper events when needed.
+ */
+function observeWalletStatus(dispatch: AppDispatch): SignerObserver {
+  return async (status: SignerStatus) => {
+    if (status == SignerStatus.NotConnected) {
+      UserStorage.deleteUserData();
+      dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
+      return
+    }
+
+    // Initialize the state
+    await dispatch(refreshUserState());
+  }
+}
+
+/**
+ * Refreshes the user state.
  */
 export function refreshUserState(): AppThunk {
   return async dispatch => {
@@ -20,21 +37,40 @@ export function refreshUserState(): AppThunk {
     // Get the profile
     const profile = await UserWallet.getProfile();
 
-    // Get the user data
-    const userData = await PlutusAPI.getUserData(account.address);
-    if (userData instanceof Error) {
-      dispatch(setUserStatus({step: LoginStep.LOGGED_OUT, message: userData.message}));
+    // Get the user data from Plutus API
+    const data = await PlutusAPI.getUserData(account.address);
+    if (data instanceof Error) {
+      dispatch(setUserStatus({step: LoginStep.LOGGED_OUT, message: data.message}));
       return
     }
 
+    // Build the UserData instance
+    const userData: UserData = {
+      profile: convertProfile(account.address, profile),
+      grantedAmount: data.granted_amount || [],
+      enabledIntegrations: (data.enabled_integrations || []).map(parsePlatform),
+    }
+
+    // Store the data locally
+    UserStorage.storeUserData(userData);
+
     dispatch(setUserStatus({
       step: LoginStep.LOGGED_IN,
-      account: {
-        profile: convertProfile(account.address, profile),
-        grantedAmount: userData.granted_amount || [],
-        enabledIntegrations: (userData.enabled_integrations || []).map(parsePlatform),
-      }
+      account: userData,
     }))
+  }
+}
+
+/**
+ * Initializes the user state.
+ */
+export function initUserState(): AppThunk {
+  return dispatch => {
+    // Subscribe to the status changes
+    UserWallet.addStatusObserver(observeWalletStatus(dispatch));
+
+    // Refresh the state
+    dispatch(refreshUserState())
   }
 }
 
@@ -43,22 +79,8 @@ export function refreshUserState(): AppThunk {
  */
 export function loginWithWalletConnect(): AppThunk {
   return async dispatch => {
-
-    /**
-     * Observes the status of the wallet emitting the proper events when needed.
-     */
-    async function observeWalletStatus(status: SignerStatus) {
-      if (status == SignerStatus.NotConnected) {
-        dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
-        return
-      }
-
-      // Initialize the state
-      await dispatch(refreshUserState());
-    }
-
     // Add the status observer
-    UserWallet.addStatusObserver(observeWalletStatus)
+    UserWallet.addStatusObserver(observeWalletStatus(dispatch))
 
     // If the user is not connected, create a new session
     if (!UserWallet.isConnected()) {

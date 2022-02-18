@@ -2,13 +2,18 @@ import * as React from "react"
 import {useDispatch, useSelector} from "react-redux";
 import {getOAuthPopupState, OAuthPopupStatus, resetOAuthPopup} from "../../store/oauth";
 import Popup from "../Popup";
-import {finalizeOAuth} from "../../store/oauth/actions";
+import {finalizeOAuth} from "../../store/oauth";
 import LoadingIcon from "../LoadingIcon";
+import {refreshUserState} from "../../store/user";
+
+interface OAuthPopupProps {
+  readonly onClose: () => void;
+}
 
 /**
  * Represents the page that is called from OAuth as the callback.
  */
-function OAuthPopup() {
+function OAuthPopup({onClose}: OAuthPopupProps) {
   const dispatch = useDispatch();
   const state = useSelector(getOAuthPopupState);
 
@@ -47,11 +52,19 @@ function OAuthPopup() {
           </div>
         }
 
-      case OAuthPopupStatus.ERROR:
+      case OAuthPopupStatus.ERROR: {
+        if (state.error === "access_denied") {
+          return {
+            title: 'Request denied',
+            content: <p>You have denied the request</p>
+          }
+        }
+
         return {
           title: 'Error',
           content: <p>{state.error}</p>
         }
+      }
 
       case OAuthPopupStatus.CONNECTED:
         return {
@@ -74,7 +87,8 @@ function OAuthPopup() {
     dispatch(finalizeOAuth(state.oAuthCode, state.data))
   }
 
-  function handleClickCancel() {
+  function closePopup() {
+    onClose();
     dispatch(resetOAuthPopup());
   }
 
@@ -88,19 +102,22 @@ function OAuthPopup() {
 
         <div className="mt-6">
           {state.status == OAuthPopupStatus.INITIALIZED &&
-            <button className="w-full rounded-lg" onClick={handleClickVerify}>Verify with DPM</button>
-          }
-          {state.status == OAuthPopupStatus.REQUESTED_SIGNATURE &&
-            <button className="button-red w-full rounded-lg" onClick={handleClickCancel}>Cancel</button>
-          }
-          {state.status == OAuthPopupStatus.ERROR &&
-            <div className="flex flex-row">
-              <button className="button-red w-full rounded-lg" onClick={handleClickCancel}>Close</button>
-              <button className="ml-5 w-full rounded-lg" onClick={handleClickVerify}>Retry</button>
+            <div className="flex flex-row space-x-5">
+              <button className="button-red w-full rounded-lg" onClick={closePopup}>Cancel</button>
+              <button className="w-full rounded-lg" onClick={handleClickVerify}>Continue</button>
             </div>
           }
+          {state.status == OAuthPopupStatus.REQUESTED_SIGNATURE &&
+            <button className="button-red w-full rounded-lg" onClick={closePopup}>Cancel</button>
+          }
+          {state.status == OAuthPopupStatus.ERROR &&
+            <button className="button-red w-full rounded-lg" onClick={closePopup}>Close</button>
+          }
           {state.status == OAuthPopupStatus.VERIFYING &&
-            <button className="button-red w-full rounded-lg" onClick={handleClickCancel}>Cancel</button>
+            <button className="button-red w-full rounded-lg" onClick={closePopup}>Cancel</button>
+          }
+          {state.status == OAuthPopupStatus.CONNECTED &&
+            <button className="w-full rounded-lg" onClick={closePopup}>Done</button>
           }
         </div>
       </div>

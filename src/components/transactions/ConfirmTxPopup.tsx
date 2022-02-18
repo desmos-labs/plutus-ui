@@ -70,7 +70,7 @@ function ConfirmTxPopup() {
         <h4 className="mt-2">{title}</h4>
         {content}
 
-        <div className="flex flex-row mt-6">
+        <div className="flex flex-row mt-6 space-x-5">
           {state.status == TransactionStatus.TX_REQUEST_SENT &&
             <button className="w-full button-red rounded-lg" onClick={handleClosePopup}>Cancel</button>
           }

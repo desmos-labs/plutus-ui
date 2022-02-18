@@ -1,6 +1,6 @@
 import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import Amount from "../../transactions/messages/Amount";
-import {coinToString} from "../../../types/cosmos/coins";
+import {coinToString} from "../../../types";
 
 type Props = {
   msg: MsgSend

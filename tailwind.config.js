@@ -8,6 +8,9 @@ module.exports = {
         'desktop-pattern': "url('/src/assets/background-desktop.png')",
         'mobile-pattern': "url('/src/assets/background-mobile.png')",
       },
+      boxShadow: {
+        'DEFAULT': '-4px 0 24px 6px rgba(255, 107, 0, 0.16);',
+      },
       fontFamily: {
         'poppins': ['"Poppins"', 'cursive']
       },

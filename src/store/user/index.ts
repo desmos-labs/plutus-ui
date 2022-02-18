@@ -1,6 +1,7 @@
 import {RootState} from "../index";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {LoggedIn, LoginStep, UserState} from "./state";
+import {UserStorage} from "./storage";
 
 export * from "./state"
 export * from "./actions";
@@ -9,7 +10,9 @@ export * from "./actions";
 export const userSlice = createSlice({
   name: 'user',
   initialState: (): UserState => {
-    return {step: LoginStep.LOADING}
+    return UserStorage.isLoggedIn() ?
+      {step: LoginStep.LOGGED_IN, account: UserStorage.getUserData()} :
+      {step: LoginStep.LOADING}
   },
   reducers: {
     setUserStatus(state, action: PayloadAction<UserState>) {

@@ -7,7 +7,7 @@
 @layer base {
   body {
     @apply
-    m-0 px-5 md:px-10
+    m-0 px-8 md:px-16
     font-sans font-poppins text-dark-gray
     bg-mobile-pattern md:bg-desktop-pattern
     bg-cover bg-no-repeat bg-fixed bg-center
@@ -33,10 +33,9 @@
 
   button, button[type=submit] {
     @apply font-medium text-white rounded-full py-2 px-4 general-gradient-4
-  }
-  button:hover {
-    background-color: theme('colors.hover');
-     box-shadow: -4px 0 24px 6px rgba(255, 107, 0, 0.16);
+           hover:bg-hover hover:shadow
+           disabled:bg-none disabled:bg-neutral-400
+           disabled:hover:bg-neutral-400 disabled:hover:shadow-none
   }
 
   input {
@@ -87,6 +86,5 @@
   }
   .button-red {
     @apply bg-red-500 hover:bg-red-600 bg-none hover:shadow-none
-           disabled:bg-neutral-400
   }
 }

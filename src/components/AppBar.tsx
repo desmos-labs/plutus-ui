@@ -49,7 +49,7 @@ function AppBar() {
   }
 
   return (
-    <div className="bg-transparent my-6 flex flex-wrap justify-between items-center h-auto">
+    <div className="bg-transparent my-6 md:my-8 flex flex-wrap justify-between items-center h-auto">
       <Logo
         className={`inline h-12 ${isHomePage ? "cursor-default" : "cursor-pointer"}`}
         onClick={isHomePage ? undefined : handleClickLogo}

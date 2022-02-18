@@ -5,6 +5,7 @@ import donation from "./donation";
 import transaction from "./transaction";
 import oauth from "./oauth";
 import tips from "./tips";
+import {ThunkDispatch} from "redux-thunk/src/types";
 
 const rootReducer = combineReducers({
   donation: donation,
@@ -20,3 +21,4 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof rootReducer>
 export type AppThunk = ThunkAction<void, RootState, null, Action<string>>
+export type AppDispatch = ThunkDispatch<RootState, null, Action<string>>

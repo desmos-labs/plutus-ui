@@ -7,14 +7,20 @@ import {OAuthPopupStatus, setError, setOAuthCode, setStatus, setStoredData} from
 import {AuthInfo, SignDoc} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {Any} from "cosmjs-types/google/protobuf/any";
 import {serializeSignDoc} from "@cosmjs/amino";
+import {refreshUserState} from "../user";
 
 /**
  * Initializes the OAuth popup state.
  */
-export function initOAuthPopupState({oAuthCode, oAuthState}: OAuthParams): AppThunk {
+export function initOAuthPopupState({oAuthCode, oAuthState, oAuthError}: OAuthParams): AppThunk {
   return dispatch => {
+    if (oAuthError) {
+      dispatch(setError(oAuthError))
+      return;
+    }
+
     if (!oAuthCode || !oAuthState) {
-      return
+      return;
     }
 
     dispatch(setOAuthCode(oAuthCode));
@@ -23,7 +29,7 @@ export function initOAuthPopupState({oAuthCode, oAuthState}: OAuthParams): AppTh
     const data = OAuthStorage.getData(oAuthState);
     if (data == null) {
       dispatch(setError("Invalid OAuth state"));
-      return
+      return;
     }
 
     dispatch(setStoredData(data));
@@ -78,7 +84,7 @@ export function finalizeOAuth(oAuthCode?: string, data?: StoredData): AppThunk {
         fromAddress: data.desmosAddress,
         toAddress: data.desmosAddress,
         amount: [{
-          denom: '',
+          denom: UserWallet.getFeeDenom(),
           amount: '0',
         }]
       }
@@ -124,6 +130,7 @@ export function finalizeOAuth(oAuthCode?: string, data?: StoredData): AppThunk {
         return
       }
 
+      dispatch(refreshUserState());
       dispatch(setStatus(OAuthPopupStatus.CONNECTED));
     } catch (error: any) {
       dispatch(setError(error.message));

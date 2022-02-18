@@ -95,7 +95,7 @@ function GrantAmountPopup({visible}: GrantAmountPopupProps) {
           </div>
         }
 
-        <div className="flex flex-row mt-6">
+        <div className="flex flex-row mt-6 space-x-5">
           {state.step != TipsStep.SUCCESS &&
             <button className="w-full button-red rounded-lg" onClick={handleClosePopup}>Cancel</button>
           }

@@ -39,15 +39,6 @@ function App() {
               />
 
               <Route
-                path="/success"
-                element={
-                  <RequireAuth>
-                    <OAuthPopup/>
-                  </RequireAuth>
-                }
-              />
-
-              <Route
                 path="/tips"
                 element={
                   <RequireAuth>
