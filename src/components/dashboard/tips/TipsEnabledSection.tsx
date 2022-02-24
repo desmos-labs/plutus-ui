@@ -1,5 +1,5 @@
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
-import {coinsToString} from "../../types";
+import {coinsToString} from "../../../types";
 
 type TipsEnabledSectionProps = {
   grantedAmount: Coin[]

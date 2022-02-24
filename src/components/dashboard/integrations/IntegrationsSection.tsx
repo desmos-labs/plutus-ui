@@ -1,8 +1,9 @@
 import * as React from "react";
-import {getPlatforms, Platform} from "../../types";
+import {getPlatforms, Platform} from "../../../types";
 import {useSelector} from "react-redux";
-import {getLoggedInUser} from "../../store/user";
+import {getLoggedInUser} from "../../../store/user";
 import IntegrationRow from "./IntegrationRow";
+import DisconnectIntegrationsPopup from "./DisconnectIntegrationsPopup";
 
 /**
  * Contains the details about the various integrations connected to the user profile.
@@ -18,9 +19,11 @@ function IntegrationsSection() {
 
   return (
     <div>
-      <h3 className="mt-8">Integrations</h3>
+      <DisconnectIntegrationsPopup/>
+
+      <h3 className="mt-8">Donation alerts</h3>
       <p>
-        Do you want to receive donation alerts on your stream?
+        Do you want to receive donation alerts on your Twitch stream?
         Connect the following accounts now!
       </p>
 

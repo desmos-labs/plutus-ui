@@ -28,7 +28,7 @@ const initialState: OAuthPopupState = {
 
 // --- SLICE ---
 const oAuthSlice = createSlice({
-  name: 'popup',
+  name: 'oauth-popup',
   initialState: initialState,
   reducers: {
     setStatus(state, action: PayloadAction<OAuthPopupStatus>) {

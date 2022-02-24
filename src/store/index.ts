@@ -6,9 +6,11 @@ import transaction from "./transaction";
 import oauth from "./oauth";
 import tips from "./tips";
 import {ThunkDispatch} from "redux-thunk/src/types";
+import integrations from "./integrations";
 
 const rootReducer = combineReducers({
   donation: donation,
+  integrations: integrations,
   oauth: oauth,
   tips: tips,
   transaction: transaction,

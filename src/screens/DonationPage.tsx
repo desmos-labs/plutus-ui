@@ -87,16 +87,16 @@ function DonationPage() {
 
 
   return (
-    <div className="w-3/4 lg:w-1/3 mx-auto text-center">
+    <div className="w-full md:w-3/4 lg:w-2/3 mx-auto text-center">
 
       <ProfileCover
-        className="h-[300px]"
+        className="h-[250px] md:h-[300px]"
         profile={state.recipientProfile}
         application={application}
         username={username}
       />
 
-      <form className="flex flex-col w-3/4 mx-auto" onSubmit={handleSubmit}>
+      <form className="flex flex-col md:w-3/4 mx-auto" onSubmit={handleSubmit}>
 
         <label className="mt-5">Recipient address</label>
         <select

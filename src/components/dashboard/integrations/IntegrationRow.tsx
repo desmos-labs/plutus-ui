@@ -1,9 +1,10 @@
-import {Platform} from "../../types";
+import {Platform} from "../../../types";
 import * as React from "react";
 import streamlabsIcon from "assets/integrations/streamlabs.png"
 import streamElementsIcon from "assets/integrations/streamelements.png"
 import {useDispatch} from "react-redux";
-import {startAuthorization} from "../../store/oauth";
+import {startAuthorization} from "../../../store/oauth";
+import {startDisconnection} from "../../../store/integrations";
 
 interface IntegrationProps {
   readonly platform: Platform;
@@ -21,7 +22,7 @@ function IntegrationRow({platform, connected}: IntegrationProps) {
   ])
 
   function handleClickDisconnect() {
-    // TODO: Implement this
+    dispatch(startDisconnection(platform));
   }
 
   function handleClickConnect() {

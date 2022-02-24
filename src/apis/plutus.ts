@@ -1,4 +1,4 @@
-import {Donation} from "../types";
+import {Donation, Platform} from "../types";
 import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
 
 const PLUTUS_API_URL = process.env.REACT_APP_PLUTUS_API as string;
@@ -10,6 +10,23 @@ interface ConfigResponse {
 interface UserDataResponse {
   readonly granted_amount?: Coin[];
   readonly enabled_integrations?: string[];
+}
+
+type AuthorizationRequest = {
+  platform: Platform;
+  oAuthCode: string;
+  desmosAddress: string;
+  signedBytes: string;
+  pubKeyBytes: string;
+  signatureBytes: string;
+}
+
+type DisconnectionRequest = {
+  platform: Platform,
+  desmosAddress: string;
+  signedBytes: string;
+  pubKeyBytes: string;
+  signatureBytes: string;
 }
 
 /**
@@ -53,6 +70,29 @@ export class PlutusAPI {
   }
 
   /**
+   * Sends the given authorization request to the APIs.
+   */
+  static async sendAuthorizationRequest(request: AuthorizationRequest): Promise<Response> {
+    const url = `${PLUTUS_API_URL}/oauth/token`;
+    const data = {
+      'platform': request.platform.toString(),
+      'oauth_code': request.oAuthCode,
+      'desmos_address': request.desmosAddress,
+      'signed_bytes': request.signedBytes,
+      'pubkey_bytes': request.pubKeyBytes,
+      'signature_bytes': request.signatureBytes,
+    }
+
+    return await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  /**
    * Sends a donation associated to the given transaction hash.
    */
   static async sendDonationAlert(donation: Donation, txHash: string): Promise<Error | null> {
@@ -78,5 +118,27 @@ export class PlutusAPI {
     }
 
     return null;
+  }
+
+  /**
+   * Sends a disconnection request to remove a service from a specific user.
+   */
+  static async sendDisconnectionRequest(request: DisconnectionRequest): Promise<Response> {
+    const url = `${PLUTUS_API_URL}/user/integrations`;
+    const data = {
+      'platform': request.platform.toString(),
+      'desmos_address': request.desmosAddress,
+      'signed_bytes': request.signedBytes,
+      'pubkey_bytes': request.pubKeyBytes,
+      'signature_bytes': request.signatureBytes,
+    }
+
+    return await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    })
   }
 }

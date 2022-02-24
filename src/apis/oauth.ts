@@ -1,18 +1,8 @@
-import {Platform} from "../types/oauth";
-
-const PLUTUS_API_URL = process.env.REACT_APP_PLUTUS_API as string;
+import {Platform} from "../types";
 
 const STREAMLABS_CLIENT_ID = process.env.REACT_APP_STREAMLABS_CLIENT_ID as string;
 const STREAMLABS_REDIRECT_URI = process.env.REACT_APP_STREAMLABS_REDIRECT_URI as string;
 
-type AuthorizationRequest = {
-  platform: Platform;
-  oAuthCode: string;
-  desmosAddress: string;
-  signedBytes: string;
-  pubKeyBytes: string;
-  signatureBytes: string;
-}
 
 export class OAuthAPIs {
   /**
@@ -63,29 +53,6 @@ export class OAuthAPIs {
       url: url,
       nonce: nonce,
     }
-  }
-
-  /**
-   * Sends the given authorization request to the APIs.
-   */
-  static async sendAuthorizationRequest(request: AuthorizationRequest): Promise<Response> {
-    const url = `${PLUTUS_API_URL}/oauth/token`;
-    const data = {
-      'platform': request.platform.toString(),
-      'oauth_code': request.oAuthCode,
-      'desmos_address': request.desmosAddress,
-      'signed_bytes': request.signedBytes,
-      'pubkey_bytes': request.pubKeyBytes,
-      'signature_bytes': request.signatureBytes,
-    }
-
-    return await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
   }
 }
 

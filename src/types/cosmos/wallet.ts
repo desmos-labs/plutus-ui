@@ -6,10 +6,10 @@ import {
   DesmosClient,
   Signer,
   SigningMode,
-  WalletConnectSigner,
   SignerObserver,
   SignatureResult
 } from "@desmoslabs/desmjs";
+import {WalletConnectSigner} from "@desmoslabs/desmjs-walletconnect";
 import {SignDoc, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {AccountData, StdSignDoc} from "@cosmjs/amino";
 import {Uint64} from "@cosmjs/math";

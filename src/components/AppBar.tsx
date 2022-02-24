@@ -1,8 +1,8 @@
 import * as React from "react";
 import {ReactComponent as Logo} from "../assets/logo.svg";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {getUserState, LoginStep} from "store/user";
+import {useDispatch, useSelector} from "react-redux";
+import {getUserState, LoginStep, logout} from "store/user";
 
 /**
  * Represents the application bar.
@@ -10,6 +10,7 @@ import {getUserState, LoginStep} from "store/user";
  * @constructor
  */
 function AppBar() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -29,11 +30,15 @@ function AppBar() {
     navigate("/dashboard");
   }
 
+  function handleClickLogout() {
+    dispatch(logout());
+  }
+
   function getButton() {
     switch (location.pathname) {
       case "/login":
       case "/dashboard":
-        return <div />
+        return <button className="button-red" onClick={handleClickLogout}>Logout</button>
 
       default: {
         switch (state.step) {

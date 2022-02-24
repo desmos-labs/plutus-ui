@@ -1,13 +1,15 @@
-import {OAuthParams, isSignDoc, UserWallet, Platform} from "../../types";
+import {OAuthParams, isSignDoc, UserWallet, Platform, getSignatureData} from "../../types";
 import {AppThunk} from "../index";
 import {OAuthStorage, StoredData} from "./storage";
-import {OAuthAPIs} from "../../apis";
+import {OAuthAPIs, PlutusAPI} from "../../apis";
 import {MsgSendEncodeObject} from "@cosmjs/stargate";
 import {OAuthPopupStatus, setError, setOAuthCode, setStatus, setStoredData} from "./index";
 import {AuthInfo, SignDoc} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {Any} from "cosmjs-types/google/protobuf/any";
 import {serializeSignDoc} from "@cosmjs/amino";
 import {refreshUserState} from "../user";
+import {sign} from "crypto";
+import {MsgAuthenticateEncodeObject} from "@desmoslabs/desmjs";
 
 /**
  * Initializes the OAuth popup state.
@@ -77,53 +79,37 @@ export function finalizeOAuth(oAuthCode?: string, data?: StoredData): AppThunk {
       return
     }
 
-    // Build the message
-    const msgSend: MsgSendEncodeObject = {
-      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+    // Build the message to be signed
+    const msgSend: MsgAuthenticateEncodeObject = {
+      typeUrl: "/desmjs.v1.MsgAuthenticate",
       value: {
-        fromAddress: data.desmosAddress,
-        toAddress: data.desmosAddress,
-        amount: [{
-          denom: UserWallet.getFeeDenom(),
-          amount: '0',
-        }]
+        user: data.desmosAddress,
       }
     }
 
     // Ask the user to sign
     dispatch(setStatus(OAuthPopupStatus.REQUESTED_SIGNATURE));
-    const txResult = await UserWallet.signTransaction(data.desmosAddress, [msgSend], {memo: oAuthCode});
-    if (txResult instanceof Error) {
-      dispatch(setError(txResult.message));
+    const result = await UserWallet.signTransaction(data.desmosAddress, [msgSend], {memo: oAuthCode});
+    if (result instanceof Error) {
+      dispatch(setError(result.message));
       return
     }
 
-    // Get the auth bytes
-    const authInfo = AuthInfo.decode(txResult.txRaw.authInfoBytes);
-    const pubKey = authInfo.signerInfos[0].publicKey;
-    if (!pubKey) {
-      dispatch(setError("Invalid returned public key"))
+    const signedData = getSignatureData(result);
+    if (signedData instanceof Error) {
+      dispatch(setError(signedData.message));
       return
     }
-    const pubKeyBytes = Any.encode(pubKey).finish();
-
-    // Get the signed bytes
-    const signedBytes = isSignDoc(txResult.signDoc) ?
-      SignDoc.encode(txResult.signDoc).finish() :
-      serializeSignDoc(txResult.signDoc);
-
-    // Get the signature bytes
-    const signatureBytes = txResult.txRaw.signatures[0];
 
     dispatch(setStatus(OAuthPopupStatus.VERIFYING));
     try {
-      const res = await OAuthAPIs.sendAuthorizationRequest({
+      const res = await PlutusAPI.sendAuthorizationRequest({
         oAuthCode: oAuthCode,
         desmosAddress: data.desmosAddress,
         platform: data.platform,
-        pubKeyBytes: Buffer.from(pubKeyBytes).toString('hex'),
-        signedBytes: Buffer.from(signedBytes).toString('hex'),
-        signatureBytes: Buffer.from(signatureBytes).toString('hex'),
+        pubKeyBytes: Buffer.from(signedData.pubKeyBytes).toString('hex'),
+        signedBytes: Buffer.from(signedData.signedBytes).toString('hex'),
+        signatureBytes: Buffer.from(signedData.signatureBytes).toString('hex'),
       })
       if (!res.ok) {
         dispatch(setError(await res.text()));

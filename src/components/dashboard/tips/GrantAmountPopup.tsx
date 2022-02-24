@@ -3,9 +3,9 @@ import * as React from "react";
 import {ChangeEvent} from "react";
 import {ReactComponent as Icon} from "assets/authorization.svg";
 import {useDispatch, useSelector} from "react-redux";
-import {getTipsPopupState, resetTipsPopup, setGrantAmount, TipsStep, startTipAuthorizationProcess} from "../../store/tips";
-import {getTxLink} from "../utils";
-import {formatDenom} from "../../types";
+import {getTipsPopupState, resetTipsPopup, setGrantAmount, TipsStep, startTipAuthorizationProcess} from "../../../store/tips";
+import {getTxLink} from "../../utils";
+import {formatDenom} from "../../../types";
 
 type GrantAmountPopupProps = {
   visible: boolean,

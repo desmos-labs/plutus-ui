@@ -1,17 +1,16 @@
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Platform} from "types/oauth";
-import {getLoggedInUser, logout} from "store/user";
+import {getLoggedInUser} from "store/user";
 import {useEffect} from "react";
-import EnableTipsSection from "components/tips/EnableTipsSection";
-import TipsEnabledSection from "components/tips/TipsEnabledSection";
-import {useLocation, useSearchParams} from "react-router-dom";
+import EnableTipsSection from "components/dashboard/tips/EnableTipsSection";
+import TipsEnabledSection from "components/dashboard/tips/TipsEnabledSection";
+import {useSearchParams} from "react-router-dom";
 import history from "history/browser";
 import OAuthPopup from "components/oauth/OAuthPopup";
-import {initOAuthPopupState, startAuthorization} from "../store/oauth";
+import {initOAuthPopupState} from "../store/oauth";
 import {getDisplayName} from "../components/utils";
 import {isZero} from "../types";
-import IntegrationsSection from "../components/integrations/IntegrationsSection";
+import IntegrationsSection from "../components/dashboard/integrations/IntegrationsSection";
 
 /**
  * Represents the dashboard of the app for logged in users.
@@ -43,15 +42,13 @@ function DashboardPage() {
     history.replace({})
   }
 
-  function handleClickLogout() {
-    dispatch(logout());
-  }
-
   return (
     <div>
-      <h3 className="mt-3">Account</h3>
-      <p>You are currently logged in as {getDisplayName(user.profile)}.</p>
-      <button className="mt-2 button-red text-sm" onClick={handleClickLogout}>Logout</button>
+      <h1 className="mt-3">Dashboard</h1>
+      <p>
+        Welcome, {getDisplayName(user.profile)}.
+        From here you can manage your settings within DesmosTipBot.
+      </p>
 
       <IntegrationsSection />
       <OAuthPopup onClose={onOAuthClose}/>
