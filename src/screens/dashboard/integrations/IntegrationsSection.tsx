@@ -3,7 +3,7 @@ import {getPlatforms, Platform} from "../../../types";
 import {useSelector} from "react-redux";
 import {getLoggedInUser} from "../../../store/user";
 import IntegrationRow from "./IntegrationRow";
-import DisconnectIntegrationsPopup from "./DisconnectIntegrationsPopup";
+import DisconnectIntegrationsPopup from "./popups/DisconnectIntegrationsPopup";
 
 /**
  * Contains the details about the various integrations connected to the user profile.

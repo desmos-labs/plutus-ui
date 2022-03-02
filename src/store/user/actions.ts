@@ -11,7 +11,7 @@ import {UserStorage} from "./storage";
  */
 function observeWalletStatus(dispatch: AppDispatch): SignerObserver {
   return async (status: SignerStatus) => {
-    if (status == SignerStatus.NotConnected) {
+    if (status != SignerStatus.Connected) {
       UserStorage.deleteUserData();
       dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
       return
@@ -99,6 +99,9 @@ export function logout(): AppThunk {
   return dispatch => {
     // Disconnect the wallet
     UserWallet.disconnect();
+
+    // Delete the local storage
+    UserStorage.deleteUserData();
 
     dispatch(setUserStatus({step: LoginStep.LOGGED_OUT}));
   }

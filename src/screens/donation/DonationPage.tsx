@@ -12,9 +12,11 @@ import {changeRecipientAddress, initDonationState, sendDonation} from "store/don
 import {ChangeEvent, useEffect} from "react";
 
 import ProfileCover from "components/profile/ProfileCover";
-import ConfirmTxPopup from "components/transactions/ConfirmTxPopup";
+import ConfirmTxPopup from "components/popups/ConfirmTxPopup";
 import {getUserState, LoginStep} from "store/user";
-import {coinToString, formatDenom} from "../types";
+import {formatDenom} from "../../types";
+import DesmosSelect, {DesmosOption} from "../../components/inputs/Select";
+import PrimaryButton from "../../components/buttons/PrimaryButton";
 
 type Params = {
   application: string;
@@ -48,8 +50,8 @@ function DonationPage() {
     dispatch(initDonationState(application, username))
   }, [false])
 
-  function handleChangeRecipientAddress(e: ChangeEvent<HTMLSelectElement>) {
-    dispatch(changeRecipientAddress(e.target.value));
+  function handleChangeRecipientAddress({value}: DesmosOption) {
+    dispatch(changeRecipientAddress(value));
   }
 
   function handleChangeAmount(e: ChangeEvent<HTMLInputElement>) {
@@ -67,9 +69,7 @@ function DonationPage() {
   /**
    * Handles the donation submission.
    */
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
+  function handleSubmit() {
     if (userState.step !== LoginStep.LOGGED_IN) {
       navigate("/login")
       return
@@ -87,26 +87,28 @@ function DonationPage() {
 
 
   return (
-    <div className="w-full md:w-3/4 lg:w-2/3 mx-auto text-center">
+    <div className="w-full md:w-3/4 lg:w-2/3 mx-auto">
 
       <ProfileCover
-        className="h-[250px] md:h-[300px]"
+        className="h-[200px] md:h-[200px]"
         profile={state.recipientProfile}
         application={application}
         username={username}
       />
 
-      <form className="flex flex-col md:w-3/4 mx-auto" onSubmit={handleSubmit}>
+      <form className="flex flex-col md:w-3/4 mx-auto">
 
         <label className="mt-5">Recipient address</label>
-        <select
-          className="text-sm bg-transparent rounded border-2 border-orange"
-          value={state.recipientProfile.address}
-          onChange={handleChangeRecipientAddress}>
-          {state.recipientAddresses.map((address) => (
-            <option key={address} value={address}>{address}</option>
-          ))}
-        </select>
+        <DesmosSelect
+          value={{label: state.recipientProfile.address, value: state.recipientProfile.address}}
+          onChange={handleChangeRecipientAddress}
+          options={state.recipientAddresses.map((address) => {
+            return {
+              label: address,
+              value: address,
+            }
+          })}
+        />
 
         <label className="mt-5">Amount ({formatDenom(state.denom)})</label>
         <input type="number" placeholder="0.5" onChange={handleChangeAmount} value={state.amount}/>
@@ -117,7 +119,7 @@ function DonationPage() {
         <label className="mt-5">Donation message</label>
         <input type="text" placeholder="Hello!" onChange={handleChangeMessage} value={state.message}/>
 
-        <button className="mt-10" type="submit">Confirm transaction</button>
+        <PrimaryButton className="mt-7" onClick={handleSubmit}>Submit</PrimaryButton>
       </form>
 
       {state.status == DonationStatus.LOADING &&

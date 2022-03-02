@@ -1,21 +1,39 @@
 import * as React from "react"
 import {useDispatch, useSelector} from "react-redux";
-import {getOAuthPopupState, OAuthPopupStatus, resetOAuthPopup} from "../../store/oauth";
-import Popup from "../Popup";
-import {finalizeOAuth} from "../../store/oauth";
-import LoadingIcon from "../LoadingIcon";
-import {refreshUserState} from "../../store/user";
+import {getOAuthPopupState, initOAuthPopupState, OAuthPopupStatus, resetOAuthPopup} from "../../../../store/oauth";
+import Popup from "../../../../components/popups/Popup";
+import {finalizeOAuth} from "../../../../store/oauth";
+import LoadingIcon from "../../../../components/LoadingIcon";
+import history from "history/browser";
+import {useSearchParams} from "react-router-dom";
+import {useEffect} from "react";
 
-interface OAuthPopupProps {
-  readonly onClose: () => void;
-}
 
 /**
  * Represents the page that is called from OAuth as the callback.
  */
-function OAuthPopup({onClose}: OAuthPopupProps) {
+function OAuthPopup() {
   const dispatch = useDispatch();
   const state = useSelector(getOAuthPopupState);
+
+  // Get the params sent using OAuth
+  const [searchParams] = useSearchParams();
+  const oAuthCode = searchParams.get('code');
+  const oAuthState = searchParams.get('state');
+  const oAuthError = searchParams.get('error');
+
+  useEffect(() => {
+    dispatch(initOAuthPopupState({
+      oAuthCode: oAuthCode,
+      oAuthState: oAuthState,
+      oAuthError: oAuthError,
+    }));
+  }, [false])
+
+  function onClose() {
+    // Remove the search params (code and state)
+    history.replace({})
+  }
 
   /**
    * Returns the title and content to be used based on the given status.

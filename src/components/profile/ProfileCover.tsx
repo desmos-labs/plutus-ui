@@ -35,20 +35,20 @@ function ProfileCover(props: ProfileCoverProps & React.HTMLAttributes<HTMLDivEle
 
   return (
     <div className={`bg-cover bg-center rounded-3xl relative ${props.className}`} style={coverStyle}>
-      <div className="absolute bottom-5 left-5 flex flex-row">
-        <img className="h-16 w-16 rounded-xl" src={profilePic} alt="Profile picture"/>
+      <div className="absolute bottom-8 left-8 flex flex-row">
+        <img className="h-20 w-20 rounded-xl" src={profilePic} alt="Profile picture"/>
         <div className="text-white text-left ml-4">
           <div className="flex flex-row">
-            <h2 className="text-3xl font-bold">{getDisplayName(props.profile)}</h2>
+            <h2>{getDisplayName(props.profile)}</h2>
 
             {props.profile.nickname &&
-              <h4 className="ml-2 mt-auto">(@{props.profile.dtag})</h4>
+              <h3 className="ml-2 my-auto">(@{props.profile.dtag})</h3>
             }
           </div>
 
-          <a className="text-lg font-bold opacity-70" target="_blank" href={fullLink}>
-            {displayLink}
-          </a>
+          <h5>
+            <a className="opacity-70" target="_blank" href={fullLink}>{displayLink}</a>
+          </h5>
         </div>
       </div>
     </div>

@@ -7,11 +7,13 @@ import oauth from "./oauth";
 import tips from "./tips";
 import {ThunkDispatch} from "redux-thunk/src/types";
 import integrations from "./integrations";
+import navigation from "./navigation";
 
 const rootReducer = combineReducers({
   donation: donation,
   integrations: integrations,
   oauth: oauth,
+  navigation: navigation,
   tips: tips,
   transaction: transaction,
   user: user,

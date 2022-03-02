@@ -1,11 +1,11 @@
-import Popup from "../../Popup";
+import Popup from "../../../../components/popups/Popup";
 import {useDispatch, useSelector} from "react-redux";
 import {
   disconnect,
   getIntegrationsPopupState,
   IntegrationPopupStep,
   resetIntegrationsPopup
-} from "../../../store/integrations";
+} from "../../../../store/integrations";
 import * as React from "react";
 
 function DisconnectIntegrationsPopup() {

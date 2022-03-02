@@ -1,4 +1,4 @@
-import Popup from "../Popup";
+import Popup from "./Popup";
 import {useDispatch, useSelector} from "react-redux";
 import {getTransactionState, resetTxPopup, TransactionState, TransactionStatus} from "../../store/transaction";
 import * as React from "react";

@@ -1,4 +1,4 @@
-import GrantAmountPopup from "components/dashboard/tips/GrantAmountPopup";
+import GrantAmountPopup from "screens/dashboard/tips/popups/GrantAmountPopup";
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getTipsPopupState, setStep, TipsStep} from "../../../store/tips";
