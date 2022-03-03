@@ -5,6 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {getUserState, LoginStep, logout} from "store/user";
 import UserPopupButton from "./UserPopupButton";
 import LoginButton from "./LoginButton";
+import SearchBar from "../SearchBar";
 
 /**
  * Represents the application bar.
@@ -22,12 +23,6 @@ function NavigationBar() {
   function handleClickLogo() {
     navigate("/",);
   }
-
-
-  function handleClickDashboard() {
-    navigate("/dashboard");
-  }
-
 
   return (
     <div className="bg-transparent my-6 md:my-8 flex flex-wrap justify-between items-center h-auto">

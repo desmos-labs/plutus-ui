@@ -40,13 +40,8 @@
   button, button[type=submit] {
     @apply
     font-medium text-white rounded-full py-2 px-4 general-gradient-4
-    hover:bg-hover hover:shadow
     disabled:bg-none disabled:bg-neutral-400
-    disabled:hover:bg-neutral-400 disabled:hover:shadow-none
-  }
-
-  input {
-    @apply outline-primary-light outline-[1px] border-primary-light border-[1px] rounded-md p-3
+    disabled:hover:bg-none disabled:hover:bg-neutral-400
   }
 }
 
@@ -97,19 +92,19 @@
   }
 
   .button-orange {
-    @apply bg-none bg-primary  hover:shadow-none text-white
+    @apply bg-none bg-primary
   }
   .button-primary {
-    @apply button-primary-bg hover:button-primary-bg-hover hover:shadow-none
+    @apply button-primary-bg hover:button-primary-bg-hover
   }
   .button-secondary {
     @apply bg-none bg-white outline-2 outline-orange text-orange
   }
 
   .button-yellow {
-    @apply bg-yellow hover:bg-light-orange bg-none hover:shadow-none
+    @apply bg-yellow hover:bg-light-orange bg-none
   }
   .button-red {
-    @apply bg-red-500 hover:bg-red-600 bg-none hover:shadow-none
+    @apply bg-red-500 hover:bg-none hover:bg-red-600 bg-none
   }
 }

@@ -1,6 +1,6 @@
-import {DOMAttributes, HTMLAttributes} from "react";
+import React from "react";
 
-interface Props {
+type PrimaryButtonProps = React.ButtonHTMLAttributes<any> & {
   onClick: () => void;
 }
 
@@ -10,8 +10,16 @@ interface Props {
  * @param children: Children of the button.
  * @constructor
  */
-function PrimaryButton({onClick, children, className}: Props & JSX.ElementChildrenAttribute & HTMLAttributes<any>) {
-  return <button className={`px-6 button-primary ${className}`} onClick={onClick}>{children}</button>
+function PrimaryButton({onClick, children, className, ...props}: PrimaryButtonProps) {
+  return (
+    <button
+      {...props}
+      className={`px-6 button-primary ${className}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
 }
 
 export default PrimaryButton;

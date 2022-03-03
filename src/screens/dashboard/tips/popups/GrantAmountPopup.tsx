@@ -3,18 +3,20 @@ import * as React from "react";
 import {ChangeEvent} from "react";
 import {ReactComponent as Icon} from "assets/authorization.svg";
 import {useDispatch, useSelector} from "react-redux";
-import {getTipsPopupState, resetTipsPopup, setGrantAmount, TipsStep, startTipAuthorizationProcess} from "../../../../store/tips";
+import {
+  getTipsPopupState,
+  resetTipsPopup,
+  setGrantAmount,
+  TipsStep,
+  startTipAuthorizationProcess
+} from "../../../../store/tips";
 import {getTxLink} from "../../../../components/utils";
 import {formatDenom} from "../../../../types";
-
-type GrantAmountPopupProps = {
-  visible: boolean,
-}
 
 /**
  * Represents the popup that is shown to the user when they want to enable social tips.
  */
-function GrantAmountPopup({visible}: GrantAmountPopupProps) {
+function GrantAmountPopup() {
   const dispatch = useDispatch();
 
   const state = useSelector(getTipsPopupState);
@@ -82,7 +84,7 @@ function GrantAmountPopup({visible}: GrantAmountPopupProps) {
   const {title, content} = getTitleAndContent(state.step);
 
   return (
-    <Popup visible={visible}>
+    <Popup visible={state.step != TipsStep.HIDDEN}>
       <div className="text-center">
         <Icon className="mx-auto w-10 h-10"/>
         <h4 className="mt-2">{title}</h4>

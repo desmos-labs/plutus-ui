@@ -1,15 +1,18 @@
 import * as React from "react";
-import {useNavigate} from "react-router-dom";
-import PrimaryButton from "../../components/buttons/PrimaryButton";
+import SearchBar from "../../components/SearchBar";
+import {useDispatch, useSelector} from "react-redux";
+import {getSearchState, searchProfiles} from "../../store/home";
+import ProfileSearchResults from "./search/ProfileSearchResults";
 
 /**
  * Represents the home page of the application.
  */
 function HomePage() {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const state = useSelector(getSearchState);
 
-  function handleClickExample() {
-    navigate("/donate/twitch/lucag__", {replace: false})
+  function handleSearchChange(search: string) {
+    dispatch(searchProfiles(search))
   }
 
   return (
@@ -20,10 +23,18 @@ function HomePage() {
         DesmosTipBot allows you to send tips to every account on supported social networks
         without the need of any intermediary.
       </p>
-      <PrimaryButton className="mt-2" onClick={handleClickExample}>View example donation page</PrimaryButton>
 
-      <h3 className="text-orange mt-10">Instant DSM Donation Alerts</h3>
-      <p>Receive DSM donations and convert the amounts to any currency instantly.</p>
+      <div className="mt-5 w-2/3">
+        <SearchBar
+          placeholder="Who would you like to donate to?"
+          value={state.search}
+          onSearchChange={handleSearchChange}
+        />
+        <ProfileSearchResults/>
+      </div>
+
+      <h3 className="text-orange mt-5">Instant DSM Donation Alerts</h3>
+      <p>Receive DSM donations and see the corresponding amount in any currency instantly.</p>
     </div>
   );
 }

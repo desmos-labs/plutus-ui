@@ -1,20 +1,26 @@
 import {Platform} from "../../../types";
 import * as React from "react";
-import streamlabsIcon from "assets/integrations/streamlabs.png"
-import streamElementsIcon from "assets/integrations/streamelements.png"
-import {useDispatch} from "react-redux";
+import streamlabsIcon from "../../../assets/icons/streamlabs.svg"
+import streamElementsIcon from "../../../assets/integrations/streamelements.png"
+import {useDispatch, useSelector} from "react-redux";
 import {startAuthorization} from "../../../store/oauth";
 import {startDisconnection} from "../../../store/integrations";
+import DashboardRow from "../components/DashboardRow";
+import PrimaryButton from "../../../components/buttons/PrimaryButton";
+import {getLoggedInUser} from "../../../store/user";
 
 interface IntegrationProps {
   readonly platform: Platform;
-  readonly connected: boolean;
+  readonly disabled: boolean;
 }
 
 /**
  * Represents a single integration row.
  */
-function IntegrationRow({platform, connected}: IntegrationProps) {
+function IntegrationRow({platform, disabled}: IntegrationProps) {
+  const state = useSelector(getLoggedInUser);
+  const connected = state.enabledIntegrations.includes(platform);
+
   const dispatch = useDispatch();
   const icons: Map<Platform, string> = new Map<Platform, string>([
     [Platform.STREAMLABS, streamlabsIcon],
@@ -30,35 +36,32 @@ function IntegrationRow({platform, connected}: IntegrationProps) {
   }
 
   return (
-    <tr>
-      <td className="text-center p-3">
-        <img
-          className="mx-auto my-1 w-10 h-10"
-          src={icons.get(platform)}
-          alt={`${platform.toString()} Logo`}
-        />
-        <p>{platform.toString()}</p>
-      </td>
+    <DashboardRow
+      icon={icons.get(platform) || ""}
+      title={platform.toString()}
+      text={`Connect your ${platform.toString()} account to start receiving donation alerts`}
+      button={
+        <div>
+          {connected &&
+            <PrimaryButton className="button-red" onClick={handleClickDisconnect}>
+              Disconnect
+            </PrimaryButton>
+          }
 
-      <td className="text-center p-3">
-        {connected &&
-          <button className="button-red text-sm" onClick={handleClickDisconnect}>
-            Disconnect {platform.toString()}
-          </button>
-        }
+          {!connected && !disabled &&
+            <PrimaryButton onClick={handleClickConnect}>
+              Connect
+            </PrimaryButton>
+          }
 
-        {!connected && platform != Platform.STREAMELEMENTS &&
-          <button className="disabled text-sm" onClick={handleClickConnect}>
-            Connect {platform.toString()}
-          </button>
-        }
-        {!connected && platform == Platform.STREAMELEMENTS &&
-          <button disabled className="disabled text-sm" onClick={handleClickConnect}>
-            Coming soon
-          </button>
-        }
-      </td>
-    </tr>
+          {!connected && disabled &&
+            <PrimaryButton disabled onClick={handleClickConnect}>
+              Coming soon
+            </PrimaryButton>
+          }
+        </div>
+      }
+    />
   )
 }
 

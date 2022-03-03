@@ -8,9 +8,11 @@ import tips from "./tips";
 import {ThunkDispatch} from "redux-thunk/src/types";
 import integrations from "./integrations";
 import navigation from "./navigation";
+import home from "./home";
 
 const rootReducer = combineReducers({
   donation: donation,
+  home: home,
   integrations: integrations,
   oauth: oauth,
   navigation: navigation,

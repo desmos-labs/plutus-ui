@@ -1,9 +1,12 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     fontSize: {
+      'xs': defaultTheme.fontSize.xs,
+      'sm': defaultTheme.fontSize.sm,
       'base': ['16px', '22px'],
       'lg': ['18px', '27px'],
       'xl': ['20px', '30px'],

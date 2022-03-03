@@ -1,10 +1,10 @@
-import Popup from "./Popup";
+import Popup from "../../popups/Popup";
 import {useDispatch, useSelector} from "react-redux";
-import {getTransactionState, resetTxPopup, TransactionState, TransactionStatus} from "../../store/transaction";
+import {getTransactionState, resetTxPopup, TransactionState, TransactionStatus} from "../../../store/transaction";
 import * as React from "react";
-import TxMessage from "../transactions/TxMessage";
-import {getTxLink} from "../utils";
-import LoadingIcon from "../LoadingIcon";
+import TxMessage from "../TxMessage";
+import {getTxLink} from "../../utils";
+import LoadingIcon from "../../LoadingIcon";
 
 /**
  * Represents the popup to confirm a generic tx.

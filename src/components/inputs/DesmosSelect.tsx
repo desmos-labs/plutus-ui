@@ -3,24 +3,26 @@ import {
   components,
   ControlProps,
   DropdownIndicatorProps,
-  IndicatorSeparatorProps,
-  InputProps,
+  MenuProps,
   OptionProps
 } from "react-select";
 import Select from 'react-select';
 
 function Control(props: ControlProps<any>) {
   return (
-    <components.Control className="border-[1px] border-primary-light px-1 py-2 pr-2" {...props} />
+    <components.Control
+      {...props}
+      className="border-primary-light rounded-md px-1 py-2 pr-2"
+    />
   )
 }
 
-function Input(props: InputProps<any>) {
-  return <components.Input {...props} isDisabled={true}/>;
+function IndicatorSeparator() {
+  return null;
 }
 
-function IndicatorSeparator(props: IndicatorSeparatorProps<any>) {
-  return null;
+function Menu(props: MenuProps<any>) {
+  return <components.Menu {...props} className="drop-shadow-2xl rounded-md"/>
 }
 
 function DropdownIndicator(props: DropdownIndicatorProps<any>) {
@@ -34,34 +36,47 @@ function DropdownIndicator(props: DropdownIndicatorProps<any>) {
 }
 
 
-export type DesmosOption = {
-  value: string
-  label: string
+export interface DesmosOption {
+  readonly value: string
+  readonly label: string
 }
 
 interface Props {
-  value: DesmosOption;
-  options: DesmosOption[];
-  onChange: (option: DesmosOption) => void;
+  readonly enabled?: boolean;
+  readonly value: DesmosOption;
+  readonly options: DesmosOption[];
+  readonly onChange: (option: DesmosOption) => void;
 }
 
-function DesmosSelect({value, options, onChange}: Props) {
+function DesmosSelect({value, options, onChange, enabled}: Props) {
   function Option(props: OptionProps<any>) {
     const border = props.data == options[options.length - 1] ? 'border-none' : 'border-b-[1px]';
     return <components.Option {...props} className={`text-left border-divider ${border}`}/>
   }
 
   return <Select
+    isDisabled={enabled === false}
+    isSearchable={false}
     value={value}
     isMulti={false}
     options={options}
     onChange={(v) => onChange(v as DesmosOption)}
     components={{
       Control,
-      Input,
       Option,
       IndicatorSeparator,
+      Menu,
       DropdownIndicator,
+    }}
+    styles={{
+      control: (base) => ({
+        ...base,
+        borderColor: 'primary-light',
+        borderRadius: 'md',
+      }),
+      menuList: (base) => ({
+        ...base,
+      })
     }}
   />
 }

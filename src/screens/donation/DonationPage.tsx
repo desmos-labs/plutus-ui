@@ -11,12 +11,13 @@ import {
 import {changeRecipientAddress, initDonationState, sendDonation} from "store/donation/actions";
 import {ChangeEvent, useEffect} from "react";
 
-import ProfileCover from "components/profile/ProfileCover";
-import ConfirmTxPopup from "components/popups/ConfirmTxPopup";
+import ProfileCover from "screens/donation/components/ProfileCover";
+import ConfirmTxPopup from "components/transactions/popup/ConfirmTxPopup";
 import {getUserState, LoginStep} from "store/user";
 import {formatDenom} from "../../types";
-import DesmosSelect, {DesmosOption} from "../../components/inputs/Select";
+import DesmosSelect, {DesmosOption} from "../../components/inputs/DesmosSelect";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
+import DesmosInput from "../../components/inputs/DesmosInput";
 
 type Params = {
   application: string;
@@ -101,6 +102,7 @@ function DonationPage() {
         <label className="mt-5">Recipient address</label>
         <DesmosSelect
           value={{label: state.recipientProfile.address, value: state.recipientProfile.address}}
+          enabled={state.recipientAddresses.length > 1}
           onChange={handleChangeRecipientAddress}
           options={state.recipientAddresses.map((address) => {
             return {
@@ -111,13 +113,13 @@ function DonationPage() {
         />
 
         <label className="mt-5">Amount ({formatDenom(state.denom)})</label>
-        <input type="number" placeholder="0.5" onChange={handleChangeAmount} value={state.amount}/>
+        <DesmosInput type="number" placeholder="0.5" onChange={handleChangeAmount} value={state.amount}/>
 
         <label className="mt-5">From</label>
-        <input type="text" placeholder="John Doe" onChange={handleChangeUsername} value={state.username}/>
+        <DesmosInput type="text" placeholder="John Doe" onChange={handleChangeUsername} value={state.username}/>
 
         <label className="mt-5">Donation message</label>
-        <input type="text" placeholder="Hello!" onChange={handleChangeMessage} value={state.message}/>
+        <DesmosInput type="text" placeholder="Hello!" onChange={handleChangeMessage} value={state.message}/>
 
         <PrimaryButton className="mt-7" onClick={handleSubmit}>Submit</PrimaryButton>
       </form>

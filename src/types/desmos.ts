@@ -16,3 +16,9 @@ export function convertProfile(address: string, profile: Profile | null): Desmos
     coverPicture: profile?.pictures?.cover?.length ? profile.pictures.cover : undefined,
   }
 }
+
+export interface DesmosAppLink {
+  readonly profile: DesmosProfile;
+  readonly application: string;
+  readonly username: string;
+}

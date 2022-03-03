@@ -2,9 +2,11 @@ import * as React from "react";
 import {useSelector} from "react-redux";
 import {getLoggedInUser} from "store/user";
 import OAuthPopup from "screens/dashboard/integrations/popups/OAuthPopup";
-import {getDisplayName} from "../../components/utils";
-import IntegrationsSection from "./integrations/IntegrationsSection";
-import TipsSection from "./tips/TipsSection";
+import {getPlatforms, Platform} from "../../types";
+import IntegrationRow from "./integrations/IntegrationRow";
+import DisconnectIntegrationsPopup from "./integrations/popups/DisconnectIntegrationsPopup";
+import GrantAmountPopup from "./tips/popups/GrantAmountPopup";
+import TipsRow from "./tips/TipsRow";
 
 /**
  * Represents the dashboard of the app for logged in users.
@@ -12,22 +14,24 @@ import TipsSection from "./tips/TipsSection";
  * @constructor
  */
 function DashboardPage() {
-  // Get the user state
-  const user = useSelector(getLoggedInUser);
+  const platforms = getPlatforms();
 
   return (
     <div>
-      <h1 className="mt-3">Dashboard</h1>
-      <p>
-        Welcome, {getDisplayName(user.profile)}.
-        From here you can manage your settings within DesmosTipBot.
-      </p>
+      <h1>Dashboard</h1>
+      <p>Welcome to your dashboard, where you can manage your settings.</p>
 
-      <IntegrationsSection/>
-      <TipsSection/>
+      <div className="mt-5 space-y-5">
+        {platforms.map((platform) => (
+          <IntegrationRow key={platform} platform={platform} disabled={platform != Platform.STREAMLABS}/>
+        ))}
 
+        <TipsRow/>
+      </div>
+
+      <DisconnectIntegrationsPopup/>
+      <GrantAmountPopup/>
       <OAuthPopup/>
-
     </div>
   );
 }

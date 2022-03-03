@@ -4,6 +4,12 @@ interface Props {
   onClickOutside: () => void;
 }
 
+/**
+ * Allows handling clicks detected outside its children.
+ * @param onClickOutside {Function}: Function to be called when a click outside the children is detected.
+ * @param children {JSX.Element}: Children of this element.
+ * @constructor
+ */
 function OutsideClickHandler({onClickOutside, children}: Props & JSX.ElementChildrenAttribute) {
   const ref = useRef<HTMLDivElement>(null);
 
