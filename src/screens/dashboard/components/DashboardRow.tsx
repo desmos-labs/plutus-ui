@@ -21,7 +21,9 @@ function DashboardRow({icon, title, text, button}: DashboardRowProps) {
         <p className="font-bold">{title}</p>
         <p className="text-sm">{text}</p>
       </div>
-      <div className="min-w-max flex-grow text-center text-sm mt-2 md:my-auto">{button}</div>
+      <div className="min-w-max text-center text-sm mt-2 md:my-auto">
+        {button}
+      </div>
     </div>
   )
 }

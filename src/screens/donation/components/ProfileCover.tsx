@@ -24,17 +24,17 @@ function ProfileCover({application, username, profile, ...props}: ProfileCoverPr
       {...props}
       className={`bg-cover bg-center rounded-3xl relative ${props.className}`}
       style={coverStyle}>
-      <div className="absolute bottom-8 left-8 flex flex-row">
-        <img className="h-20 w-20 rounded-xl" src={profilePic} alt="Profile picture"/>
-        <div className="text-white text-left ml-4 inline-block">
+      <div className="absolute bottom-8 left-8 flex flex-col md:flex-row">
+        <img className="h-12 w-12 md:h-20 md:w-20 rounded-xl" src={profilePic} alt="Profile picture"/>
+        <div className="text-white text-left md:ml-4">
           <h2>{getDisplayName(profile)}</h2>
           <div className="flex flex-row">
             <img
-              className="h-8"
+              className="h-6"
               alt={`${application} icon`}
               src={getApplicationIconSrc(application)}
             />
-            <h3 className="ml-2">{username}</h3>
+            <p className="ml-2 my-auto">{username}</p>
           </div>
         </div>
       </div>

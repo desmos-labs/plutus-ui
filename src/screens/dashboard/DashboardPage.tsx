@@ -1,6 +1,4 @@
 import * as React from "react";
-import {useSelector} from "react-redux";
-import {getLoggedInUser} from "store/user";
 import OAuthPopup from "screens/dashboard/integrations/popups/OAuthPopup";
 import {getPlatforms, Platform} from "../../types";
 import IntegrationRow from "./integrations/IntegrationRow";

@@ -88,7 +88,7 @@ function DonationPage() {
 
 
   return (
-    <div className="w-full md:w-3/4 lg:w-2/3 mx-auto">
+    <div className="w-full md:w-3/4 lg:w-2/3 xl:w-2/5 2xl:w-1/4 mx-auto">
 
       <ProfileCover
         className="h-[200px] md:h-[200px]"
@@ -97,14 +97,14 @@ function DonationPage() {
         username={username}
       />
 
-      <form className="flex flex-col md:w-3/4 mx-auto">
+      <div className="flex flex-col md:w-3/4 mx-auto">
 
         <label className="mt-5">Recipient address</label>
         <DesmosSelect
           value={{label: state.recipientProfile.address, value: state.recipientProfile.address}}
           enabled={state.recipientAddresses.length > 1}
           onChange={handleChangeRecipientAddress}
-          options={state.recipientAddresses.map((address) => {
+          options={state.recipientAddresses.map((address): DesmosOption => {
             return {
               label: address,
               value: address,
@@ -122,17 +122,17 @@ function DonationPage() {
         <DesmosInput type="text" placeholder="Hello!" onChange={handleChangeMessage} value={state.message}/>
 
         <PrimaryButton className="mt-7" onClick={handleSubmit}>Submit</PrimaryButton>
-      </form>
+      </div>
 
       {state.status == DonationStatus.LOADING &&
         <p>Loading...</p>
       }
 
-      <ConfirmTxPopup/>
-
       {state.status == DonationStatus.ERROR &&
         <p>Error: {state.error}</p>
       }
+
+      <ConfirmTxPopup/>
     </div>
   );
 }
