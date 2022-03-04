@@ -1,4 +1,4 @@
-import {DesmosProfile} from "../types";
+import { DesmosProfile } from "../types";
 import twitterSrc from "../assets/icons/twitter.svg";
 import twitchSrc from "../assets/icons/twitch.svg";
 import githubSrc from "../assets/icons/github.svg";
@@ -11,22 +11,24 @@ const EXPLORER_URL = process.env.REACT_APP_CHAIN_EXPLORER_ENDPOINT as string;
  * @param txHash {string | undefined}: Hash of the transaction.
  */
 export function getTxLink(txHash: string | undefined): string {
-  return `${EXPLORER_URL}/transactions/${txHash || ''}`;
+  return `${EXPLORER_URL}/transactions/${txHash || ""}`;
 }
 
 export function getDisplayName(profile: DesmosProfile): string {
-  return profile.nickname || `@${profile.dtag}` || profile.address
+  return profile.nickname || `@${profile.dtag}` || profile.address;
 }
 
 export function getShortAddress(profile: DesmosProfile): string {
-  return profile.address.substring(0, 8) + "..." + profile.address.substring(profile.address.length - 5)
+  return `${profile.address.substring(0, 8)}...${profile.address.substring(
+    profile.address.length - 5
+  )}`;
 }
 
 // TODO: Move this somewhere else (maybe get it from the APIs).
 const supportedApps = ["twitch", "twitter", "github", "discord"];
 
 export function isAppSupported(application: string): boolean {
-  return supportedApps.includes(application.toLowerCase())
+  return supportedApps.includes(application.toLowerCase());
 }
 
 // TODO: Maybe get this from the API config?

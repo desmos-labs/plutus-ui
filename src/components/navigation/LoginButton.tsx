@@ -1,6 +1,7 @@
-import {useNavigate} from "react-router-dom";
-import PrimaryButton from "../buttons/PrimaryButton";
+import { useNavigate } from "react-router-dom";
 import * as React from "react";
+import { useCallback } from "react";
+import PrimaryButton from "../buttons/PrimaryButton";
 
 /**
  * Represents the button that should be used to log into the application.
@@ -9,11 +10,11 @@ import * as React from "react";
 function LoginButton() {
   const navigate = useNavigate();
 
-  function handleClickLogin() {
+  const handleClickLogin = useCallback(() => {
     navigate("/login");
-  }
+  }, []);
 
-  return <PrimaryButton onClick={handleClickLogin}>Login</PrimaryButton>
+  return <PrimaryButton onClick={handleClickLogin}>Login</PrimaryButton>;
 }
 
 export default LoginButton;

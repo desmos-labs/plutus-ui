@@ -1,6 +1,6 @@
-import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
-import {Platform} from "./oauth";
-import {DesmosProfile} from "./desmos";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { Platform } from "./oauth";
+import { DesmosProfile } from "./desmos";
 
 export interface UserData {
   /**

@@ -1,49 +1,55 @@
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
-import {DeliverTxResponse, GasPrice, StdFee} from "@cosmjs/stargate";
-import {EncodeObject} from "@cosmjs/proto-signing";
+import { DeliverTxResponse, GasPrice, StdFee } from "@cosmjs/stargate";
+import { EncodeObject } from "@cosmjs/proto-signing";
 import {
   DesmosClient,
   Signer,
   SigningMode,
   SignerObserver,
-  SignatureResult
+  SignatureResult,
 } from "@desmoslabs/desmjs";
-import {WalletConnectSigner} from "@desmoslabs/desmjs-walletconnect";
-import {SignDoc, TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import {AccountData, StdSignDoc} from "@cosmjs/amino";
-import {Uint64} from "@cosmjs/math";
-import {Profile} from "@desmoslabs/desmjs-types/desmos/profiles/v1beta1/models_profile";
+import {
+  WalletConnect,
+  QRCodeModal,
+  WalletConnectSigner,
+} from "@desmoslabs/desmjs-walletconnect";
+import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { AccountData, StdSignDoc } from "@cosmjs/amino";
+import { Uint64 } from "@cosmjs/math";
+import { Profile } from "@desmoslabs/desmjs-types/desmos/profiles/v1beta1/models_profile";
 
 const GAS_PRICE = process.env.REACT_APP_CHAIN_GAS_PRICE as string;
 const RPC_ENDPOINT = process.env.REACT_APP_CHAIN_RPC_ENDPOINT as string;
 
 export function isSignDoc(value: StdSignDoc | SignDoc): value is SignDoc {
-  return (<SignDoc>value).bodyBytes !== undefined &&
+  return (
+    (<SignDoc>value).bodyBytes !== undefined &&
     (<SignDoc>value).authInfoBytes !== undefined &&
     (<SignDoc>value).chainId !== undefined &&
     (<SignDoc>value).accountNumber !== undefined
+  );
 }
 
 export function isStdSignDoc(value: StdSignDoc | SignDoc): value is StdSignDoc {
-  return (<StdSignDoc>value).memo !== undefined &&
+  return (
+    (<StdSignDoc>value).memo !== undefined &&
     (<StdSignDoc>value).msgs !== undefined &&
     (<StdSignDoc>value).fee !== undefined &&
     (<StdSignDoc>value).account_number !== undefined &&
     (<StdSignDoc>value).chain_id !== undefined &&
-    (<StdSignDoc>value).account_number !== undefined;
+    (<StdSignDoc>value).account_number !== undefined
+  );
 }
 
 export type TxOptions = {
-  memo?: string
-}
+  memo?: string;
+};
 
 /**
  * Represents a generic wallet that allows to perform on-chain operations.
  */
 export class UserWallet {
   private static connector = new WalletConnect({
-    bridge: 'https://bridge.walletconnect.org',
+    bridge: "https://bridge.walletconnect.org",
     qrcodeModal: QRCodeModal,
   });
 
@@ -59,9 +65,12 @@ export class UserWallet {
    */
   private static async requireClient(): Promise<DesmosClient> {
     if (!this.client) {
-      this.client = await DesmosClient.connectWithSigner(RPC_ENDPOINT, this.signer);
+      this.client = await DesmosClient.connectWithSigner(
+        RPC_ENDPOINT,
+        this.signer
+      );
     }
-    return this.client!
+    return this.client!;
   }
 
   /**
@@ -69,7 +78,7 @@ export class UserWallet {
    * @param observer {SignerObserver}: Observer for the signer status.
    */
   public static addStatusObserver(observer: SignerObserver) {
-    this.signer.addStatusListener(observer)
+    this.signer.addStatusListener(observer);
   }
 
   /**
@@ -85,6 +94,7 @@ export class UserWallet {
   public static async connect(): Promise<Error | undefined> {
     try {
       await this.signer.connect();
+      return undefined;
     } catch (e: any) {
       return new Error(e.message);
     }
@@ -126,14 +136,20 @@ export class UserWallet {
    */
   private static getFee(gasAmount: number): StdFee {
     const gasPrice = this.getGasPrice();
-    const amount = Math.round(gasPrice.amount.multiply(Uint64.fromNumber(gasAmount)).toFloatApproximation()).toString();
+    const amount = Math.round(
+      gasPrice.amount
+        .multiply(Uint64.fromNumber(gasAmount))
+        .toFloatApproximation()
+    ).toString();
 
     return {
-      amount: [{
-        amount: amount,
-        denom: gasPrice.denom
-      }],
-      gas: gasAmount.toString()
+      amount: [
+        {
+          amount,
+          denom: gasPrice.denom,
+        },
+      ],
+      gas: gasAmount.toString(),
     };
   }
 
@@ -143,7 +159,11 @@ export class UserWallet {
    * @param messages {EncodeObject[]}: List of messages to be included inside the transaction.
    * @param options {TxOptions | undefined}: Options for the transaction.
    */
-  static async signTransaction(sender: string, messages: EncodeObject[], options?: TxOptions): Promise<SignatureResult | Error> {
+  static async signTransaction(
+    sender: string,
+    messages: EncodeObject[],
+    options?: TxOptions
+  ): Promise<SignatureResult | Error> {
     try {
       // Get the client
       const client = await this.requireClient();
@@ -152,7 +172,12 @@ export class UserWallet {
       const feeValue: StdFee = this.getFee(200_000);
 
       // Sign the transaction
-      return await client.signTx(sender, messages, feeValue, options?.memo || '')
+      return await client.signTx(
+        sender,
+        messages,
+        feeValue,
+        options?.memo || ""
+      );
     } catch (e: any) {
       return new Error(e.message);
     }
@@ -164,6 +189,6 @@ export class UserWallet {
    */
   static async broadcastTx(tx: TxRaw): Promise<DeliverTxResponse> {
     const client = await this.requireClient();
-    return client.broadcastTx(TxRaw.encode(tx).finish())
+    return client.broadcastTx(TxRaw.encode(tx).finish());
   }
 }

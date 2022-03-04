@@ -1,19 +1,22 @@
-import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
-import {coinToString} from "../../../types";
+import React from "react";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { coinToString } from "../../../types";
 
 type Props = {
-  amount: Coin
-}
+  amount: Coin;
+};
 
 /**
  * Allows to display a coin amount properly.
  */
-function Amount({amount}: Props) {
-  return(
+function Amount({ amount }: Props) {
+  return (
     <div>
-      <p>{coinToString(amount)} ({amount.amount} {amount.denom})</p>
+      <p>
+        {coinToString(amount)} ({amount.amount} {amount.denom})
+      </p>
     </div>
-  )
+  );
 }
 
 export default Amount;

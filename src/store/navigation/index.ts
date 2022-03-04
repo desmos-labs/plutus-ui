@@ -1,38 +1,33 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../index";
+import { createSlice } from "@reduxjs/toolkit";
+import type { RootState } from "../index";
 
 // --- STATE ---
 export type NavigationState = {
-  showPopup: boolean
-}
+  showPopup: boolean;
+};
 
 const initialState: NavigationState = {
   showPopup: false,
-}
+};
 
 // --- SLICE ---
 export const navigationSlice = createSlice({
-  name: 'transaction',
-  initialState: initialState,
+  name: "transaction",
+  initialState,
   reducers: {
-    showPopup(state, action: PayloadAction) {
+    showPopup(state) {
       state.showPopup = true;
     },
-    hidePopup(state, action: PayloadAction) {
+    hidePopup(state) {
       state.showPopup = false;
-    }
+    },
   },
 });
 
 // --- ACTIONS ---
-export const {
-  showPopup,
-  hidePopup,
-} = navigationSlice.actions;
+export const { showPopup, hidePopup } = navigationSlice.actions;
 
 // --- SELECTORS ---
-export const getNavigationState = (state: RootState) => {
-  return state.navigation;
-}
+export const getNavigationState = (state: RootState) => state.navigation;
 
-export default navigationSlice.reducer
+export default navigationSlice.reducer;

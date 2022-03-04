@@ -1,16 +1,17 @@
+import * as React from "react";
+import { useDispatch } from "react-redux";
+import { useCallback } from "react";
 import DashboardRow from "../components/DashboardRow";
 import tipsIcon from "../../../assets/icons/tips.svg";
-import * as React from "react";
 import PrimaryButton from "../../../components/buttons/PrimaryButton";
-import {useDispatch} from "react-redux";
-import {setStep, TipsStep} from "../../../store/tips";
+import { showPopup } from "../../../store/tips";
 
 function TipsRow() {
   const dispatch = useDispatch();
 
-  function handleClickEnableTips() {
-    dispatch(setStep(TipsStep.INPUT_DATA));
-  }
+  const handleClickEnableTips = useCallback(() => {
+    dispatch(showPopup());
+  }, []);
 
   return (
     <div>
@@ -25,7 +26,7 @@ function TipsRow() {
         }
       />
     </div>
-  )
+  );
 }
 
-export default TipsRow
+export default TipsRow;

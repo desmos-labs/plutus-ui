@@ -1,42 +1,33 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../index";
-import {EncodeObject} from "@cosmjs/proto-signing";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { EncodeObject } from "@cosmjs/proto-signing";
+import type { RootState } from "../index";
+import { TxOptions, UserWallet } from "../../types";
+import {
+  TransactionData,
+  TransactionState,
+  TransactionStatus,
+  TxThunk,
+} from "./state";
 
-export * from "./actions";
+export * from "./state";
 
 // --- STATE ---
-export enum TransactionStatus {
-  NOTHING,
-  TX_REQUEST_SENT,
-  BROADCASTING,
-  ERROR,
-  SUCCESS,
-}
-
-export type TransactionData = {
-  messages: EncodeObject[],
-  memo?: string,
-}
-
-export type TransactionState = {
-  status: TransactionStatus,
-  txBody?: TransactionData,
-  txHash?: string;
-  error?: string;
-}
-
 const initialState: TransactionState = {
   status: TransactionStatus.NOTHING,
-}
+};
 
 // --- SLICE ---
 export const transactionSlice = createSlice({
-  name: 'transaction',
-  initialState: initialState,
+  name: "transaction",
+  initialState,
   reducers: {
-    setTxStatus(state, action: PayloadAction<[TransactionStatus, TransactionData]>) {
-      state.status = action.payload[0];
-      state.txBody = action.payload[1];
+    setTxStatus(
+      state,
+      action: PayloadAction<[TransactionStatus, TransactionData]>
+    ) {
+      const [status, body] = action.payload;
+      state.status = status;
+      state.txBody = body;
     },
     setTxError(state, action: PayloadAction<string | undefined>) {
       state.status = TransactionStatus.ERROR;
@@ -58,16 +49,53 @@ export const transactionSlice = createSlice({
 });
 
 // --- ACTIONS ---
-export const {
-  setTxStatus,
-  setTxError,
-  setTxSuccess,
-  resetTxPopup,
-} = transactionSlice.actions;
+const { setTxStatus, setTxError, setTxSuccess } = transactionSlice.actions;
+export const { resetTxPopup } = transactionSlice.actions;
 
-// --- SELECTORS ---
-export const getTransactionState = (state: RootState) => {
-  return state.transaction;
+/**
+ * Allows to send the given transaction and update the transaction popup during the whole process.
+ * @param sender {string}: Address of the transaction sender.
+ * @param messages {EncodeObject[]}: List of messages to be included inside the transaction.
+ * @param options {TxOptions | undefined}: Options for the transaction.
+ */
+export function sendTx(
+  sender: string,
+  messages: EncodeObject[],
+  options?: TxOptions
+): TxThunk {
+  return async (dispatch) => {
+    const txData: TransactionData = {
+      messages,
+      memo: options?.memo,
+    };
+
+    // Try signing the transaction
+    dispatch(setTxStatus([TransactionStatus.TX_REQUEST_SENT, txData]));
+    const result = await UserWallet.signTransaction(sender, messages, options);
+    if (result instanceof Error) {
+      dispatch(setTxError(result.message));
+      return new Error(result.message);
+    }
+
+    try {
+      // Broadcast the transaction
+      dispatch(setTxStatus([TransactionStatus.BROADCASTING, txData]));
+      const response = await UserWallet.broadcastTx(result.txRaw);
+      if (response.code !== 0) {
+        dispatch(setTxError(response.rawLog));
+        return new Error(response.rawLog);
+      }
+
+      dispatch(setTxSuccess(response.transactionHash));
+      return response;
+    } catch (e: any) {
+      dispatch(setTxError("Broadcasting error"));
+      return new Error(e.message);
+    }
+  };
 }
 
-export default transactionSlice.reducer
+// --- SELECTORS ---
+export const getTransactionState = (state: RootState) => state.transaction;
+
+export default transactionSlice.reducer;

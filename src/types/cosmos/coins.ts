@@ -1,13 +1,13 @@
-import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 
 export function formatDenom(denom: string): string {
   switch (denom.toLowerCase()) {
-    case 'udsm':
-      return 'DSM'
-    case 'udaric':
-      return 'Daric'
+    case "udsm":
+      return "DSM";
+    case "udaric":
+      return "Daric";
     default:
-      return 'Unknown'
+      return "Unknown";
   }
 }
 
@@ -18,9 +18,9 @@ export function coinToString(coin: Coin): string {
 }
 
 export function coinsToString(coins: Coin[]): string {
-  return coins.map(coinToString).join(', ')
+  return coins.map(coinToString).join(", ");
 }
 
 export function isZero(coins: Coin[]): boolean {
-  return coins.length == 0;
+  return coins.length === 0;
 }

@@ -1,17 +1,17 @@
 export enum Platform {
   STREAMLABS = "Streamlabs",
   STREAMELEMENTS = "StreamElements",
-  UNKNOWN = "unknown"
+  UNKNOWN = "unknown",
 }
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
-  return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+  return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
 }
 
 export function getPlatforms(): Platform[] {
   return enumKeys(Platform)
     .map((value) => Platform[value])
-    .filter((platform) => platform != Platform.UNKNOWN);
+    .filter((platform) => platform !== Platform.UNKNOWN);
 }
 
 export function parsePlatform(value: string): Platform {
@@ -26,7 +26,7 @@ export function parsePlatform(value: string): Platform {
 }
 
 export type OAuthParams = {
-  oAuthCode: string | null,
-  oAuthState: string | null,
-  oAuthError: string | null,
-}
+  oAuthCode: string | null;
+  oAuthState: string | null;
+  oAuthError: string | null;
+};

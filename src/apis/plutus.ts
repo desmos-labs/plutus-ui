@@ -1,5 +1,5 @@
-import {Donation, Platform} from "../types";
-import {Coin} from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { Donation, Platform } from "../types";
 
 const PLUTUS_API_URL = process.env.REACT_APP_PLUTUS_API as string;
 
@@ -19,15 +19,15 @@ type AuthorizationRequest = {
   signedBytes: string;
   pubKeyBytes: string;
   signatureBytes: string;
-}
+};
 
 type DisconnectionRequest = {
-  platform: Platform,
+  platform: Platform;
   desmosAddress: string;
   signedBytes: string;
   pubKeyBytes: string;
   signatureBytes: string;
-}
+};
 
 /**
  * Represents the class to be used when interacting with the donation APIs.
@@ -38,16 +38,16 @@ export class PlutusAPI {
    */
   static async getGranteeAddress(): Promise<string | Error> {
     try {
-      const url = `${PLUTUS_API_URL}/config`
-      const res = await fetch(url)
+      const url = `${PLUTUS_API_URL}/config`;
+      const res = await fetch(url);
       if (!res.ok) {
-        return new Error(await res.text())
+        return new Error(await res.text());
       }
 
       const data: ConfigResponse = await res.json();
       return data.wallet;
     } catch (e: any) {
-      return new Error(e.message)
+      return new Error(e.message);
     }
   }
 
@@ -55,47 +55,54 @@ export class PlutusAPI {
    * Returns the details of this user.
    * @param desmosAddress {string}: Desmos address of the user to be queried.
    */
-  static async getUserData(desmosAddress: string): Promise<UserDataResponse | Error> {
+  static async getUserData(
+    desmosAddress: string
+  ): Promise<UserDataResponse | Error> {
     try {
       const url = `${PLUTUS_API_URL}/user/${desmosAddress}`;
       const res = await fetch(url);
       if (!res.ok) {
-        return new Error(await res.text())
+        return new Error(await res.text());
       }
 
       return await res.json();
     } catch (e: any) {
-      return new Error(e.message)
+      return new Error(e.message);
     }
   }
 
   /**
    * Sends the given authorization request to the APIs.
    */
-  static async sendAuthorizationRequest(request: AuthorizationRequest): Promise<Response> {
+  static async sendAuthorizationRequest(
+    request: AuthorizationRequest
+  ): Promise<Response> {
     const url = `${PLUTUS_API_URL}/oauth/token`;
     const data = {
-      'platform': request.platform.toString(),
-      'oauth_code': request.oAuthCode,
-      'desmos_address': request.desmosAddress,
-      'signed_bytes': request.signedBytes,
-      'pubkey_bytes': request.pubKeyBytes,
-      'signature_bytes': request.signatureBytes,
-    }
+      platform: request.platform.toString(),
+      oauth_code: request.oAuthCode,
+      desmos_address: request.desmosAddress,
+      signed_bytes: request.signedBytes,
+      pubkey_bytes: request.pubKeyBytes,
+      signature_bytes: request.signatureBytes,
+    };
 
-    return await fetch(url, {
-      method: 'POST',
+    return fetch(url, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    })
+    });
   }
 
   /**
    * Sends a donation associated to the given transaction hash.
    */
-  static async sendDonationAlert(donation: Donation, txHash: string): Promise<Error | null> {
+  static async sendDonationAlert(
+    donation: Donation,
+    txHash: string
+  ): Promise<Error | null> {
     const url = `${PLUTUS_API_URL}/donations`;
     const data = {
       tipper_username: donation.tipperUsername,
@@ -103,18 +110,18 @@ export class PlutusAPI {
       recipient_application: donation.recipientApplication,
       recipient_username: donation.recipientUsername,
       tx_hash: txHash,
-    }
+    };
 
     const res = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    })
+    });
 
     if (!res.ok) {
-      return new Error(await res.text())
+      return new Error(await res.text());
     }
 
     return null;
@@ -123,22 +130,26 @@ export class PlutusAPI {
   /**
    * Sends a disconnection request to remove a service from a specific user.
    */
-  static async sendDisconnectionRequest(request: DisconnectionRequest): Promise<Response> {
+  static async sendDisconnectionRequest(
+    request: DisconnectionRequest
+  ): Promise<Response> {
     const url = `${PLUTUS_API_URL}/user/integrations`;
     const data = {
-      'platform': request.platform.toString(),
-      'desmos_address': request.desmosAddress,
-      'signed_bytes': request.signedBytes,
-      'pubkey_bytes': request.pubKeyBytes,
-      'signature_bytes': request.signatureBytes,
-    }
+      platform: request.platform.toString(),
+      desmos_address: request.desmosAddress,
+      signed_bytes: request.signedBytes,
+      pubkey_bytes: request.pubKeyBytes,
+      signature_bytes: request.signatureBytes,
+    };
 
-    return await fetch(url, {
-      method: 'DELETE',
+    return fetch(url, {
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    })
+    });
   }
 }
+
+export default PlutusAPI;

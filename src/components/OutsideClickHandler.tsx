@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from "react";
 
 interface Props {
   onClickOutside: () => void;
@@ -10,25 +10,32 @@ interface Props {
  * @param children {JSX.Element}: Children of this element.
  * @constructor
  */
-function OutsideClickHandler({onClickOutside, children}: Props & JSX.ElementChildrenAttribute) {
+function OutsideClickHandler({
+  onClickOutside,
+  children,
+}: Props & JSX.ElementChildrenAttribute) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (
+        ref.current &&
+        !ref.current.contains(event.target as Node) &&
+        onClickOutside
+      ) {
         event.stopPropagation();
-        onClickOutside && onClickOutside();
+        onClickOutside();
       }
     };
-    document.addEventListener('click', handleClickOutside, true);
+    document.addEventListener("click", handleClickOutside, true);
 
     return () => {
-      document.removeEventListener('click', handleClickOutside, true);
+      document.removeEventListener("click", handleClickOutside, true);
     };
   }, [onClickOutside]);
 
   return (
-    <div ref={ref} className='info-box'>
+    <div ref={ref} className="info-box">
       {children}
     </div>
   );

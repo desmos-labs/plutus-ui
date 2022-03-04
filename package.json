@@ -10,17 +10,15 @@
     "@cosmjs/stargate": "^0.27.1",
     "@cosmjs/utils": "^0.27.1",
     "@craco/craco": "^6.4.3",
-    "@desmoslabs/desmjs": "^2.3.1-beta.0",
-    "@desmoslabs/desmjs-types": "^2.3.1-beta.0",
-    "@desmoslabs/desmjs-walletconnect": "^2.3.1-beta.0",
+    "@desmoslabs/desmjs": "^2.0.0-beta.2",
+    "@desmoslabs/desmjs-types": "^2.0.0-beta.2",
+    "@desmoslabs/desmjs-walletconnect": "^2.0.0-beta.2",
     "@reduxjs/toolkit": "^1.7.1",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.14",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/react-redux": "^7.1.22",
-    "@walletconnect/client": "^1.7.1",
-    "@walletconnect/qrcode-modal": "^1.7.1",
     "buffer": "^6.0.3",
     "cosmjs-types": "^0.4.1",
     "crypto-browserify": "^3.12.0",
@@ -36,20 +34,31 @@
     "react-router-dom": "^6.2.1",
     "react-scripts": "^5.0.0",
     "react-select": "^5.2.2",
+    "redux-thunk": "^2.4.1",
     "stream-browserify": "^3.0.0",
+    "tailwindcss": "^3.0.18",
     "typescript": "^4.5.5"
   },
   "scripts": {
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint-fix": "eslint '**/*.{js,jsx,ts,tsx}' --fix"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
     "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^16.1.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.29.3",
     "postcss": "^8.4.6",
-    "protobufjs": "^6.11.2",
-    "tailwindcss": "^3.0.18"
+    "prettier": "^2.5.1",
+    "protobufjs": "^6.11.2"
   },
   "browserslist": {
     "production": [
@@ -62,5 +71,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "packageManager": "yarn@3.1.1"
 }

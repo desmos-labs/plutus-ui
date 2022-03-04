@@ -1,4 +1,4 @@
-import {UserData} from "../../types";
+import { UserData } from "../../types";
 
 export enum LoginStep {
   LOADING,
@@ -20,4 +20,4 @@ export interface LoggedIn {
   account: UserData;
 }
 
-export type UserState = Loading | LoggedOut | LoggedIn
+export type UserState = Loading | LoggedOut | LoggedIn;
