@@ -14,13 +14,17 @@ export function getTxLink(txHash: string | undefined): string {
   return `${EXPLORER_URL}/transactions/${txHash || ""}`;
 }
 
+export function getDTag(profile: DesmosProfile): string {
+  return profile.dtag ? `@${profile.dtag}` : "";
+}
+
 export function getDisplayName(profile: DesmosProfile): string {
   return profile.nickname || `@${profile.dtag}` || profile.address;
 }
 
 export function getShortAddress(profile: DesmosProfile): string {
-  return `${profile.address.substring(0, 8)}...${profile.address.substring(
-    profile.address.length - 5
+  return `${profile.address.substring(0, 14)}...${profile.address.substring(
+    profile.address.length - 10
   )}`;
 }
 

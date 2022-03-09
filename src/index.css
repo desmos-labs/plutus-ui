@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,7 +8,7 @@
   body {
     @apply
     m-0 px-8 md:px-16
-    font-sans font-poppins text-base text-black
+    font-sans font-poppins text-base text-[#484848]
     gradient-background
     bg-cover bg-no-repeat bg-fixed bg-center
   }
@@ -43,53 +43,21 @@
     background: linear-gradient(244.75deg, #FFCDA9 -10.92%, #FFF2D8 38.7%, rgba(251, 248, 238, 0.949351) 76.13%, #FFFFFF 110.9%);
   }
 
-  .general-gradient-1 {
-    background: linear-gradient(237.26deg, rgba(255, 254, 249, 0.7) 21.63%, rgba(255, 230, 0, 0.7) 81.3%);
-  }
-  .general-gradient-2 {
-    background: linear-gradient(232.73deg, #FF4994 19.34%, #F84998 32.05%, #FF6B00 56.57%, #FFB342 72.13%, #FAE105 83.08%);
-  }
-  .general-gradient-3 {
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(156.22deg, #FFA63D 27.6%, #FD22A5 104.87%);
-  }
-  .general-gradient-4 {
-    background: linear-gradient(105.14deg, #FF613E -0.5%, #FCA104 157.96%);
-  }
-
-  .title-gradient-1 {
-    background: conic-gradient(from 180deg at 50% 50%, #FF3E9A -45deg, #FF9E75 40.76deg, #FF4E02 125.63deg, #FFB800 181.87deg, #FF3E9A 315deg, #FF9E75 400.76deg);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .title-gradient-2 {
-    background: conic-gradient(from 178.49deg at 50% 50%, #FFB800 -41.25deg, #FF4D00 60deg, #FF3E9A 138.84deg, #F45511 211.88deg, #FFB800 318.75deg, #FF4D00 420deg);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .title-gradient-3 {
-    background: conic-gradient(from 178.49deg at 50% 50%, #FFB800 -41.25deg, #FFA800 37.5deg, #FF3E9A 157.5deg, #F45511 190.96deg, #FFB800 318.75deg, #FFA800 397.5deg);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .title-gradient-4 {
-    background: conic-gradient(from -0.17deg at 47.89% 40.11%, #FF3E9A -45deg, #FF9E75 40.76deg, #FF4E02 125.63deg, #FFB800 181.87deg, #FF3E9A 315deg, #FF9E75 400.76deg);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
   .button-primary-bg {
     background: linear-gradient(88.43deg, #ED6C53 14.27%, #FFA755 107.29%);
   }
   .button-primary-bg-hover {
     background: linear-gradient(88.43deg, rgba(237, 108, 83, 0.6) 14.27%, rgba(255, 167, 85, 0.6) 107.29%);
   }
+  .button-primary-bg-disabled {
+    background: linear-gradient(88.43deg, rgba(237, 108, 83, 0.3) 14.27%, rgba(255, 167, 85, 0.3) 107.29%);
+  }
 
 
   .button {
     @apply
-    font-medium text-white rounded-full py-2 px-4 general-gradient-4
-    disabled:bg-none disabled:bg-neutral-400
-    disabled:hover:bg-none disabled:hover:bg-neutral-400
+    font-medium text-white rounded-full py-2 px-4 button-primary-bg
+    disabled:button-primary-bg-disabled disabled:hover:button-primary-bg-disabled
   }
   .button-orange {
     @apply button bg-none bg-primary

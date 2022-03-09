@@ -16,10 +16,7 @@ function ProfileSearchResults({
   }
 
   return (
-    <div
-      {...props}
-      className="drop-shadow-2xl bg-white rounded-md absolute w-2/3 mt-2 p-2"
-    >
+    <div {...props} className="drop-shadow-xl bg-white rounded-xl mt-2">
       {state.searchResults.length === 0 && (
         <div className="p-2">
           <p className="font-bold">No results found</p>
@@ -30,9 +27,18 @@ function ProfileSearchResults({
         </div>
       )}
 
-      {state.searchResults.map((link) => (
-        <ProfileSearchResultItem link={link} />
-      ))}
+      {state.searchResults.map((link) => {
+        const isFirst = state.searchResults.indexOf(link) === 0;
+        const isLast =
+          state.searchResults.indexOf(link) === state.searchResults.length - 1;
+        return (
+          <ProfileSearchResultItem
+            link={link}
+            isFirst={isFirst}
+            isLast={isLast}
+          />
+        );
+      })}
     </div>
   );
 }

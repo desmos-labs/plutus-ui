@@ -4,20 +4,26 @@ import { useDispatch } from "react-redux";
 import { DesmosAppLink } from "../../../types";
 import {
   getApplicationIconSrc,
-  getDisplayName,
+  getDTag,
   getShortAddress,
   isAppSupported,
 } from "../../../components/utils";
 import { clearSearch } from "../../../store/home";
 
 interface ProfileSearchResultItemProps {
+  isFirst: boolean;
+  isLast: boolean;
   link: DesmosAppLink;
 }
 
 /**
  * Represents the component to render a single application link search result.
  */
-function ProfileSearchResultItem({ link }: ProfileSearchResultItemProps) {
+function ProfileSearchResultItem({
+  isFirst,
+  isLast,
+  link,
+}: ProfileSearchResultItemProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -34,26 +40,33 @@ function ProfileSearchResultItem({ link }: ProfileSearchResultItemProps) {
     );
   }, []);
 
+  let rounded;
+  if (isFirst) {
+    rounded = "rounded-t-lg";
+  } else if (isLast) {
+    rounded = "rounded-b-lg";
+  }
+
   return (
     <button
       type="button"
       key={link.profile.address}
       onClick={handleClickExample}
-      className="flex flex-row hover:bg-primary-light rounded-md p-2 w-full text-left"
+      className={`flex flex-row hover:bg-ultra-light-gray px-3 py-2 w-full text-left ${rounded}`}
     >
       <img
-        className="h-11 my-auto"
+        className="h-[40px] w-[40px] my-auto"
         src={getApplicationIconSrc(link.application)}
         alt="Application icon"
       />
-      <div className="ml-2">
-        <p>{link.username}</p>
-        <div className="flex flex-col md:flex-row">
-          <p>{getDisplayName(link.profile)}</p>
-          <p className="m-0 md:ml-1 text-sm">
-            ({getShortAddress(link.profile)})
+      <div className="ml-2 w-full">
+        <div className="flex flex-row">
+          <p className="text font-medium">{link.username}</p>
+          <p className="text-sm text-light-gray flex-grow text-right pt-1">
+            {getShortAddress(link.profile)}
           </p>
         </div>
+        <p className="text-sm text-light-gray">{getDTag(link.profile)}</p>
       </div>
     </button>
   );

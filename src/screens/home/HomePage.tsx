@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
+import { ReactComponent as HeroImage } from "../../assets/images/hero.svg";
 import SearchBar from "../../components/SearchBar";
 import { getSearchState, searchProfiles } from "../../store/home";
 import ProfileSearchResults from "./search/ProfileSearchResults";
@@ -17,28 +18,30 @@ function HomePage() {
   }, []);
 
   return (
-    <div className="py-16">
-      <h1 className="font-bold">Trustless Donations</h1>
-      <h2>on Twitch, Twitter and Reddit</h2>
-      <p className="mt-3">
-        DesmosTipBot allows you to send tips to every account on supported
-        social networks without the need of any intermediary.
-      </p>
+    <div className="py-16 xl:flex xl:flex-row">
+      <div>
+        <h1 className="font-bold uppercase">Trustless Donations</h1>
+        <p className="mt-1">
+          Send tips on every supported{" "}
+          <span className="font-bold">social network</span> without
+          intermediary.
+        </p>
+        <p>
+          Receive donations to see the corresponding amount in any currency
+          instantly.
+        </p>
 
-      <div className="mt-5 w-2/3">
-        <SearchBar
-          placeholder="Who would you like to donate to?"
-          value={state.search}
-          onSearchChange={handleSearchChange}
-        />
-        <ProfileSearchResults />
+        <div className="mt-5 w-max md:w-2/3">
+          <SearchBar
+            placeholder="Who would you like to donate to?"
+            value={state.search}
+            onSearchChange={handleSearchChange}
+          />
+          <ProfileSearchResults />
+        </div>
       </div>
 
-      <h3 className="text-orange mt-5">Instant DSM Donation Alerts</h3>
-      <p>
-        Receive DSM donations and see the corresponding amount in any currency
-        instantly.
-      </p>
+      <HeroImage />
     </div>
   );
 }
