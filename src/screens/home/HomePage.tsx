@@ -31,7 +31,7 @@ function HomePage() {
           instantly.
         </p>
 
-        <div className="mt-5 w-max md:w-2/3">
+        <div className="mt-5 w-max md:w-2/3 lg:w-2/5 xl:w-1/5 absolute">
           <SearchBar
             placeholder="Who would you like to donate to?"
             value={state.search}
@@ -41,7 +41,7 @@ function HomePage() {
         </div>
       </div>
 
-      <HeroImage />
+      <HeroImage className="mt-24" />
     </div>
   );
 }
