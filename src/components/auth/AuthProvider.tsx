@@ -1,12 +1,11 @@
-import React, {useEffect} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React, { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getUserState,
-  refreshUserState,
   loginWithWalletConnect,
   logout,
   UserState,
-  initUserState
+  initUserState,
 } from "../../store/user";
 
 interface AuthContextType {
@@ -23,7 +22,7 @@ const AuthContext = React.createContext<AuthContextType>(null!);
 /**
  * Provides the authentication data to its children.
  */
-function AuthProvider({children}: { children: React.ReactNode }) {
+function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const userState = useSelector(getUserState);
 
@@ -42,7 +41,14 @@ function AuthProvider({children}: { children: React.ReactNode }) {
     callback();
   };
 
-  let value = {userState, performLogin, performLogout};
+  const value = useMemo(
+    () => ({
+      userState,
+      performLogin,
+      performLogout,
+    }),
+    []
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

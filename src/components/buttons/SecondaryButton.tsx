@@ -1,3 +1,5 @@
+import React from "react";
+
 interface Props {
   onClick: () => void;
 }
@@ -8,8 +10,15 @@ interface Props {
  * @param children: Children of the button.
  * @constructor
  */
-function SecondaryButton({onClick, children}: Props & JSX.ElementChildrenAttribute) {
-  return <button className="button-secondary" onClick={onClick}>{children}</button>
+function SecondaryButton({
+  onClick,
+  children,
+}: Props & JSX.ElementChildrenAttribute) {
+  return (
+    <button type="button" className="button-secondary" onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
 export default SecondaryButton;

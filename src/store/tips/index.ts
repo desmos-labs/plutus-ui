@@ -1,37 +1,28 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../index";
-import {UserWallet} from "../../types";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SendAuthorization } from "cosmjs-types/cosmos/bank/v1beta1/authz";
+import { MsgGrantEncodeObject } from "@desmoslabs/desmjs";
+import type { RootState, AppThunk } from "../index";
+import { UserWallet } from "../../types";
+import { PlutusAPI } from "../../apis";
+import { sendTx } from "../transaction";
+import { refreshUserState } from "../user";
+import { TipsState, TipsStep } from "./state";
 
-export * from "./actions";
-
-export enum TipsStep {
-  HIDDEN,
-  INPUT_DATA,
-  CONFIRMATION_REQUIRED,
-  SUCCESS,
-  ERROR,
-}
-
-export type TipsState = {
-  step: TipsStep;
-  grantDenom: string;
-  grantAmount: string;
-  txHash?: string;
-  error?: string;
-}
+export * from "./state";
 
 // --- SLICE ---
 const tipsSlice = createSlice({
-  name: 'tips',
-  initialState: (): TipsState => {
-    return  {
-      step: TipsStep.HIDDEN,
-      grantDenom: UserWallet.getFeeDenom(),
-      grantAmount: '0',
-    }
-  },
+  name: "tips",
+  initialState: (): TipsState => ({
+    step: TipsStep.HIDDEN,
+    grantDenom: UserWallet.getFeeDenom(),
+    grantAmount: "0",
+  }),
   reducers: {
-    setStep(state, action: PayloadAction<TipsStep>) {
+    showPopup(state) {
+      state.step = TipsStep.INPUT_DATA;
+    },
+    setTipStep(state, action: PayloadAction<TipsStep>) {
       state.step = action.payload;
       state.error = undefined;
       state.txHash = undefined;
@@ -49,23 +40,76 @@ const tipsSlice = createSlice({
     },
     resetTipsPopup(state) {
       state.step = TipsStep.HIDDEN;
-      state.grantAmount = '0';
-    }
-  }
-})
+      state.grantAmount = "0";
+    },
+  },
+});
 
 // --- ACTIONS ---
-export const {
-  setStep,
-  setGrantAmount,
-  setError,
-  setSuccess,
-  resetTipsPopup,
-} = tipsSlice.actions;
+const { setTipStep, setError, setSuccess } = tipsSlice.actions;
+export const { showPopup, setGrantAmount, resetTipsPopup } = tipsSlice.actions;
+
+/**
+ * Starts the authorization process required to enable social tips.
+ */
+export function startTipAuthorizationProcess(amount: number): AppThunk {
+  return async (dispatch) => {
+    // Get the user wallet
+    const account = await UserWallet.getAccount();
+    if (!account) {
+      dispatch(setError("Invalid user account"));
+      return;
+    }
+
+    // Build the authorization
+    const authorization: SendAuthorization = {
+      spendLimit: [
+        {
+          amount: (amount * 1_000_000).toString(),
+          denom: UserWallet.getFeeDenom(),
+        },
+      ],
+    };
+
+    // Build the message
+    const grantee = await PlutusAPI.getGranteeAddress();
+    if (grantee instanceof Error) {
+      dispatch(setError(grantee.message));
+      return;
+    }
+
+    const msg: MsgGrantEncodeObject = {
+      typeUrl: "/cosmos.authz.v1beta1.MsgGrant",
+      value: {
+        grantee,
+        granter: account.address,
+        grant: {
+          authorization: {
+            typeUrl: "/cosmos.bank.v1beta1.SendAuthorization",
+            value: SendAuthorization.encode(authorization).finish(),
+          },
+        },
+      },
+    };
+
+    // Send the transaction
+    dispatch(setTipStep(TipsStep.CONFIRMATION_REQUIRED));
+    const result = await dispatch(
+      sendTx(account.address, [msg], { memo: "DesmosTipBot grant" })
+    );
+    if (result instanceof Error) {
+      dispatch(setError(result.message));
+      return;
+    }
+
+    dispatch(setSuccess(result.transactionHash));
+    dispatch(refreshUserState());
+  };
+}
 
 // --- SELECTORS ---
 export function getTipsPopupState(state: RootState) {
   return state.tips;
 }
 
-export default tipsSlice.reducer
+export default tipsSlice.reducer;

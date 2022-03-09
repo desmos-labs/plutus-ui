@@ -1,9 +1,9 @@
 import * as React from "react";
-import OAuthPopup from "screens/dashboard/integrations/popups/OAuthPopup";
-import {getPlatforms, Platform} from "../../types";
+import OAuthPopup from "./popups/OAuthPopup";
+import { getPlatforms, Platform } from "../../types";
 import IntegrationRow from "./integrations/IntegrationRow";
-import DisconnectIntegrationsPopup from "./integrations/popups/DisconnectIntegrationsPopup";
-import GrantAmountPopup from "./tips/popups/GrantAmountPopup";
+import DisconnectIntegrationsPopup from "./popups/DisconnectIntegrationsPopup";
+import GrantAmountPopup from "./popups/GrantAmountPopup";
 import TipsRow from "./tips/TipsRow";
 
 /**
@@ -21,15 +21,19 @@ function DashboardPage() {
 
       <div className="mt-5 space-y-5">
         {platforms.map((platform) => (
-          <IntegrationRow key={platform} platform={platform} disabled={platform != Platform.STREAMLABS}/>
+          <IntegrationRow
+            key={platform}
+            platform={platform}
+            disabled={platform !== Platform.STREAMLABS}
+          />
         ))}
 
-        <TipsRow/>
+        <TipsRow />
       </div>
 
-      <DisconnectIntegrationsPopup/>
-      <GrantAmountPopup/>
-      <OAuthPopup/>
+      <DisconnectIntegrationsPopup />
+      <GrantAmountPopup />
+      <OAuthPopup />
     </div>
   );
 }

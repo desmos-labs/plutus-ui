@@ -1,13 +1,13 @@
-import * as React from 'react';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {Provider} from 'react-redux';
-import NavigationBar from './navigation/NavigationBar';
-import DonationPage from 'screens/donation/DonationPage';
-import {store} from "store";
-import RequireAuth from "components/auth/RequireAuth";
-import DashboardPage from "screens/dashboard/DashboardPage";
-import AuthProvider from "components/auth/AuthProvider";
-import LoginPage from "screens/LoginPage";
+import * as React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import DonationPage from "../screens/donation/DonationPage";
+import { store } from "../store";
+import RequireAuth from "./auth/RequireAuth";
+import DashboardPage from "../screens/dashboard/DashboardPage";
+import AuthProvider from "./auth/AuthProvider";
+import LoginPage from "../screens/LoginPage";
+import NavigationBar from "./navigation/NavigationBar";
 import HomePage from "../screens/home/HomePage";
 
 /**
@@ -18,27 +18,25 @@ function App() {
     <Provider store={store}>
       <AuthProvider>
         <BrowserRouter>
-          <NavigationBar/>
+          <NavigationBar />
 
           <Routes>
-
-            <Route path="/" element={<HomePage/>}/>
-            <Route path="/login" element={<LoginPage/>}/>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
 
             <Route
               path="/dashboard"
               element={
                 <RequireAuth>
-                  <DashboardPage/>
+                  <DashboardPage />
                 </RequireAuth>
               }
             />
 
             <Route
               path="/donate/:application/:username"
-              element={<DonationPage/>}
+              element={<DonationPage />}
             />
-
           </Routes>
         </BrowserRouter>
       </AuthProvider>

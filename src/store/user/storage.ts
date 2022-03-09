@@ -1,4 +1,4 @@
-import {UserData} from "../../types";
+import { UserData } from "../../types";
 
 const USER_DATA_KEY = "userdata";
 
@@ -16,6 +16,8 @@ export class UserStorage {
   }
 
   static deleteUserData() {
-    window.localStorage.removeItem(USER_DATA_KEY)
+    window.localStorage.removeItem(USER_DATA_KEY);
   }
 }
+
+export default UserStorage;

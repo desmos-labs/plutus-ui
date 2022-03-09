@@ -1,12 +1,14 @@
+import React from "react";
+
 type PopupProps = {
-  children: JSX.Element
-  visible: boolean
-}
+  children: JSX.Element;
+  visible: boolean;
+};
 
 /**
  * Represents a generic popup.
  */
-function Popup({children, visible}: PopupProps) {
+function Popup({ children, visible }: PopupProps) {
   if (!visible) {
     return null;
   }

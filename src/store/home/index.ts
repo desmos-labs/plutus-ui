@@ -1,37 +1,23 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../index";
-import {DesmosAppLink} from "../../types";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState, AppThunk } from "../index";
+import { DesmosAppLink } from "../../types";
+import { HomeState, SearchStep } from "./state";
+import { GraphQL } from "../../apis/graphql";
 
-export * from "./actions";
-
-export enum SearchStep {
-  INITIAL,
-  LOADING,
-  COMPLETED,
-}
-
-export interface SearchState {
-  readonly search: string;
-  readonly step: SearchStep;
-  readonly searchResults: DesmosAppLink[];
-}
-
-export interface HomeState {
-  readonly searchState: SearchState;
-}
+export * from "./state";
 
 const initialState: HomeState = {
   searchState: {
     search: "",
     step: SearchStep.INITIAL,
     searchResults: [],
-  }
-}
+  },
+};
 
 // --- SLICE ---
 const homeSlice = createSlice({
-  name: 'tips',
-  initialState: initialState,
+  name: "tips",
+  initialState,
   reducers: {
     setSearchQuery(state, action: PayloadAction<string>) {
       state.searchState.search = action.payload;
@@ -42,19 +28,38 @@ const homeSlice = createSlice({
     setSearchResults(state, action: PayloadAction<DesmosAppLink[]>) {
       state.searchState.searchResults = action.payload;
     },
-    clearSearch(state, action: PayloadAction) {
+    clearSearch(state) {
       state.searchState = initialState.searchState;
-    }
-  }
-})
+    },
+  },
+});
 
 // --- ACTIONS ---
-export const {
-  setSearchQuery,
-  setSearchStep,
-  setSearchResults,
-  clearSearch,
-} = homeSlice.actions;
+const { setSearchQuery, setSearchStep, setSearchResults } = homeSlice.actions;
+export const { clearSearch } = homeSlice.actions;
+
+/**
+ * Allows searching for profiles using the provided search string.
+ * The profiles are searched either by address of by any associated app link using the search
+ * term as the application username.
+ * @param search
+ * @constructor
+ */
+export function searchProfiles(search: string): AppThunk {
+  return async (dispatch) => {
+    dispatch(setSearchQuery(search));
+    if (search.trim().length === 0) {
+      dispatch(setSearchStep(SearchStep.INITIAL));
+      return;
+    }
+
+    // Search the data
+    dispatch(setSearchStep(SearchStep.LOADING));
+    const results = await GraphQL.search(search, 5);
+    dispatch(setSearchStep(SearchStep.COMPLETED));
+    dispatch(setSearchResults(results));
+  };
+}
 
 // --- SELECTORS ---
 export function getHomeState(state: RootState) {
@@ -65,4 +70,4 @@ export function getSearchState(state: RootState) {
   return state.home.searchState;
 }
 
-export default homeSlice.reducer
+export default homeSlice.reducer;

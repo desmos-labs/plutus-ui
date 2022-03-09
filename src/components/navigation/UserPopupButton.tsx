@@ -1,9 +1,10 @@
-import {ReactComponent as UserIcon} from "../../assets/icons/user.svg";
-import {useDispatch, useSelector} from "react-redux";
-import {getLoggedInUser} from "../../store/user";
-import {getDisplayName} from "../utils";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ReactComponent as UserIcon } from "../../assets/icons/user.svg";
+import { getLoggedInUser } from "../../store/user";
+import { getDisplayName } from "../utils";
 import NavigationPopup from "./NavigationPopup";
-import {showPopup} from "../../store/navigation";
+import { showPopup } from "../../store/navigation";
 
 /**
  * Represents the button that should be used to open the user popup.
@@ -19,12 +20,16 @@ function UserPopupButton() {
 
   return (
     <div>
-      <div className="select-none flex flex-row cursor-pointer" onClick={handleClickButton}>
-        <UserIcon className="my-auto mr-2"/>
+      <button
+        type="button"
+        className="select-none flex flex-row cursor-pointer"
+        onClick={handleClickButton}
+      >
+        <UserIcon className="my-auto mr-2" />
         <p className="text-sm">{getDisplayName(user.profile)}</p>
-      </div>
+      </button>
 
-      <NavigationPopup/>
+      <NavigationPopup />
     </div>
   );
 }

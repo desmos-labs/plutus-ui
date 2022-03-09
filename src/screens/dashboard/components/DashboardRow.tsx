@@ -11,7 +11,7 @@ interface DashboardRowProps {
  * Represents a generic integration item.
  * @constructor
  */
-function DashboardRow({icon, title, text, button}: DashboardRowProps) {
+function DashboardRow({ icon, title, text, button }: DashboardRowProps) {
   return (
     <div className="bg-white rounded-lg p-6 flex flex-col md:flex-row">
       <div className="mx-2">
@@ -25,7 +25,7 @@ function DashboardRow({icon, title, text, button}: DashboardRowProps) {
         {button}
       </div>
     </div>
-  )
+  );
 }
 
 export default DashboardRow;

@@ -1,12 +1,12 @@
-import {Platform} from "types/oauth";
+import { Platform } from "../../types";
 
 /**
  * Contains the data that is stored relating an OAuth request.
  */
 export type StoredData = {
-  platform: Platform,
-  desmosAddress: string
-}
+  platform: Platform;
+  desmosAddress: string;
+};
 
 /**
  * Represents the storage for the OAuth related data.
@@ -20,10 +20,10 @@ export class OAuthStorage {
    */
   static storeData(nonce: string, platform: Platform, desmosAddress: string) {
     const data = {
-      platform: platform,
-      desmosAddress: desmosAddress
-    } as StoredData
-    window.localStorage.setItem(nonce, JSON.stringify(data))
+      platform,
+      desmosAddress,
+    } as StoredData;
+    window.localStorage.setItem(nonce, JSON.stringify(data));
   }
 
   /**
@@ -44,6 +44,6 @@ export class OAuthStorage {
    * @param nonce {string}: Randomly generated nonce related to an OAuth request.
    */
   static deleteData(nonce: string) {
-    window.localStorage.removeItem(nonce)
+    window.localStorage.removeItem(nonce);
   }
 }
