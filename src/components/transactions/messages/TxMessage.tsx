@@ -1,6 +1,6 @@
 import React from "react";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import MessageSend from "./messages/MessageSend";
+import MessageSend from "./MessageSend";
 
 type Props = {
   msg: EncodeObject;

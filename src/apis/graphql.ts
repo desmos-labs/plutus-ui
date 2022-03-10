@@ -89,12 +89,12 @@ export class GraphQL {
   }
 
   /**
-   * Returns the list of Desmos profile addresses that are connected to the given application and username.
+   * Returns the list of Desmos profiles that are connected to the given application and username.
    */
-  public static async getAddresses(
+  public static async getProfiles(
     application: string,
     username: string
-  ): Promise<string[] | undefined> {
+  ): Promise<DesmosProfile[] | undefined> {
     const client = this.requireClient();
     const res = await client.query({
       query: applicationLinksByUsernameAndApplicationQuery,
@@ -104,17 +104,16 @@ export class GraphQL {
       },
     });
 
-    const links: { profile: { address: string }; state: string }[] =
-      res.data.application_link;
-    if (links.length === 0) {
+    if (res.data.application_link.length === 0) {
       return undefined;
     }
 
-    return links
-      .filter(
-        (link) => link.state === "APPLICATION_LINK_STATE_VERIFICATION_SUCCESS"
-      )
-      .map((link) => link.profile.address);
+    return res.data.application_link
+      .filter((link: any) => {
+        return link.state === "APPLICATION_LINK_STATE_VERIFICATION_SUCCESS";
+      })
+      .map(this.mapAppLink)
+      .map((link: DesmosAppLink) => link.profile);
   }
 
   private static mapProfile(profile: any): DesmosProfile {
@@ -149,11 +148,11 @@ export class GraphQL {
     return this.mapProfile(res.data.profile[0]);
   }
 
-  private static mapAppLink(chainLink: any): DesmosAppLink {
+  private static mapAppLink(appLink: any): DesmosAppLink {
     return {
-      profile: this.mapProfile(chainLink.profile),
-      username: chainLink.username,
-      application: chainLink.application,
+      profile: GraphQL.mapProfile(appLink.profile),
+      username: appLink.username,
+      application: appLink.application,
     };
   }
 
@@ -176,9 +175,7 @@ export class GraphQL {
       },
     });
 
-    return linksRes.data.application_link.map((link: any) =>
-      this.mapAppLink(link)
-    );
+    return linksRes.data.application_link.map(this.mapAppLink);
   }
 }
 

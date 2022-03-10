@@ -86,22 +86,19 @@ function DisconnectIntegrationsPopup() {
   return (
     <Popup visible={state.step !== IntegrationPopupStep.NOTHING}>
       <div className="text-center">
-        <h4>{title}</h4>
+        <h4 className="font-semibold mb-4">{title}</h4>
         {content}
 
         {state.step === IntegrationPopupStep.CONFIRMATION_REQUESTED && (
           <div className="flex flex-row mt-6 space-x-5">
             <button
               type="button"
-              className="w-full button-red rounded-lg"
+              className="w-full button-red"
               onClick={handleClosePopup}
             >
               Cancel
             </button>
-            <PrimaryButton
-              className="w-full rounded-lg"
-              onClick={handleClickContinue}
-            >
+            <PrimaryButton className="w-full" onClick={handleClickContinue}>
               Continue
             </PrimaryButton>
           </div>
@@ -110,7 +107,7 @@ function DisconnectIntegrationsPopup() {
         {state.step === IntegrationPopupStep.TX_REQUEST_SENT && (
           <button
             type="button"
-            className="w-full button-red rounded-lg"
+            className="w-full button-red"
             onClick={handleClosePopup}
           >
             Cancel
@@ -121,7 +118,7 @@ function DisconnectIntegrationsPopup() {
           <button
             type="button"
             disabled
-            className="w-full rounded-lg"
+            className="w-full"
             onClick={handleClosePopup}
           >
             Done
@@ -129,10 +126,7 @@ function DisconnectIntegrationsPopup() {
         )}
 
         {state.step === IntegrationPopupStep.DISCONNECTED && (
-          <PrimaryButton
-            className="w-full rounded-lg"
-            onClick={handleClosePopup}
-          >
+          <PrimaryButton className="w-full" onClick={handleClosePopup}>
             Done
           </PrimaryButton>
         )}
@@ -140,7 +134,7 @@ function DisconnectIntegrationsPopup() {
         {state.step === IntegrationPopupStep.ERROR && (
           <button
             type="button"
-            className="w-full button-red rounded-lg"
+            className="w-full button-red"
             onClick={handleClosePopup}
           >
             Close

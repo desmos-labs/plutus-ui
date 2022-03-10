@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { Platform } from "../../../types";
 import streamlabsIcon from "../../../assets/icons/streamlabs.svg";
-import streamElementsIcon from "../../../assets/integrations/streamelements.png";
+import streamElementsIcon from "../../../assets/icons/streamelements.svg";
 import { startAuthorization } from "../../../store/oauth";
 import { startDisconnection } from "../../../store/integrations";
 import DashboardRow from "../components/DashboardRow";
@@ -45,7 +45,7 @@ function IntegrationRow({ platform, disabled }: IntegrationProps) {
         <div>
           {connected && (
             <PrimaryButton
-              className="button-red"
+              className="w-full md:w-max-min"
               onClick={handleClickDisconnect}
             >
               Disconnect
@@ -53,11 +53,20 @@ function IntegrationRow({ platform, disabled }: IntegrationProps) {
           )}
 
           {!connected && !disabled && (
-            <PrimaryButton onClick={handleClickConnect}>Connect</PrimaryButton>
+            <PrimaryButton
+              className="w-full md:w-max-min"
+              onClick={handleClickConnect}
+            >
+              Connect
+            </PrimaryButton>
           )}
 
           {!connected && disabled && (
-            <PrimaryButton disabled onClick={handleClickConnect}>
+            <PrimaryButton
+              className="w-full md:w-max-min"
+              disabled
+              onClick={handleClickConnect}
+            >
               Coming soon
             </PrimaryButton>
           )}

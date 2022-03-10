@@ -16,7 +16,7 @@ function SearchBar({ onSearchChange, className, ...props }: SearchProps) {
       <SearchIcon className="my-auto ml-1 mx-2" />
       <input
         {...props}
-        className="border-none outline-none px-0 py-2 w-full"
+        className="text-sm md:text-base border-none outline-none px-0 py-2 w-full"
         type="text"
         onChange={(e) => onSearchChange(e.target.value)}
       />

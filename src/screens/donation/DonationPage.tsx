@@ -7,19 +7,17 @@ import {
   setAmount,
   setMessage,
   setUsername,
-  changeRecipientAddress,
+  changeSelectedProfile,
   initDonationState,
   sendDonation,
 } from "../../store/donation";
 import ProfileCover from "./components/ProfileCover";
 import ConfirmTxPopup from "../../components/transactions/popup/ConfirmTxPopup";
 import { getUserState, LoginStep } from "../../store/user";
-import { formatDenom } from "../../types";
-import DesmosSelect, {
-  DesmosOption,
-} from "../../components/inputs/DesmosSelect";
+import { DesmosProfile, formatDenom } from "../../types";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import DesmosInput from "../../components/inputs/DesmosInput";
+import DesmosSelect from "../../components/inputs/DesmosSelect";
 
 type Params = {
   application: string;
@@ -53,12 +51,9 @@ function DonationPage() {
     dispatch(initDonationState(application, username));
   }, [false]);
 
-  const handleChangeRecipientAddress = useCallback(
-    ({ value }: DesmosOption) => {
-      dispatch(changeRecipientAddress(value));
-    },
-    []
-  );
+  const handleChangeRecipientAddress = useCallback((profile: DesmosProfile) => {
+    dispatch(changeSelectedProfile(profile));
+  }, []);
 
   const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     dispatch(setAmount(e.target.value));
@@ -89,7 +84,7 @@ function DonationPage() {
 
     dispatch(
       sendDonation({
-        recipientAddress: state.recipientProfile.address,
+        recipientAddress: state.selectedProfile.address,
         recipientApplication: application as string,
         recipientUsername: username as string,
         tipAmount: parseFloat(state.amount || "0.5"),
@@ -103,46 +98,41 @@ function DonationPage() {
     <div className="w-full md:w-3/4 lg:w-2/3 xl:w-2/5 mx-auto">
       <ProfileCover
         className="h-[200px] md:h-[200px]"
-        profile={state.recipientProfile}
+        profile={state.selectedProfile}
         application={application}
         username={username}
       />
 
       <div className="flex flex-col md:w-3/4 mx-auto">
-        <p className="mt-5">Recipient address</p>
+        <p className="mt-5 font-medium">Recipient address</p>
         <DesmosSelect
-          value={{
-            label: state.recipientProfile.address,
-            value: state.recipientProfile.address,
-          }}
-          enabled={state.recipientAddresses.length > 1}
+          value={state.selectedProfile}
+          enabled={state.recipientProfiles.length > 1}
           onChange={handleChangeRecipientAddress}
-          options={state.recipientAddresses.map(
-            (address): DesmosOption => ({
-              label: address,
-              value: address,
-            })
-          )}
+          options={state.recipientProfiles}
         />
 
-        <p className="mt-5">Amount ({formatDenom(state.denom)})</p>
+        <p className="mt-5 font-medium">Amount ({formatDenom(state.denom)})</p>
         <DesmosInput
+          className="mt-2"
           type="number"
           placeholder="0.5"
           onChange={handleChangeAmount}
           value={state.amount}
         />
 
-        <p className="mt-5">From</p>
+        <p className="mt-5 font-medium">From</p>
         <DesmosInput
+          className="mt-2"
           type="text"
           placeholder="John Doe"
           onChange={handleChangeUsername}
           value={state.username}
         />
 
-        <p className="mt-5">Donation message</p>
+        <p className="mt-5 font-medium">Donation message</p>
         <DesmosInput
+          className="mt-2"
           type="text"
           placeholder="Hello!"
           onChange={handleChangeMessage}
@@ -150,7 +140,7 @@ function DonationPage() {
         />
 
         <PrimaryButton className="mt-7" onClick={handleSubmit}>
-          Submit
+          Donate
         </PrimaryButton>
       </div>
       <ConfirmTxPopup />

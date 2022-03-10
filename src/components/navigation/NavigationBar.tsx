@@ -26,7 +26,7 @@ function NavigationBar() {
   return (
     <div className="bg-transparent my-6 md:my-8 flex flex-wrap justify-between items-center h-auto">
       <Logo
-        className={`inline h-[40px] ${
+        className={`h-[25px] md:h-[40px] w-auto ${
           isHomePage ? "cursor-default" : "cursor-pointer"
         }`}
         onClick={isHomePage ? undefined : handleClickLogo}

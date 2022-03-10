@@ -7,13 +7,12 @@ import Select, {
   OptionProps,
 } from "react-select";
 import { ReactComponent as SelectIcon } from "../../assets/icons/arrow-down.svg";
+import { DesmosProfile } from "../../types";
+import { getDTag, getProfilePic } from "../utils";
 
 function Control(props: ControlProps<any>) {
   return (
-    <components.Control
-      {...props}
-      className="border-primary-light rounded-md px-1 py-2 pr-2"
-    />
+    <components.Control {...props} className="rounded-xl px-1 py-3 pr-2" />
   );
 }
 
@@ -21,8 +20,13 @@ function IndicatorSeparator() {
   return null;
 }
 
-function Menu(props: MenuProps<any>) {
-  return <components.Menu {...props} className="drop-shadow-2xl rounded-md" />;
+function Menu({ className, ...props }: MenuProps<any>) {
+  return (
+    <components.Menu
+      {...props}
+      className={`${className} drop-shadow-2xl rounded-xl outline-none border-none`}
+    />
+  );
 }
 
 function DropdownIndicator(props: DropdownIndicatorProps<any>) {
@@ -35,16 +39,27 @@ function DropdownIndicator(props: DropdownIndicatorProps<any>) {
   );
 }
 
-export interface DesmosOption {
-  readonly value: string;
-  readonly label: string;
+function formatOptionLabel(profile: DesmosProfile) {
+  return (
+    <div className="flex flex-row">
+      <img
+        className="w-10 h-10 rounded-full my-auto"
+        src={getProfilePic(profile)}
+        alt={`${profile.nickname} profile pic`}
+      />
+      <div className="ml-2 overflow-ellipsis text-ellipsis truncate">
+        <p className="font-medium">{getDTag(profile)}</p>
+        <p className="text-sm text-light-gray">{profile.address}</p>
+      </div>
+    </div>
+  );
 }
 
 interface Props {
   readonly enabled?: boolean;
-  readonly value: DesmosOption;
-  readonly options: DesmosOption[];
-  readonly onChange: (option: DesmosOption) => void;
+  readonly value: DesmosProfile;
+  readonly options: DesmosProfile[];
+  readonly onChange: (option: DesmosProfile) => void;
 }
 
 function DesmosSelect({ value, options, onChange, enabled }: Props) {
@@ -67,7 +82,8 @@ function DesmosSelect({ value, options, onChange, enabled }: Props) {
       value={value}
       isMulti={false}
       options={options}
-      onChange={(v) => onChange(v as DesmosOption)}
+      formatOptionLabel={formatOptionLabel}
+      onChange={(v) => onChange(v as DesmosProfile)}
       components={{
         Control,
         Option,
@@ -78,11 +94,22 @@ function DesmosSelect({ value, options, onChange, enabled }: Props) {
       styles={{
         control: (base) => ({
           ...base,
-          borderColor: "primary-light",
-          borderRadius: "md",
+          border: "none",
+          borderRadius: "xl",
         }),
-        menuList: (base) => ({
+        menu: (base) => ({
           ...base,
+          border: "none",
+          outline: "none",
+          borderRadius: "xl",
+        }),
+        option: (base) => ({
+          ...base,
+          color: "dark-gray",
+          backgroundColor: "white",
+          ":hover": {
+            backgroundColor: "white",
+          },
         }),
       }}
     />

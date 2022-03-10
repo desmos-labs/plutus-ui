@@ -18,7 +18,7 @@ function PrimaryButton({
     <button
       {...props}
       type="button"
-      className={`px-6 button-primary ${className}`}
+      className={`button-primary ${className}`}
       onClick={onClick}
     >
       {children}

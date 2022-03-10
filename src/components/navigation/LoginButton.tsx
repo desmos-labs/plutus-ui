@@ -14,7 +14,11 @@ function LoginButton() {
     navigate("/login");
   }, []);
 
-  return <PrimaryButton onClick={handleClickLogin}>Login</PrimaryButton>;
+  return (
+    <PrimaryButton className="text-sm md:text-base" onClick={handleClickLogin}>
+      Login
+    </PrimaryButton>
+  );
 }
 
 export default LoginButton;

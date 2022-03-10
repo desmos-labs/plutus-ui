@@ -1,11 +1,11 @@
 import * as React from "react";
 
-import defaultProfilePic from "../../../assets/default-icon.svg";
 import defaultCover from "../../../assets/default-cover.png";
 import { DesmosProfile } from "../../../types";
 import {
   getApplicationIconSrc,
   getDisplayName,
+  getProfilePic,
 } from "../../../components/utils";
 
 interface ProfileCoverProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -20,7 +20,6 @@ function ProfileCover({
   profile,
   ...props
 }: ProfileCoverProps) {
-  const profilePic = profile?.profilePicture || defaultProfilePic;
   const coverPicture = profile?.coverPicture || defaultCover;
 
   const coverStyle = {
@@ -30,24 +29,24 @@ function ProfileCover({
   return (
     <div
       {...props}
-      className={`bg-cover bg-center rounded-3xl relative ${props.className}`}
+      className={`bg-cover bg-center rounded-xl relative ${props.className}`}
       style={coverStyle}
     >
-      <div className="absolute bottom-8 left-8 flex flex-col md:flex-row">
+      <div className="absolute bottom-4 left-4 flex md:flex-row">
         <img
-          className="h-12 w-12 md:h-20 md:w-20 rounded-xl"
-          src={profilePic}
+          className="h-14 w-14 md:h-20 md:w-20 rounded-xl"
+          src={getProfilePic(profile)}
           alt="Profile"
         />
-        <div className="text-white text-left md:ml-4">
-          <h2>{getDisplayName(profile)}</h2>
+        <div className="text-white text-left ml-3">
+          <h4 className="font-medium">{getDisplayName(profile)}</h4>
           <div className="flex flex-row">
             <img
-              className="h-6"
+              className="h-4 my-auto"
               alt={`${application} icon`}
               src={getApplicationIconSrc(application)}
             />
-            <p className="ml-2 my-auto">{username}</p>
+            <p className="text-sm ml-1 my-auto">{username}</p>
           </div>
         </div>
       </div>

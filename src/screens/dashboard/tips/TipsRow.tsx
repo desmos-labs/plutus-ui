@@ -20,7 +20,11 @@ function TipsRow() {
         title="Tips"
         text="Enable social tips in order to send DSM on supported social networks"
         button={
-          <PrimaryButton disabled onClick={handleClickEnableTips}>
+          <PrimaryButton
+            className="w-full md:w-max-min"
+            disabled
+            onClick={handleClickEnableTips}
+          >
             Coming soon
           </PrimaryButton>
         }

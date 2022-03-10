@@ -1,7 +1,7 @@
 import React from "react";
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import Amount from "./Amount";
-import { coinToString } from "../../../types";
+import MessageField from "./fields/MessageField";
+import AmountField from "./fields/AmountField";
 
 type Props = {
   msg: MsgSend;
@@ -12,21 +12,10 @@ type Props = {
  */
 function MessageSend({ msg }: Props) {
   return (
-    <div className="space-y-2">
-      <div>
-        <p className="font-bold">From:</p>
-        <p>{msg.fromAddress}</p>
-      </div>
-      <div>
-        <p className="font-bold">To:</p>
-        <p>{msg.toAddress}</p>
-      </div>
-      <div>
-        <p className="font-bold">Amount:</p>
-        {msg.amount.map((coin) => (
-          <Amount key={coinToString(coin)} amount={coin} />
-        ))}
-      </div>
+    <div className="space-y-3">
+      <MessageField label="From">{msg.fromAddress}</MessageField>
+      <MessageField label="To">{msg.toAddress}</MessageField>
+      <AmountField amount={msg.amount} />
     </div>
   );
 }

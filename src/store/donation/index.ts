@@ -15,8 +15,8 @@ export const donationSlice = createSlice({
   initialState: (): DonationState => ({
     status: DonationStatus.LOADING,
     denom: UserWallet.getFeeDenom(),
-    recipientAddresses: [],
-    recipientProfile: { address: "" },
+    recipientProfiles: [],
+    selectedProfile: { address: "" },
     amount: "",
     username: "",
     message: "",
@@ -26,11 +26,11 @@ export const donationSlice = createSlice({
       state.status = action.payload;
       state.error = undefined;
     },
-    setRecipientAddresses(state, action: PayloadAction<string[]>) {
-      state.recipientAddresses = action.payload;
+    setRecipientProfiles(state, action: PayloadAction<DesmosProfile[]>) {
+      state.recipientProfiles = action.payload;
     },
-    setRecipientProfile(state, action: PayloadAction<DesmosProfile>) {
-      state.recipientProfile = action.payload;
+    setSelectedProfile(state, action: PayloadAction<DesmosProfile>) {
+      state.selectedProfile = action.payload;
     },
     setAmount(state, action: PayloadAction<string>) {
       state.amount = action.payload;
@@ -56,23 +56,16 @@ export const donationSlice = createSlice({
 });
 
 // --- ACTIONS ---
-const {
-  setStatus,
-  setRecipientAddresses,
-  setRecipientProfile,
-  setError,
-  reset,
-} = donationSlice.actions;
+const { setStatus, setRecipientProfiles, setSelectedProfile, setError, reset } =
+  donationSlice.actions;
 export const { setAmount, setUsername, setMessage } = donationSlice.actions;
 
 /**
  * Retrieves the Desmos profile associated with the given Desmos address, if any.
  */
-export function changeRecipientAddress(desmosAddress: string): AppThunk {
+export function changeSelectedProfile(profile: DesmosProfile): AppThunk {
   return async (dispatch) => {
-    const profile = await Graphql.getProfile(desmosAddress);
-    dispatch(setRecipientProfile(profile));
-
+    dispatch(setSelectedProfile(profile));
     dispatch(setStatus(DonationStatus.LOADED));
   };
 }
@@ -85,14 +78,14 @@ export function initDonationState(
   username: string
 ): AppThunk {
   return async (dispatch) => {
-    const addresses = await Graphql.getAddresses(application, username);
-    if (!addresses) {
+    const profiles = await Graphql.getProfiles(application, username);
+    if (!profiles) {
       dispatch(setError("User not found on Desmos"));
       return;
     }
 
-    dispatch(setRecipientAddresses(addresses));
-    dispatch(changeRecipientAddress(addresses[0]));
+    dispatch(setRecipientProfiles(profiles));
+    dispatch(changeSelectedProfile(profiles[0]));
   };
 }
 
@@ -106,7 +99,6 @@ export function sendDonation(donation: Donation): AppThunk {
       dispatch(setError("Invalid account"));
       return;
     }
-    console.log(donation);
 
     // Build the donation message
     const sendMsg: MsgSendEncodeObject = {

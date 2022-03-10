@@ -3,6 +3,7 @@ import twitterSrc from "../assets/icons/twitter.svg";
 import twitchSrc from "../assets/icons/twitch.svg";
 import githubSrc from "../assets/icons/github.svg";
 import discordSrc from "../assets/icons/discord.svg";
+import defaultProfilePic from "../assets/default-icon.svg";
 
 const EXPLORER_URL = process.env.REACT_APP_CHAIN_EXPLORER_ENDPOINT as string;
 
@@ -14,6 +15,10 @@ export function getTxLink(txHash: string | undefined): string {
   return `${EXPLORER_URL}/transactions/${txHash || ""}`;
 }
 
+export function getProfilePic(profile: DesmosProfile): string {
+  return profile?.profilePicture || defaultProfilePic;
+}
+
 export function getDTag(profile: DesmosProfile): string {
   return profile.dtag ? `@${profile.dtag}` : "";
 }
@@ -22,10 +27,14 @@ export function getDisplayName(profile: DesmosProfile): string {
   return profile.nickname || `@${profile.dtag}` || profile.address;
 }
 
-export function getShortAddress(profile: DesmosProfile): string {
-  return `${profile.address.substring(0, 14)}...${profile.address.substring(
-    profile.address.length - 10
+export function abbreviateAddress(address: string) {
+  return `${address.substring(0, 14)}...${address.substring(
+    address.length - 10
   )}`;
+}
+
+export function getShortAddress(profile: DesmosProfile): string {
+  return abbreviateAddress(profile.address);
 }
 
 // TODO: Move this somewhere else (maybe get it from the APIs).

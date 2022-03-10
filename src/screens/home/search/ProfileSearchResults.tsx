@@ -7,6 +7,7 @@ import ProfileSearchResultItem from "./ProfileSearchResultItem";
  * Represents the component that is used to list all the search results.
  */
 function ProfileSearchResults({
+  className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   const state = useSelector(getSearchState);
@@ -16,7 +17,10 @@ function ProfileSearchResults({
   }
 
   return (
-    <div {...props} className="drop-shadow-xl bg-white rounded-xl mt-2">
+    <div
+      {...props}
+      className={`${className} drop-shadow-xl bg-white rounded-xl mt-2`}
+    >
       {state.searchResults.length === 0 && (
         <div className="p-2">
           <p className="font-bold">No results found</p>

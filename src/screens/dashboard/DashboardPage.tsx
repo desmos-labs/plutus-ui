@@ -16,7 +16,7 @@ function DashboardPage() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h1 className="font-semibold">Dashboard</h1>
       <p>Welcome to your dashboard, where you can manage your settings.</p>
 
       <div className="mt-5 space-y-5">

@@ -55,18 +55,16 @@ function ProfileSearchResultItem({
       className={`flex flex-row hover:bg-ultra-light-gray px-3 py-2 w-full text-left ${rounded}`}
     >
       <img
-        className="h-[40px] w-[40px] my-auto"
+        className="h-8 w-8 md:h-[40px] md:w-[40px] md:my-auto"
         src={getApplicationIconSrc(link.application)}
         alt="Application icon"
       />
       <div className="ml-2 w-full">
-        <div className="flex flex-row">
-          <p className="text font-medium">{link.username}</p>
-          <p className="text-sm text-light-gray flex-grow text-right pt-1">
-            {getShortAddress(link.profile)}
-          </p>
-        </div>
+        <p className="text font-medium">{link.username}</p>
         <p className="text-sm text-light-gray">{getDTag(link.profile)}</p>
+        <p className="text-xs text-light-gray mt-1">
+          {getShortAddress(link.profile)}
+        </p>
       </div>
     </button>
   );

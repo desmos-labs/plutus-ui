@@ -13,8 +13,8 @@ export enum DonationStatus {
 export type DonationState = {
   status: DonationStatus;
   denom: string;
-  recipientAddresses: string[];
-  recipientProfile: DesmosProfile;
+  recipientProfiles: DesmosProfile[];
+  selectedProfile: DesmosProfile;
   amount: string;
   username: string;
   message: string;

@@ -13,7 +13,7 @@ interface DashboardRowProps {
  */
 function DashboardRow({ icon, title, text, button }: DashboardRowProps) {
   return (
-    <div className="bg-white rounded-lg p-6 flex flex-col md:flex-row">
+    <div className="bg-white rounded-3xl p-4 flex flex-col md:flex-row">
       <div className="mx-2">
         <img className="w-12 h-12" src={icon} alt={`${title} logo`} />
       </div>
@@ -21,7 +21,7 @@ function DashboardRow({ icon, title, text, button }: DashboardRowProps) {
         <p className="font-bold">{title}</p>
         <p className="text-sm">{text}</p>
       </div>
-      <div className="min-w-max text-center text-sm mt-2 md:my-auto">
+      <div className="min-w-max text-center text-sm mt-4 md:my-auto">
         {button}
       </div>
     </div>
